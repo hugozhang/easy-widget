@@ -1,0 +1,62 @@
+package me.about.bean;
+
+import me.about.widget.excel.reader.XLSXReader;
+import me.about.widget.excel.writer.XLSXWriter;
+import org.junit.Test;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * Created with IntelliJ IDEA.
+ *
+ * @Auther: hugo.zxh
+ * @Date: 2020/11/02 0:01
+ * @Description:
+ */
+public class Main {
+
+    @Test
+    public void reader() throws Exception {
+        List<User> rows = XLSXReader.builder().skipRow(1).open(new FileInputStream("中文.xlsx")).parseArray(User.class);
+        StringBuilder buffer = new StringBuilder();
+        for (User user : rows) {
+            buffer.append(user.getAddress());
+        }
+        System.out.println(buffer);
+
+//        FileWriter write = new FileWriter("D:/change.sql", false);
+//        write.write(buffer.toString());
+//        write.close();
+    }
+
+    @Test
+    public void writer() throws Exception {
+        List<User> list = new ArrayList();
+
+        for (int i = 0; i < 10000; i++) {
+            User u = new User();
+            u.setAge(i);
+            u.setUsername("A" + i);
+            u.setCompany("B"+i);
+            u.setAddress("C" + i);
+            u.setBirthday(new Date());
+            u.setSalary(new BigDecimal(23.45));
+            list.add(u);
+        }
+        Date s = new Date();
+        System.out.println(s);
+        FileOutputStream out = new FileOutputStream("中文.xlsx");
+        XLSXWriter.builder().toStream(list, out);
+        Date e = new Date();
+        System.out.println(e);
+        System.out.println("耗时:" + (e.getTime() - s.getTime()) / 1000);
+        out.close();
+    }
+}

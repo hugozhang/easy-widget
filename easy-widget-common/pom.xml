@@ -9,13 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>easy-widget-cache</artifactId>
+    <artifactId>easy-widget-common</artifactId>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-redis</artifactId>
-        </dependency>
-    </dependencies>
 
 </project>

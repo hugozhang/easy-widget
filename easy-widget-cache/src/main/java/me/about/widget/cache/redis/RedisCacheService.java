@@ -1,6 +1,6 @@
 package me.about.widget.cache.redis;
 
-import me.about.widget.cache.Cache;
+import me.about.widget.cache.CacheService;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.io.Serializable;
@@ -12,11 +12,11 @@ import java.io.Serializable;
  * @Date: 2020/11/02 15:05
  * @Description:
  */
-public class RedisCache implements Cache {
+public class RedisCacheService implements CacheService {
 
     private RedisTemplate<String, Serializable> redisTemplate;
 
-    public RedisCache(RedisTemplate<String, Serializable> redisTemplate) {
+    public RedisCacheService(RedisTemplate<String, Serializable> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 

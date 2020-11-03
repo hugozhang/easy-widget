@@ -10,6 +10,6 @@ import me.about.widget.cache.redis.Hash;
  * @Date: 2020/11/02 11:27
  * @Description:
  */
-public interface Cache {
+public interface CacheService {
     Hash hash(String key);
 }

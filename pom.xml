@@ -118,6 +118,11 @@
                 <version>3.7</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>4.4</version>
+            </dependency>
+            <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>javax.servlet-api</artifactId>
                 <version>3.0.1</version>
@@ -132,5 +137,15 @@
         </dependencies>
     </dependencyManagement>
 
+    <distributionManagement>
+        <repository>
+            <id>Releases</id>
+            <url>http://192.168.37.205:8081/nexus/content/repositories/Winning-Releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>Snapshots</id>
+            <url>http://192.168.37.205:8081/nexus/content/repositories/Winning-Snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 </project>

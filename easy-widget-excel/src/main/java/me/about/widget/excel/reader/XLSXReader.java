@@ -71,7 +71,7 @@ public class XLSXReader {
         return this;
     }
 
-    public <T> List<T> parseArray(Class<T> class1) throws Exception{
+    public <T> List<T> parseArray(Class<T> clazz) throws Exception{
         List<T> rows = new ArrayList();
         XMLReader parser = XMLReaderFactory.createXMLReader();
         int sheetIndex = 0;
@@ -81,7 +81,7 @@ public class XLSXReader {
             InputStream sheet = iterator.next();
             //指定sheet
             //InputStream inputStream = xssfReader.getSheet("rId" + (sheetIndex + 1));
-            ContentHandler handler = new SheetHandler(stylesTable, sharedStringsTable, sheetIndex, skipRow, rows, class1);
+            ContentHandler handler = new SheetHandler(stylesTable, sharedStringsTable, sheetIndex, skipRow, rows, clazz);
             parser.setContentHandler(handler);
             InputSource sheetSource = new InputSource(sheet);
             parser.parse(sheetSource);
@@ -91,7 +91,31 @@ public class XLSXReader {
         return rows;
     }
 
-    public static class SheetHandler<T> extends DefaultHandler {
+
+    public <T> void sheetParser(Class<T> clazz, SheetDone sheetDone) throws Exception {
+        XMLReader parser = XMLReaderFactory.createXMLReader();
+        int sheetIndex = 0;
+        XSSFReader.SheetIterator iterator = (XSSFReader.SheetIterator) xssfReader.getSheetsData();
+        while (iterator.hasNext()) {
+            sheetIndex++;
+            InputStream sheet = iterator.next();
+            List<T> rows = new ArrayList();
+            ContentHandler handler = new SheetHandler(stylesTable, sharedStringsTable, sheetIndex, skipRow, rows, clazz);
+            parser.setContentHandler(handler);
+            InputSource sheetSource = new InputSource(sheet);
+            parser.parse(sheetSource);
+            sheet.close();
+            sheetDone.ok(iterator.getSheetName(),rows);
+        }
+        pkg.close();
+    }
+
+
+    public interface SheetDone<T> {
+        void ok(String sheetName,List<T> rows) throws Exception;
+    }
+
+    class SheetHandler<T> extends DefaultHandler {
 
         /** Table with styles */
         private StylesTable stylesTable;

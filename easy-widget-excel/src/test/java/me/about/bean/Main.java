@@ -7,7 +7,6 @@ import org.junit.Test;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,6 +20,52 @@ import java.util.List;
  * @Description:
  */
 public class Main {
+
+
+    @Test
+    public void postgresSQL() throws Exception {
+
+
+        //genSQL("PAY_HIS_DIST", "支出分布历史数据");
+
+        XLSXReader.builder().open(new FileInputStream("中文.xlsx")).sheetParser(Column.class, (XLSXReader.SheetDone<Column>) (sheetName, rows) -> {
+            System.out.print(sheetName);
+            String tableName = sheetName.split("-")[0];
+            String tableComment = sheetName.split("-")[1];
+            genSQL(tableName,tableComment,rows);
+        });
+
+
+    }
+
+    private void genSQL(String tableName, String tableComment,List<Column> rows) throws Exception {
+        //List<Column> rows = XLSXReader.builder().skipRow(1).open(new FileInputStream("中文.xlsx")).parseArray(Column.class);
+        StringBuilder buffer = new StringBuilder();
+        buffer.append("create table " + tableName + " (\n");
+        buffer.append("id                SERIAL         not null,\n");
+
+        for (Column column : rows) {
+            buffer.append(column.getColumnId());
+            buffer.append("                  ");
+            if (column.getColumnType().contains("string")) {
+                buffer.append("VARCHAR(45)");
+            }
+            if (column.getColumnType().contains("float")) {
+                buffer.append("FLOAT8");
+            }
+            buffer.append("        " + "null,\n");
+        }
+        buffer.append("constraint PK_" + tableName + " primary key (id)\n");
+        buffer.append(");\n");
+        buffer.append("comment on table " + tableName + " is '" + tableComment + "';\n");
+        for (Column column : rows) {
+            buffer.append("comment on column " + tableName +"." + column.getColumnId() + " is '" + column.getColumnName() + "';\n");
+        }
+
+        FileWriter write = new FileWriter("change1.sql", false);
+        write.write(buffer.toString() + "\n\n");
+        write.close();
+    }
 
     @Test
     public void reader() throws Exception {

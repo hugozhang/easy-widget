@@ -13,6 +13,7 @@
         <poi.version>3.17</poi.version>
         <slf4j.version>1.7.7</slf4j.version>
         <logback.version>1.1.7</logback.version>
+        <aspectj.version>1.8.14</aspectj.version>
         <springframework.version>4.3.25.RELEASE</springframework.version>
     </properties>
 
@@ -89,6 +90,31 @@
                 <scope>provided</scope>
             </dependency>
 
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aop</artifactId>
+                <version>${springframework.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webmvc</artifactId>
+                <version>${springframework.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjrt</artifactId>
+                <version>${aspectj.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjweaver</artifactId>
+                <version>${aspectj.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>redis.clients</groupId>

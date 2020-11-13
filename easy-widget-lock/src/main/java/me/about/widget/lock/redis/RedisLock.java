@@ -1,11 +1,7 @@
-package me.about.lock.redis;
+package me.about.widget.lock.redis;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
-import org.springframework.data.redis.core.script.RedisScript;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -16,7 +12,7 @@ import java.util.concurrent.locks.LockSupport;
  *
  * @Auther: hugo.zxh
  * @Date: 2020/11/12 14:36
- * @Description:
+ * @Description: 基于JDK @java.util.concurrent.locks.Lock 的实现
  */
 @Slf4j
 public class RedisLock implements Lock {

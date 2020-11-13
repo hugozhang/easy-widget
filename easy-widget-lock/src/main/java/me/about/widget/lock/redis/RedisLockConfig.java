@@ -1,16 +1,16 @@
-package me.about.lock.redis;
+package me.about.widget.lock.redis;
 
 /**
  * Created with IntelliJ IDEA.
  *
  * @Auther: hugo.zxh
  * @Date: 2020/11/12 20:25
- * @Description:
+ * @Description: 常量
  */
 public abstract class RedisLockConfig {
 
     /**
-     * 设置锁的过期时间10min
+     * 设置锁的过期时间10min 单位:秒
      */
     public static final long EXPIRE_SEC = 600;
 

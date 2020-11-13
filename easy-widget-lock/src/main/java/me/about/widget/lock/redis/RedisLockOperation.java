@@ -1,4 +1,4 @@
-package me.about.lock.redis;
+package me.about.widget.lock.redis;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @Auther: hugo.zxh
  * @Date: 2020/11/13 15:35
- * @Description: redis 加锁  释放锁 重置时间
+ * @Description: 操作类： 加锁、释放锁、重置锁时间（续期）
  */
 @Slf4j
 public class RedisLockOperation {
@@ -30,22 +30,22 @@ public class RedisLockOperation {
         this.stringRedisTemplate = stringRedisTemplate;
         this.LOCK_SCRIPT = new DefaultRedisScript(RedisLockConfig.LOCK_SCRIPT,String.class);
         this.UNLOCK_SCRIPT = new DefaultRedisScript(RedisLockConfig.UNLOCK_SCRIPT,Long.class);
-        this.RENEWAL_SCRIPT = new DefaultRedisScript(RedisLockConfig.RENEWAL_SCRIPT,Long.class);
+        this.RENEWAL_SCRIPT = new DefaultRedisScript(RedisLockConfig.RENEWAL_SCRIPT,String.class);
     }
 
     public boolean renewal(String key) {
         List<String> keys = new ArrayList<String>();
         keys.add(RedisLockConfig.LOCK_KET_PREFIX + key);
-        String ret = stringRedisTemplate.execute(RENEWAL_SCRIPT,keys, Thread.currentThread().getName(),RedisLockConfig.EXPIRE_SEC);
-        log.info("key {} renewal,return value is {}. ",key,ret);
+        String ret = stringRedisTemplate.execute(RENEWAL_SCRIPT,keys, Thread.currentThread().getName(),RedisLockConfig.EXPIRE_SEC + "");
+        log.info("Lock key is {} renewal,return value is {}. ",key,ret);
         return "OK".equalsIgnoreCase(ret);
     }
 
     public boolean lock(String key) {
         List<String> keys = new ArrayList<String>();
         keys.add(RedisLockConfig.LOCK_KET_PREFIX + key);
-        String ret = stringRedisTemplate.execute(LOCK_SCRIPT,keys, Thread.currentThread().getName(),RedisLockConfig.EXPIRE_SEC);
-        log.info("key {} lock,return value is {}. ",key,ret);
+        String ret = stringRedisTemplate.execute(LOCK_SCRIPT,keys, Thread.currentThread().getName(),RedisLockConfig.EXPIRE_SEC + "");
+        log.info("Lock key is {},return value is {}. ",key,ret);
         return "OK".equalsIgnoreCase(ret);
     }
 
@@ -53,7 +53,6 @@ public class RedisLockOperation {
         List<String> keys = new ArrayList<String>();
         keys.add(RedisLockConfig.LOCK_KET_PREFIX + key);
         Long ret = stringRedisTemplate.execute(UNLOCK_SCRIPT, keys, Thread.currentThread().getName());
-        log.info("unlock key is {},ret is {}.",key,ret);
+        log.info("Lock key is {},return value is {}. ",key,ret);
     }
-
 }

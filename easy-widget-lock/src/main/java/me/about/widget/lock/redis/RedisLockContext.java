@@ -1,4 +1,4 @@
-package me.about.lock.redis;
+package me.about.widget.lock.redis;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;

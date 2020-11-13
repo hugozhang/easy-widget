@@ -16,7 +16,7 @@ import java.util.List;
  * @Description: 操作类： 加锁、释放锁、重置锁时间（续期）
  */
 @Slf4j
-public class RedisLockOperation {
+class RedisLockOperation {
 
     private RedisScript<String> LOCK_SCRIPT;
 

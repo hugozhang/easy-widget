@@ -1,9 +1,6 @@
 package me.about.widget.lock.redis.support.spring.annotation;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,6 +12,8 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
+@Inherited
+@Documented
 public @interface DLock {
-
+    String key() default "";
 }

@@ -44,8 +44,7 @@ public class Hash {
     }
 
     public void put(String key, Object value) {
-        hash.put(key,value);
-        hash.expire(10,TimeUnit.MINUTES);
+        put(key,value,10,TimeUnit.MINUTES);
     }
 
     public void put(String key, Object value, long timeout, TimeUnit timeUnit) {

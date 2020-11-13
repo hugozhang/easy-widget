@@ -1,6 +1,9 @@
 ######参考项目
 ######https://gitee.com/LimboHome/redis-lock
 ######https://github.com/finefuture/RedisLock-with-WatchDog
+##### @Import的使用和原理
+#####https://www.cnblogs.com/kevin-yuan/p/13583269.html
+
 ```
 public interface Lock {
    　　// 用来获取锁，如果锁已经被其他线程获取，则一直等待，直到获取到锁

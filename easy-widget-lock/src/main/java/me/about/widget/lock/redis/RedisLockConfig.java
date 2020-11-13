@@ -7,7 +7,7 @@ package me.about.widget.lock.redis;
  * @Date: 2020/11/12 20:25
  * @Description: 常量
  */
-public abstract class RedisLockConfig {
+abstract class RedisLockConfig {
 
     /**
      * 设置锁的过期时间10min 单位:秒

@@ -1,5 +1,6 @@
 package me.about.widget.lock.redis.support.spring;
 
+import me.about.widget.lock.LockContext;
 import me.about.widget.lock.redis.RedisLockContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +22,7 @@ public class RedisLockConfiguration {
     private StringRedisTemplate stringRedisTemplate;
 
     @Bean
-    public RedisLockContext redisLockContext() {
+    public LockContext lockContext() {
         return new RedisLockContext(stringRedisTemplate);
     }
 

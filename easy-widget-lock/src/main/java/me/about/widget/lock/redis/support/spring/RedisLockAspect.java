@@ -1,6 +1,6 @@
 package me.about.widget.lock.redis.support.spring;
 
-import me.about.widget.lock.redis.RedisLockContext;
+import me.about.widget.lock.LockContext;
 import me.about.widget.lock.redis.support.spring.annotation.DLock;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
@@ -33,7 +33,7 @@ public class RedisLockAspect {
     private BeanFactory beanFactory;
 
     @Resource
-    private RedisLockContext redisLockContext;
+    private LockContext lockContext;
 
     @Pointcut("@annotation(me.about.widget.lock.redis.support.spring.annotation.DLock)")
     public void dLock() {
@@ -59,7 +59,7 @@ public class RedisLockAspect {
         Object key = evaluator.key(dLock.key(), methodKey, context);
         assert key != null;
 
-        Lock lock = redisLockContext.getLock(key.toString());
+        Lock lock = lockContext.getLock(key.toString());
         try {
             lock.lock();
             return pjp.proceed();

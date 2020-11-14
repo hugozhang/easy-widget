@@ -1,6 +1,7 @@
 package me.about.widget.lock.redis;
 
 import lombok.extern.slf4j.Slf4j;
+import me.about.widget.lock.LockContext;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -19,10 +20,10 @@ class RedisLock implements Lock {
 
     private String lockKey;
 
-    private RedisLockContext redisLockContext;
+    private LockContext lockContext;
 
-    public RedisLock(RedisLockContext redisLockContext,String lockKey) {
-        this.redisLockContext = redisLockContext;
+    public RedisLock(LockContext lockContext, String lockKey) {
+        this.lockContext = lockContext;
         this.lockKey = lockKey;
     }
 
@@ -75,18 +76,18 @@ class RedisLock implements Lock {
     @Override
     public boolean tryLock() {
         checkNull();
-        return redisLockContext.getLockOperation().tryLock(lockKey);
+        return lockContext.getLockOperation().tryLock(lockKey);
     }
 
     @Override
     public void unlock() {
         checkNull();
-        redisLockContext.getLockOperation().unlock(lockKey);
+        lockContext.getLockOperation().unlock(lockKey);
     }
 
     private void checkNull() {
         assert lockKey != null;
-        assert redisLockContext.getLockOperation() != null;
+        assert lockContext.getLockOperation() != null;
     }
 
     private void checkInterruption() throws InterruptedException {

@@ -1,5 +1,7 @@
 package me.about.widget.lock;
 
+import java.util.concurrent.locks.Lock;
+
 /**
  * Created with IntelliJ IDEA.
  *
@@ -10,5 +12,7 @@ package me.about.widget.lock;
 public interface LockContext {
 
     LockOperation getLockOperation();
+
+    Lock getLock(String key);
 
 }

@@ -12,6 +12,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.expression.AnnotatedElementKey;
 import org.springframework.expression.EvaluationContext;
+import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
@@ -66,7 +67,7 @@ public class RedisLockAspect {
         AnnotatedElementKey methodKey = new AnnotatedElementKey(targetMethod, targetClass);
         Object key = evaluator.key(dLock.key(), methodKey, context);
 
-        assert key != null;
+        Assert.notNull(key,"@DLock key must not be null.");
 
         Lock lock = lockContext.getLock(key.toString());
         try {

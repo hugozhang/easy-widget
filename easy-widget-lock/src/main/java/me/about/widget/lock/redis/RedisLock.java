@@ -16,7 +16,7 @@ import java.util.concurrent.locks.LockSupport;
  * @Description: 基于JDK @java.util.concurrent.locks.Lock 的实现
  */
 @Slf4j
-class RedisLock implements Lock {
+public class RedisLock implements Lock {
 
     private String lockKey;
 

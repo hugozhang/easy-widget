@@ -35,7 +35,7 @@ class RedisLockOperation implements LockOperation {
     }
 
     @Override
-    public boolean reset(String key) {
+    public boolean resetLock(String key) {
         List<String> keys = new ArrayList<String>();
         keys.add(RedisLockConfig.LOCK_KET_PREFIX + key);
         String ret = stringRedisTemplate.execute(RENEWAL_SCRIPT,keys, Thread.currentThread().getName(),RedisLockConfig.EXPIRE_SEC + "");
@@ -52,6 +52,7 @@ class RedisLockOperation implements LockOperation {
         return "OK".equalsIgnoreCase(ret);
     }
 
+    @Override
     public void releaseLock(String key) {
         List<String> keys = new ArrayList<String>();
         keys.add(RedisLockConfig.LOCK_KET_PREFIX + key);

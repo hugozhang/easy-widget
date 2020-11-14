@@ -1,6 +1,8 @@
 package me.about.widget.lock.redis;
 
 import lombok.extern.slf4j.Slf4j;
+import me.about.widget.lock.LockContext;
+import me.about.widget.lock.LockOperation;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.concurrent.locks.Lock;
@@ -13,7 +15,7 @@ import java.util.concurrent.locks.Lock;
  * @Description:
  */
 @Slf4j
-public class RedisLockContext {
+public class RedisLockContext implements LockContext {
 
     private RedisLockOperation redisLockOperation;
 
@@ -21,7 +23,8 @@ public class RedisLockContext {
         this.redisLockOperation = new RedisLockOperation(stringRedisTemplate);
     }
 
-    public RedisLockOperation getRedisLockOperation() {
+    @Override
+    public LockOperation getLockOperation() {
         return redisLockOperation;
     }
 

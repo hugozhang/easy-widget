@@ -75,18 +75,18 @@ class RedisLock implements Lock {
     @Override
     public boolean tryLock() {
         checkNull();
-        return redisLockContext.getRedisLockOperation().lock(lockKey);
+        return redisLockContext.getLockOperation().tryLock(lockKey);
     }
 
     @Override
     public void unlock() {
         checkNull();
-        redisLockContext.getRedisLockOperation().unlock(lockKey);
+        redisLockContext.getLockOperation().unlock(lockKey);
     }
 
     private void checkNull() {
         assert lockKey != null;
-        assert redisLockContext.getRedisLockOperation() != null;
+        assert redisLockContext.getLockOperation() != null;
     }
 
     private void checkInterruption() throws InterruptedException {

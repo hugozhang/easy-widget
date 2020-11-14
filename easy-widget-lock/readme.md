@@ -1,8 +1,10 @@
-######参考项目
+###### 参考项目
 ######https://gitee.com/LimboHome/redis-lock
 ######https://github.com/finefuture/RedisLock-with-WatchDog
 ##### @Import的使用和原理
 #####https://www.cnblogs.com/kevin-yuan/p/13583269.html
+##### Spring EL表达式应用参与了Spring Cache的实现方式
+https://www.cnblogs.com/zhuxudong/p/10322609.html
 
 ```
 public interface Lock {

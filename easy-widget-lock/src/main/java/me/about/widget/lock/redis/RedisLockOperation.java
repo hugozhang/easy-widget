@@ -1,6 +1,7 @@
 package me.about.widget.lock.redis;
 
 import lombok.extern.slf4j.Slf4j;
+import me.about.widget.lock.LockOperation;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
@@ -16,7 +17,7 @@ import java.util.List;
  * @Description: 操作类： 加锁、释放锁、重置锁时间（续期）
  */
 @Slf4j
-class RedisLockOperation {
+class RedisLockOperation implements LockOperation {
 
     private RedisScript<String> LOCK_SCRIPT;
 
@@ -33,7 +34,8 @@ class RedisLockOperation {
         this.RENEWAL_SCRIPT = new DefaultRedisScript(RedisLockConfig.RENEWAL_SCRIPT,String.class);
     }
 
-    public boolean renewal(String key) {
+    @Override
+    public boolean reset(String key) {
         List<String> keys = new ArrayList<String>();
         keys.add(RedisLockConfig.LOCK_KET_PREFIX + key);
         String ret = stringRedisTemplate.execute(RENEWAL_SCRIPT,keys, Thread.currentThread().getName(),RedisLockConfig.EXPIRE_SEC + "");
@@ -41,7 +43,8 @@ class RedisLockOperation {
         return "OK".equalsIgnoreCase(ret);
     }
 
-    public boolean lock(String key) {
+    @Override
+    public boolean tryLock(String key) {
         List<String> keys = new ArrayList<String>();
         keys.add(RedisLockConfig.LOCK_KET_PREFIX + key);
         String ret = stringRedisTemplate.execute(LOCK_SCRIPT,keys, Thread.currentThread().getName(),RedisLockConfig.EXPIRE_SEC + "");

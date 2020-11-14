@@ -13,6 +13,6 @@ public interface LockOperation {
 
     boolean tryLock(String key);
 
-    void unlock(String key);
+    void releaseLock(String key);
 
 }

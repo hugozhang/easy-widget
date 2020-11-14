@@ -82,7 +82,7 @@ class RedisLock implements Lock {
     @Override
     public void unlock() {
         checkNull();
-        lockContext.getLockOperation().unlock(lockKey);
+        lockContext.getLockOperation().releaseLock(lockKey);
     }
 
     private void checkNull() {

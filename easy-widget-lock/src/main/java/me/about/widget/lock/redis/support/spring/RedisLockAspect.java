@@ -1,6 +1,7 @@
 package me.about.widget.lock.redis.support.spring;
 
 import me.about.widget.lock.LockContext;
+import me.about.widget.lock.LockException;
 import me.about.widget.lock.redis.support.spring.annotation.DLock;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
@@ -14,6 +15,7 @@ import org.springframework.expression.EvaluationContext;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
 /**
@@ -48,21 +50,31 @@ public class RedisLockAspect {
         Object[] args = pjp.getArgs();
 
         Signature signature = pjp.getSignature();
+        //Signature 其实有很多子类的，但是因为这里注解只能在方法上，所有不用检查instance of MethodSignature
         MethodSignature methodSignature = (MethodSignature)signature;
+
+        //接口方法
         Method targetMethod = methodSignature.getMethod();
+
+        //实现类方法
+        Method method = targetClass.getDeclaredMethod(methodSignature.getName() , methodSignature.getParameterTypes());
 
         DLock dLock = targetMethod.getAnnotation(DLock.class);
 
-        EvaluationContext context = evaluator.createEvaluationContext(targetMethod, args, targetObject, targetClass, targetMethod, new Object(), beanFactory);
+        //Spring EL 表达式支持
+        EvaluationContext context = evaluator.createEvaluationContext(method, args, targetObject, targetClass, targetMethod, new Object(), beanFactory);
         AnnotatedElementKey methodKey = new AnnotatedElementKey(targetMethod, targetClass);
-
         Object key = evaluator.key(dLock.key(), methodKey, context);
+
         assert key != null;
 
         Lock lock = lockContext.getLock(key.toString());
         try {
-            lock.lock();
-            return pjp.proceed();
+            if(lock.tryLock(5, TimeUnit.MINUTES)) {
+                return pjp.proceed();
+            } else {
+                throw new LockException("Acquire Lock Timeout",key.toString(),Thread.currentThread().getName());
+            }
         } finally {
             lock.unlock();
         }

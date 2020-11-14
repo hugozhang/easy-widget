@@ -39,7 +39,7 @@ class RedisLockOperation implements LockOperation {
         List<String> keys = new ArrayList<String>();
         keys.add(RedisLockConfig.LOCK_KET_PREFIX + key);
         String ret = stringRedisTemplate.execute(RENEWAL_SCRIPT,keys, Thread.currentThread().getName(),RedisLockConfig.EXPIRE_SEC + "");
-        log.info("Lock key is {} renewal,return value is {}. ",key,ret);
+        log.info("Lock key is {} reset,return value is {}. ",key,ret);
         return "OK".equalsIgnoreCase(ret);
     }
 
@@ -52,7 +52,7 @@ class RedisLockOperation implements LockOperation {
         return "OK".equalsIgnoreCase(ret);
     }
 
-    public void unlock(String key) {
+    public void releaseLock(String key) {
         List<String> keys = new ArrayList<String>();
         keys.add(RedisLockConfig.LOCK_KET_PREFIX + key);
         Long ret = stringRedisTemplate.execute(UNLOCK_SCRIPT, keys, Thread.currentThread().getName());

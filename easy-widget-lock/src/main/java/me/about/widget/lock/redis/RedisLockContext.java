@@ -17,7 +17,7 @@ import java.util.concurrent.locks.Lock;
 @Slf4j
 public class RedisLockContext implements LockContext {
 
-    private RedisLockOperation redisLockOperation;
+    private LockOperation redisLockOperation;
 
     public RedisLockContext(StringRedisTemplate stringRedisTemplate) {
         this.redisLockOperation = new RedisLockOperation(stringRedisTemplate);

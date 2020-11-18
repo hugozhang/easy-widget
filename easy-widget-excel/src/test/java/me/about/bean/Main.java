@@ -60,7 +60,7 @@ public class Main {
             if (column.getColumnType().contains("decimal")) {
                 buffer.append("numeric(20,4)");
             }
-            buffer.append("        " + "null,\n");
+            buffer.append("        " + "not null,\n");
         }
         buffer.append("constraint PK_" + tableName + " primary key (id)\n");
         buffer.append(");\n");

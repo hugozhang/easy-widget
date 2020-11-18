@@ -52,7 +52,6 @@ class RedisLockOperation implements LockOperation {
         return "OK".equalsIgnoreCase(ret);
     }
 
-    @Override
     public void releaseLock(String key) {
         List<String> keys = new ArrayList<String>();
         keys.add(RedisLockConfig.LOCK_KET_PREFIX + key);

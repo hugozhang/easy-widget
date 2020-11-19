@@ -1,10 +1,9 @@
-package me.about.widget.lock.redis.support.spring;
+package me.about.widget.lock.redis.support.spring.expression;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.expression.AnnotatedElementKey;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.context.expression.CachedExpressionEvaluator;
-import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.lang.Nullable;
 
@@ -19,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Date: 2020/11/13 23:50
  * @Description:
  */
-class DLockExpressionEvaluator extends CachedExpressionEvaluator {
+public class ExpressionEvaluator extends CachedExpressionEvaluator {
 
     /**
      * Indicate that there is no result variable.
@@ -45,7 +44,7 @@ class DLockExpressionEvaluator extends CachedExpressionEvaluator {
 
 
     /**
-     * Create an {@link EvaluationContext}.
+     * Create an {@link org.springframework.expression.EvaluationContext}.
      * @param method the method
      * @param args the method arguments
      * @param target the target object
@@ -54,11 +53,11 @@ class DLockExpressionEvaluator extends CachedExpressionEvaluator {
      * {@link #NO_RESULT} if there is no return at this time
      * @return the evaluation context
      */
-    public EvaluationContext createEvaluationContext(Method method, Object[] args, Object target, Class<?> targetClass, Method targetMethod,
-                                                     @Nullable Object result, @Nullable BeanFactory beanFactory) {
+    public org.springframework.expression.EvaluationContext createEvaluationContext(Method method, Object[] args, Object target, Class<?> targetClass, Method targetMethod,
+                                                                                    @Nullable Object result, @Nullable BeanFactory beanFactory) {
 
-        DLockCacheExpressionRootObject rootObject = new DLockCacheExpressionRootObject(method, args, target, targetClass);
-        DLockEvaluationContext evaluationContext = new DLockEvaluationContext(
+        ExpressionRootObject rootObject = new ExpressionRootObject(method, args, target, targetClass);
+        EvaluationContext evaluationContext = new EvaluationContext(
                 rootObject, targetMethod, args, getParameterNameDiscoverer());
         if (result == RESULT_UNAVAILABLE) {
             evaluationContext.addUnavailableVariable(RESULT_VARIABLE);
@@ -73,16 +72,16 @@ class DLockExpressionEvaluator extends CachedExpressionEvaluator {
     }
 
     @Nullable
-    public Object key(String keyExpression, AnnotatedElementKey methodKey, EvaluationContext evalContext) {
+    public Object key(String keyExpression, AnnotatedElementKey methodKey, org.springframework.expression.EvaluationContext evalContext) {
         return getExpression(this.keyCache, methodKey, keyExpression).getValue(evalContext);
     }
 
-    public boolean condition(String conditionExpression, AnnotatedElementKey methodKey, EvaluationContext evalContext) {
+    public boolean condition(String conditionExpression, AnnotatedElementKey methodKey, org.springframework.expression.EvaluationContext evalContext) {
         return (Boolean.TRUE.equals(getExpression(this.conditionCache, methodKey, conditionExpression).getValue(
                 evalContext, Boolean.class)));
     }
 
-    public boolean unless(String unlessExpression, AnnotatedElementKey methodKey, EvaluationContext evalContext) {
+    public boolean unless(String unlessExpression, AnnotatedElementKey methodKey, org.springframework.expression.EvaluationContext evalContext) {
         return (Boolean.TRUE.equals(getExpression(this.unlessCache, methodKey, unlessExpression).getValue(
                 evalContext, Boolean.class)));
     }

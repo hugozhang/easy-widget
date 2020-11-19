@@ -20,7 +20,7 @@ public class RedisLockContext implements LockContext {
     private LockOperation redisLockOperation;
 
     public RedisLockContext(StringRedisTemplate stringRedisTemplate) {
-        this.redisLockOperation = new RedisLockOperation(stringRedisTemplate);
+        this.redisLockOperation = new RedisLockOperator(stringRedisTemplate);
     }
 
     @Override

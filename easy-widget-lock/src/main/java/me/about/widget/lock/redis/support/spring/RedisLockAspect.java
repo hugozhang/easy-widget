@@ -3,6 +3,7 @@ package me.about.widget.lock.redis.support.spring;
 import me.about.widget.lock.LockContext;
 import me.about.widget.lock.LockException;
 import me.about.widget.lock.redis.support.spring.annotation.DLock;
+import me.about.widget.lock.redis.support.spring.expression.ExpressionEvaluator;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Around;
@@ -30,7 +31,7 @@ import java.util.concurrent.locks.Lock;
 @Aspect
 public class RedisLockAspect {
 
-    private final DLockExpressionEvaluator evaluator = new DLockExpressionEvaluator();
+    private final ExpressionEvaluator evaluator = new ExpressionEvaluator();
 
     @Resource
     private BeanFactory beanFactory;
@@ -71,7 +72,7 @@ public class RedisLockAspect {
 
         Lock lock = lockContext.getLock(key.toString());
         try {
-            if(lock.tryLock(5, TimeUnit.MINUTES)) {
+            if(lock.tryLock()) {
                 return pjp.proceed();
             } else {
                 throw new LockException("Acquire Lock Timeout",key.toString(),Thread.currentThread().getName());

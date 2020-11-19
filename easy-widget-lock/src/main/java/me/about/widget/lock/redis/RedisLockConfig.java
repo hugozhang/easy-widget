@@ -37,6 +37,6 @@ abstract class RedisLockConfig {
     /**
      * 重置过期时间，相当于续期
      */
-    public static final String RENEWAL_SCRIPT = "return redis.call('SET', KEYS[1], ARGV[1], 'EX', ARGV[2])";
+    public static final String RESET_SCRIPT = "return redis.call('SET', KEYS[1], ARGV[1], 'EX', ARGV[2])";
 
 }

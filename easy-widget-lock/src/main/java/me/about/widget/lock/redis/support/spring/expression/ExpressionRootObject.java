@@ -1,4 +1,4 @@
-package me.about.widget.lock.redis.support.spring;
+package me.about.widget.lock.redis.support.spring.expression;
 
 
 import java.lang.reflect.Method;
@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
  * @Date: 2020/11/13 23:52
  * @Description:
  */
-public class DLockCacheExpressionRootObject {
+public class ExpressionRootObject {
 
     private final Method method;
 
@@ -20,7 +20,7 @@ public class DLockCacheExpressionRootObject {
 
     private final Class<?> targetClass;
 
-    public DLockCacheExpressionRootObject(Method method, Object[] args, Object target, Class<?> targetClass) {
+    public ExpressionRootObject(Method method, Object[] args, Object target, Class<?> targetClass) {
         this.method = method;
         this.target = target;
         this.targetClass = targetClass;

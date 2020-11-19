@@ -23,6 +23,7 @@
         <module>easy-widget-http</module>
         <module>easy-widget-common</module>
         <module>easy-widget-lock</module>
+        <module>easy-widget-id</module>
     </modules>
 
     <dependencyManagement>

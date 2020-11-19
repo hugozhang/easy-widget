@@ -1,4 +1,4 @@
-package me.about.widget.lock.redis.support.spring;
+package me.about.widget.lock.redis.support.spring.expression;
 
 import org.springframework.context.expression.MethodBasedEvaluationContext;
 import org.springframework.core.ParameterNameDiscoverer;
@@ -16,13 +16,13 @@ import java.util.Set;
  * @Date: 2020/11/13 23:53
  * @Description:
  */
-class DLockEvaluationContext extends MethodBasedEvaluationContext {
+class EvaluationContext extends MethodBasedEvaluationContext {
 
     private final Set<String> unavailableVariables = new HashSet<String>(1);
 
 
-    public DLockEvaluationContext(Object rootObject, Method method, Object[] arguments,
-                                  ParameterNameDiscoverer parameterNameDiscoverer) {
+    public EvaluationContext(Object rootObject, Method method, Object[] arguments,
+                             ParameterNameDiscoverer parameterNameDiscoverer) {
 
         super(rootObject, method, arguments, parameterNameDiscoverer);
     }

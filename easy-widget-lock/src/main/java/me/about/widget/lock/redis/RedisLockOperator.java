@@ -60,9 +60,9 @@ class RedisLockOperator implements LockOperation {
         }
 
         String ret = stringRedisTemplate.execute(RESET_SCRIPT,keys, value,RedisLockConfig.EXPIRE_SEC + "");
+        log.info("Reset Lock key is {} reset,value is {},return value is {},reset count is {}. ",new Object[]{lockKey,value,ret,increment});
         boolean isOk = "OK".equalsIgnoreCase(ret);
         if (isOk) {
-            log.info("Reset Lock key is {} reset,value is {},return value is {},reset count is {}. ",new Object[]{lockKey,value,ret,increment});
             newTimeout(key,value);
         }
         return isOk;
@@ -106,6 +106,9 @@ class RedisLockOperator implements LockOperation {
         log.info("ReleaseLock Lock key is {},value is {},return value is {}. ",new Object[]{lockKey,value,ret});
         //清理上下文
         clear(key);
+        if (ret != null && ret != 1) {
+            throw new LockException("释放锁失败，可能是业务执行超时或者锁已经被释放",key,value);
+        }
     }
 
     private void clear(String key) {

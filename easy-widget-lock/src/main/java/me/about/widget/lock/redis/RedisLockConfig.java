@@ -7,12 +7,12 @@ package me.about.widget.lock.redis;
  * @Date: 2020/11/12 20:25
  * @Description: 常量
  */
-abstract class RedisLockConfig {
+public abstract class RedisLockConfig {
 
     /**
-     * 设置锁的过期时间10min 单位:秒
+     * 单位:秒
      */
-    public static final long EXPIRE_SEC = 600;
+    public static final long EXPIRE_SEC = 30;
 
     /**
      * 锁前缀
@@ -22,8 +22,14 @@ abstract class RedisLockConfig {
     /**
      * EX seconds  PX milliseconds
      * 成功返回OK 失败返回null
+     * Key不存在的时候才设置过期时间
      */
     public static final String LOCK_SCRIPT = "return redis.call('SET', KEYS[1], ARGV[1], 'NX', 'EX', ARGV[2])";
+
+    /**
+     * Key存在的时候才重置过期时间
+     */
+    public static final String RESET_SCRIPT = "return redis.call('SET', KEYS[1], ARGV[1], 'XX', 'EX', ARGV[2])";
 
     /**
      * 成功返回1 失败返回0
@@ -35,8 +41,8 @@ abstract class RedisLockConfig {
             "end";
 
     /**
-     * 重置过期时间，相当于续期
+     * 重置过期时间最大次数
      */
-    public static final String RESET_SCRIPT = "return redis.call('SET', KEYS[1], ARGV[1], 'EX', ARGV[2])";
+    public static final int RESET_MAX_COUNT = 10;
 
 }

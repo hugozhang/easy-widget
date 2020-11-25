@@ -24,5 +24,4 @@ public class RedisCacheService implements CacheService {
     public Hash hash(String key) {
         return Hash.build().redisTemplate(redisTemplate).key(key);
     }
-
 }

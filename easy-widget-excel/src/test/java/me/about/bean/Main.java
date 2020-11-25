@@ -28,7 +28,7 @@ public class Main {
 
         //genSQL("PAY_HIS_DIST", "支出分布历史数据");
 
-        XLSXReader.builder().open(new FileInputStream("中文.xlsx")).sheetParser(Column.class, (XLSXReader.SheetDone<Column>) (sheetName, rows) -> {
+        XLSXReader.build().open(new FileInputStream("中文.xlsx")).sheetParser(Column.class, (XLSXReader.SheetDone<Column>) (sheetName, rows) -> {
             String tableName = sheetName.split("-")[0];
             String tableComment = sheetName.split("-")[1];
             System.out.println(tableName);
@@ -76,7 +76,7 @@ public class Main {
 
     @Test
     public void reader() throws Exception {
-        List<User> rows = XLSXReader.builder().skipRow(1).open(new FileInputStream("中文.xlsx")).parseArray(User.class);
+        List<User> rows = XLSXReader.build().skipRow(1).open(new FileInputStream("中文.xlsx")).sheetsParser(User.class);
         StringBuilder buffer = new StringBuilder();
         for (User user : rows) {
             buffer.append(user.getAddress());
@@ -105,7 +105,7 @@ public class Main {
         Date s = new Date();
         System.out.println(s);
         FileOutputStream out = new FileOutputStream("中文.xlsx");
-        XLSXWriter.builder().toStream(list, out);
+        XLSXWriter.build().toOutputStream(list, out);
         Date e = new Date();
         System.out.println(e);
         System.out.println("耗时:" + (e.getTime() - s.getTime()) / 1000);

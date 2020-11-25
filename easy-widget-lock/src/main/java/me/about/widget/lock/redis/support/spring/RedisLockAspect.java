@@ -1,5 +1,6 @@
 package me.about.widget.lock.redis.support.spring;
 
+import io.netty.util.HashedWheelTimer;
 import me.about.widget.lock.LockContext;
 import me.about.widget.lock.LockException;
 import me.about.widget.lock.redis.support.spring.annotation.DLock;
@@ -17,7 +18,6 @@ import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
 /**
@@ -31,7 +31,9 @@ import java.util.concurrent.locks.Lock;
 @Aspect
 public class RedisLockAspect {
 
-    private final ExpressionEvaluator evaluator = new ExpressionEvaluator();
+    private ExpressionEvaluator evaluator = new ExpressionEvaluator();
+
+    private HashedWheelTimer timer = new HashedWheelTimer();
 
     @Resource
     private BeanFactory beanFactory;
@@ -52,31 +54,37 @@ public class RedisLockAspect {
         Object[] args = pjp.getArgs();
 
         Signature signature = pjp.getSignature();
-        //Signature 其实有很多子类的，但是因为这里注解只能在方法上，所有不用检查instance of MethodSignature
+
+        //安全检查
+        if (!(signature instanceof MethodSignature)) {
+            throw new RuntimeException("signature isn't instanceof MethodSignature.");
+        }
+
+        //Signature 其实有很多子类的，但是因为这里注解只能在方法上
         MethodSignature methodSignature = (MethodSignature)signature;
 
         //接口方法
         Method targetMethod = methodSignature.getMethod();
 
-        //实现类方法
-        Method method = targetClass.getDeclaredMethod(methodSignature.getName() , methodSignature.getParameterTypes());
+        //申明方法
+        Method declaredMethod = targetClass.getDeclaredMethod(methodSignature.getName() , methodSignature.getParameterTypes());
 
+        //锁申明
         DLock dLock = targetMethod.getAnnotation(DLock.class);
 
         //Spring EL 表达式支持
-        EvaluationContext context = evaluator.createEvaluationContext(method, args, targetObject, targetClass, targetMethod, new Object(), beanFactory);
+        EvaluationContext context = evaluator.createEvaluationContext(declaredMethod, args, targetObject, targetClass, targetMethod, new Object(), beanFactory);
         AnnotatedElementKey methodKey = new AnnotatedElementKey(targetMethod, targetClass);
         Object key = evaluator.key(dLock.key(), methodKey, context);
-
         Assert.notNull(key,"@DLock key must not be null.");
 
         Lock lock = lockContext.getLock(key.toString());
+
+        if(!lock.tryLock()) {
+            throw new LockException("获取锁失败",key.toString(),Thread.currentThread().getName());
+        }
         try {
-            if(lock.tryLock()) {
-                return pjp.proceed();
-            } else {
-                throw new LockException("Acquire Lock Timeout",key.toString(),Thread.currentThread().getName());
-            }
+            return pjp.proceed();
         } finally {
             lock.unlock();
         }

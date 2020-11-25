@@ -54,7 +54,9 @@ public class XLSXReader {
 
     private int skipRow = 1;
 
-    public static XLSXReader builder () {
+    private XLSXReader() {}
+
+    public static XLSXReader build() {
         return new XLSXReader();
     }
 
@@ -71,17 +73,13 @@ public class XLSXReader {
         return this;
     }
 
-    public <T> List<T> parseArray(Class<T> clazz) throws Exception{
+    public <T> List<T> sheetsParser(Class<T> clazz) throws Exception{
         List<T> rows = new ArrayList();
         XMLReader parser = XMLReaderFactory.createXMLReader();
-        int sheetIndex = 0;
         XSSFReader.SheetIterator iterator = (XSSFReader.SheetIterator) xssfReader.getSheetsData();
         while (iterator.hasNext()) {
-            sheetIndex++;
             InputStream sheet = iterator.next();
-            //指定sheet
-            //InputStream inputStream = xssfReader.getSheet("rId" + (sheetIndex + 1));
-            ContentHandler handler = new SheetHandler(stylesTable, sharedStringsTable, sheetIndex, skipRow, rows, clazz);
+            ContentHandler handler = new SheetHandler(stylesTable, sharedStringsTable,iterator.getSheetName(), skipRow, rows, clazz);
             parser.setContentHandler(handler);
             InputSource sheetSource = new InputSource(sheet);
             parser.parse(sheetSource);
@@ -94,13 +92,11 @@ public class XLSXReader {
 
     public <T> void sheetParser(Class<T> clazz, SheetDone sheetDone) throws Exception {
         XMLReader parser = XMLReaderFactory.createXMLReader();
-        int sheetIndex = 0;
         XSSFReader.SheetIterator iterator = (XSSFReader.SheetIterator) xssfReader.getSheetsData();
         while (iterator.hasNext()) {
-            sheetIndex++;
             InputStream sheet = iterator.next();
             List<T> rows = new ArrayList();
-            ContentHandler handler = new SheetHandler(stylesTable, sharedStringsTable, sheetIndex, skipRow, rows, clazz);
+            ContentHandler handler = new SheetHandler(stylesTable, sharedStringsTable,iterator.getSheetName(), skipRow, rows, clazz);
             parser.setContentHandler(handler);
             InputSource sheetSource = new InputSource(sheet);
             parser.parse(sheetSource);
@@ -110,7 +106,10 @@ public class XLSXReader {
         pkg.close();
     }
 
-
+    /***
+     * sheet parse done event
+     * @param <T>
+     */
     public interface SheetDone<T> {
         void ok(String sheetName,List<T> rows) throws Exception;
     }
@@ -122,7 +121,8 @@ public class XLSXReader {
         /** Table with unique strings */
         private SharedStringsTable sharedStringsTable;
 
-        private int sheetIndex;
+        private String sheetName;
+
         private int headerRowIndex;
         private Class<T> clazz;
         private T currentRow;
@@ -149,13 +149,13 @@ public class XLSXReader {
 
         private SheetHandler(StylesTable stylesTable,
                              SharedStringsTable sharedStringsTable,
-                             int sheetIndex,
+                             String sheetName,
                              int headerRowIndex,
                              List<T> rows,
                              Class<T> clazz) {
             this.stylesTable = stylesTable;
             this.sharedStringsTable = sharedStringsTable;
-            this.sheetIndex = sheetIndex;
+            this.sheetName = sheetName;
             this.clazz = clazz;
             this.rows = rows;
             this.headerRowIndex = headerRowIndex;
@@ -358,23 +358,23 @@ public class XLSXReader {
 
         private void checkValueType(String columnName, String value) {
             if (!NumberUtils.isCreatable(value) && value != null && !value.equals("")) {
-                throw new RuntimeException("(标签页：" + sheetIndex + "，行：" + rowNumber + "，列：" + cellNumber + ")列名为'"
+                throw new RuntimeException("(标签页：" + sheetName + "，行：" + rowNumber + "，列：" + cellNumber + ")列名为'"
                         + columnName + "'，值" + value + "，不能转为数值类型");
             }
         }
 
         private void checkColumn(Map<String, Field> fieldMapping, Map<String, String> titleMapping) {
             if (titleMapping == null || titleMapping.isEmpty()) {
-                throw new RuntimeException("标签页：" + sheetIndex + "，Excel文件标题栏错误，请检查下");
+                throw new RuntimeException("标签页：" + sheetName + "，Excel文件标题栏错误，请检查下");
             }
             if (fieldMapping == null || fieldMapping.isEmpty()) {
-                throw new RuntimeException("标签页：" + sheetIndex + "，没有读到需要的数据列，请检查下");
+                throw new RuntimeException("标签页：" + sheetName + "，没有读到需要的数据列，请检查下");
             }
             Iterator<Map.Entry<String, Field>> it = fieldMapping.entrySet().iterator();
             while (it.hasNext()) {
                 Map.Entry<String, Field> entry = it.next();
                 if (!titleMapping.containsValue(entry.getKey())) {
-                    throw new RuntimeException("标签页：" + sheetIndex + "，列名为'" + entry.getKey() + "'不存在，请检查下");
+                    throw new RuntimeException("标签页：" + sheetName + "，列名为'" + entry.getKey() + "'不存在，请检查下");
                 }
             }
         }

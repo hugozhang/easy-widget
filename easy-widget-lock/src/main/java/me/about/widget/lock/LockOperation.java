@@ -9,10 +9,10 @@ package me.about.widget.lock;
  */
 public interface LockOperation {
 
-    boolean resetLock(String key);
+    boolean resetLock(String key,String value);
 
-    boolean tryLock(String key);
+    boolean tryLock(String key,String value);
 
-    void releaseLock(String key);
+    void releaseLock(String key,String value);
 
 }

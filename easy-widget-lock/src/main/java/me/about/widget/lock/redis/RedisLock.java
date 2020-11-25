@@ -20,11 +20,14 @@ public class RedisLock implements Lock {
 
     private String lockKey;
 
+    private String lockValue;
+
     private LockContext lockContext;
 
     public RedisLock(LockContext lockContext, String lockKey) {
         this.lockContext = lockContext;
         this.lockKey = lockKey;
+        this.lockValue = Thread.currentThread().getName();
     }
 
     @Override
@@ -76,13 +79,13 @@ public class RedisLock implements Lock {
     @Override
     public boolean tryLock() {
         checkNull();
-        return lockContext.getLockOperation().tryLock(lockKey);
+        return lockContext.getLockOperation().tryLock(lockKey,lockValue);
     }
 
     @Override
     public void unlock() {
         checkNull();
-        lockContext.getLockOperation().releaseLock(lockKey);
+        lockContext.getLockOperation().releaseLock(lockKey,lockValue);
     }
 
     private void checkNull() {

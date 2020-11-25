@@ -30,11 +30,14 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
  * @Description:
  */
 public class XLSXWriter {
-    public static XLSXWriter builder() {
+
+    private XLSXWriter() {}
+
+    public static XLSXWriter build() {
         return new XLSXWriter();
     }
 
-    public <T> void toStream(List<T> data, OutputStream out) throws Exception {
+    public <T> void toOutputStream(List<T> data, OutputStream out) throws Exception {
         ExcelDataFormatter edf = new ExcelDataFormatter();
         try(Workbook workbook = writeToWorkBook(data, edf)) {
             workbook.write(out);
@@ -43,7 +46,7 @@ public class XLSXWriter {
 
     public <T> Workbook writeToWorkBook(List<T> input, ExcelDataFormatter edf) throws Exception {
         SXSSFWorkbook workbook = new SXSSFWorkbook();
-//        workbook.setCompressTempFiles(true);
+        //workbook.setCompressTempFiles(true);
         Sheet sheet = workbook.createSheet();
 
         //head style 部分

@@ -10,7 +10,7 @@ package me.about.widget.lock;
 public class LockException extends RuntimeException {
 
     public LockException(String message,String lockKey,String owner) {
-        super(message + " Lock Key:" + lockKey + " Owner:" + owner);
+        super(message + ",Lock Key:" + lockKey + ",Owner:" + owner);
     }
 
 }

@@ -12,7 +12,7 @@ abstract class RedisIdConfig {
     public static final String ID_SCRIPT = "-- need redis 3.2+\n" +
             "redis.replicate_commands();\n" +
             "\n" +
-            "local prefix = '__idgenerator_';\n" +
+            "local prefix = 'IdGen:';\n" +
             "local partitionCount = 4096;\n" +
             "local step = 2;\n" +
             "local startStep = 0;\n" +
@@ -28,14 +28,14 @@ abstract class RedisIdConfig {
             "\n" +
             "local now = redis.call('TIME');\n" +
             "\n" +
-            "local miliSecondKey = prefix .. tag ..'_' .. partition .. '_' .. now[1] .. '_' .. math.floor(now[2]/1000);\n" +
+            "local miliSecondKey = prefix .. tag ..':' .. partition .. ':' .. now[1] .. ':' .. math.floor(now[2]/1000);\n" +
             "\n" +
             "local count;\n" +
             "repeat\n" +
             "  count = tonumber(redis.call('INCRBY', miliSecondKey, step));\n" +
             "  if count > (1024 - step) then\n" +
             "      now = redis.call('TIME');\n" +
-            "      miliSecondKey = prefix .. tag ..'_' .. partition .. '_' .. now[1] .. '_' .. math.floor(now[2]/1000);\n" +
+            "      miliSecondKey = prefix .. tag ..':' .. partition .. ':' .. now[1] .. ':' .. math.floor(now[2]/1000);\n" +
             "  end\n" +
             "until count <= (1024 - step)\n" +
             "\n" +

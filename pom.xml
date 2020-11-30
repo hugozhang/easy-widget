@@ -7,7 +7,7 @@
     <groupId>me.about</groupId>
     <artifactId>easy-widget</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <properties>
         <poi.version>3.17</poi.version>
@@ -21,7 +21,7 @@
         <module>easy-widget-excel</module>
         <module>easy-widget-cache</module>
         <module>easy-widget-http</module>
-        <module>easy-widget-common</module>
+        <module>easy-widget-spring</module>
         <module>easy-widget-lock</module>
         <module>easy-widget-id</module>
     </modules>

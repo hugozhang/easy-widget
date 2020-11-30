@@ -1,9 +1,7 @@
 package me.about.widget.cache.redis;
 
 import org.springframework.data.redis.core.BoundHashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
 
-import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -15,44 +13,30 @@ import java.util.concurrent.TimeUnit;
  */
 public class Hash {
 
-    private RedisTemplate<String, Serializable> redisTemplate;
+    private BoundHashOperations<String, Object, Object> hashOperations;
 
-    private BoundHashOperations<String, Object, Object> hash;
-
-    private Hash() {}
-
-    public Hash redisTemplate(RedisTemplate redisTemplate) {
-        this.redisTemplate = redisTemplate;
-        return this;
-    }
-
-    public Hash key(String key) {
-        this.hash = this.redisTemplate.boundHashOps(key);
-        return this;
-    }
-
-    public static Hash build() {
-        return new Hash();
+    public Hash(BoundHashOperations hashOperations) {
+        this.hashOperations = hashOperations;
     }
 
     public boolean hasKey(String key) {
-        return hash.hasKey(key);
+        return hashOperations.hasKey(key);
     }
 
     public Object get(String key) {
-        return hash.get(key);
+        return hashOperations.get(key);
     }
 
     public void put(String key, Object value) {
-        put(key,value,10,TimeUnit.MINUTES);
+        put(key,value,2,TimeUnit.HOURS);
     }
 
     public void put(String key, Object value, long timeout, TimeUnit timeUnit) {
-        hash.put(key,value);
-        hash.expire(timeout,timeUnit);
+        hashOperations.put(key,value);
+        hashOperations.expire(timeout,timeUnit);
     }
 
     public void delete(String... key) {
-        hash.delete(key);
+        hashOperations.delete(key);
     }
 }

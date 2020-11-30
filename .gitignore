@@ -1,6 +1,7 @@
 *.class
 *.log
 *.lock
+*.versionsBackup
 
 # Package Files #
 *.jar

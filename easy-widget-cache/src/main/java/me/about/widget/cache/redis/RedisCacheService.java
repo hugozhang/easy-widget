@@ -1,9 +1,11 @@
 package me.about.widget.cache.redis;
 
 import me.about.widget.cache.CacheService;
+import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 
-import java.io.Serializable;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,14 +16,19 @@ import java.io.Serializable;
  */
 public class RedisCacheService implements CacheService {
 
-    private RedisTemplate<String, Serializable> redisTemplate;
+    private Map<String, BoundHashOperations<String, Object, Object>> cacheHash = new ConcurrentHashMap();
 
-    public RedisCacheService(RedisTemplate<String, Serializable> redisTemplate) {
+    private RedisTemplate redisTemplate;
+
+    public RedisCacheService(RedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
     @Override
     public Hash hash(String key) {
-        return Hash.build().redisTemplate(redisTemplate).key(key);
+        BoundHashOperations<String, Object, Object> hashOperations = cacheHash.computeIfAbsent(key, ns -> {
+            return redisTemplate.boundHashOps(ns);
+        });
+        return new Hash(hashOperations);
     }
 }

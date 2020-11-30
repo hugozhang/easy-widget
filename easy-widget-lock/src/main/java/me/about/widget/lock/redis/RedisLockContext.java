@@ -31,5 +31,4 @@ public class RedisLockContext implements LockContext {
     public Lock getLock(String lockKey) {
         return new RedisLock(this,lockKey);
     }
-
 }

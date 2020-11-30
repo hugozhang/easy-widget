@@ -107,7 +107,7 @@ class RedisLockOperator implements LockOperation {
         //清理上下文
         clear(key);
         if (ret != null && ret != 1) {
-            throw new LockException("释放锁失败，可能是业务执行超时或者锁已经被释放",key,value);
+            throw new LockException("释放锁失败，可能超过了锁续期最大次数被释放",key,value);
         }
     }
 

@@ -3,7 +3,7 @@ package me.about.widget.lock.redis.support.spring;
 import me.about.widget.lock.LockContext;
 import me.about.widget.lock.LockException;
 import me.about.widget.lock.redis.support.spring.annotation.DLock;
-import me.about.widget.spring.SpELAspectContext;
+import me.about.widget.spring.expression.SpELAspectContext;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Around;

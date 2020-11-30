@@ -2,7 +2,7 @@ package me.about.widget.lock.redis.support.spring;
 
 import me.about.widget.lock.LockContext;
 import me.about.widget.lock.redis.RedisLockContext;
-import me.about.widget.spring.SpELAspectContext;
+import me.about.widget.spring.expression.SpELAspectContext;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;

@@ -2,7 +2,7 @@ package me.about.widget.cache.redis.support.spring;
 
 import me.about.widget.cache.CacheService;
 import me.about.widget.cache.redis.RedisCacheService;
-import me.about.widget.spring.SpELAspectContext;
+import me.about.widget.spring.expression.SpELAspectContext;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;

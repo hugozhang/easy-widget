@@ -1,6 +1,10 @@
 # easy-widget
 整理好用的组件：
 分布式缓存、分布式锁、读写excel、http
+
+按需要引入对应的组件即可
+环境要求spring boot(用到了auto config) + jdk8 + spring data redis
+
 ## 分布式缓存
 spring cache不支持不同key不同的过期时间，所以才有这个，也是基于redis实现
 *  注解式

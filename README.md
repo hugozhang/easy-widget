@@ -58,7 +58,7 @@ public void lock(String test) {
 ```
 
 ## 分布式ID生成
-基于redis lua实现(只与redis所在的机子的时间有关，雪花算法原理)
+基于redis lua实现(与redis所在的机子的时间（与应用所在机子无关）有关，雪花算法原理)
 
 ```java
 @Resource

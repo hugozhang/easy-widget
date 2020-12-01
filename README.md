@@ -6,7 +6,7 @@
 环境要求spring boot(用到了auto config) + jdk8 + spring data redis
 
 ## 分布式缓存
-spring cache不支持不同key不同的过期时间，所以才有这个，也是基于redis实现
+spring cache不支持不同key不同的过期时间，所以才有这个，也是基于redis实现，支持Spring EL表达式
 *  注解式
 ```java
 @GetMapping("/cache2")
@@ -29,7 +29,7 @@ public Object cache() {
 ```
 
 ## 分布式锁
-基于redis实现(命令set key value nx ex 200)，同时实现JDK Lock接口，也实现key自动续期，通过时间轮+看门狗
+基于redis实现(命令set key value nx ex 200)，同时实现JDK Lock接口，也实现key自动续期，通过时间轮+看门狗，支持Spring EL表达式
 *  注解式
 ```java
 @GetMapping("/lock")

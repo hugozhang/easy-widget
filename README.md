@@ -56,3 +56,16 @@ public void lock(String test) {
     }
 }
 ```
+
+## 分布式ID生成
+基于redis lua实现(只与redis所在的机子的时间有关，雪花算法原理)
+
+```java
+@Resource
+private IdGenerator idGenerator;
+
+@GetMapping("/id")
+public Object id() {
+    return idGenerator.nextId("order");
+}
+```

@@ -44,14 +44,14 @@ public void lock(String test) throws InterruptedException {
 @GetMapping("/lock")
 public void lock(String test) {
     Lock lock = lockContext.getLock(test);
+    if (!lock.tryLock()) {
+        //拿不到锁，提示
+    }
     try {
-        if (lock.tryLock()) {
-            //拿到锁，业务处理
-        } else {
-            //拿不到锁，提示
-        }
+        //拿到锁，业务处理
+        
     } finally {
-        //释放锁
+        //释放锁(注意：拿到锁才有释放动作)
         lock.unlock();
     }
 }

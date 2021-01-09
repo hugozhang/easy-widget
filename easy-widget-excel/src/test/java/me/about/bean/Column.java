@@ -22,4 +22,7 @@ public class Column {
     @ExcelColumn(name = "类型")
     private String columnType;
 
+    @ExcelColumn(name = "Hive类型")
+    private String columnHiveType;
+
 }

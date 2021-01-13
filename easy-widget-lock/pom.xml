@@ -88,11 +88,10 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-common</artifactId>
         </dependency>
+
         <dependency>
             <groupId>me.about</groupId>
             <artifactId>easy-widget-spring</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

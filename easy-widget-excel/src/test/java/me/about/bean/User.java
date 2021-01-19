@@ -17,7 +17,13 @@ import java.util.Date;
  * @Description:
  */
 @Data
-@ExcelMeta
+@ExcelMeta(mergeCols = {
+        @ExcelColumnMerge(mergeCols = {0,0,0,1},mergeColsText = "合并列单元格1"),
+        @ExcelColumnMerge(mergeCols = {0,0,2,3},mergeColsText = "合并列单元格2"),
+        @ExcelColumnMerge(mergeCols = {0,1,4,5},mergeColsText = "合并列单元格3")
+},mergeRows = {
+        @ExcelRowMerge(mergeRows = {2,5,0,0},mergeRowsText = "合并列单元格1")
+})
 public class User {
 
     @ExcelColumn(name = "年龄")

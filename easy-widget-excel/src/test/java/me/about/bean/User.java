@@ -2,6 +2,9 @@ package me.about.bean;
 
 import lombok.Data;
 import me.about.widget.excel.ExcelColumn;
+import me.about.widget.excel.ExcelColumnMerge;
+import me.about.widget.excel.ExcelMeta;
+import me.about.widget.excel.ExcelRowMerge;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -14,6 +17,7 @@ import java.util.Date;
  * @Description:
  */
 @Data
+@ExcelMeta
 public class User {
 
     @ExcelColumn(name = "年龄")

@@ -7,19 +7,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import me.about.widget.excel.ExcelColumn;
-import me.about.widget.excel.ExcelDataFormatter;
+import me.about.widget.excel.*;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.util.HSSFColor;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.VerticalAlignment;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
 /**
@@ -51,42 +43,80 @@ public class XLSXWriter {
 
         //head style 部分
         CellStyle headStyle = workbook.createCellStyle();
-        headStyle.setFillPattern(FillPatternType.BIG_SPOTS);
-        headStyle.setFillBackgroundColor(HSSFColor.HSSFColorPredefined.LIGHT_BLUE.getIndex());
+
+        headStyle.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
+        headStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         headStyle.setAlignment(HorizontalAlignment.CENTER);
         headStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+        headStyle.setBorderBottom(BorderStyle.THIN); //下边框
+        headStyle.setBorderLeft(BorderStyle.THIN);//左边框
+        headStyle.setBorderTop(BorderStyle.THIN);//上边框
+        headStyle.setBorderRight(BorderStyle.THIN);//右边框
+
         Font font = workbook.createFont();
-        font.setColor(HSSFColor.HSSFColorPredefined.WHITE.getIndex());
+        font.setColor(HSSFColor.HSSFColorPredefined.BLACK.getIndex());
         font.setBold(true);
         headStyle.setFont(font);
 
-        Row row = sheet.createRow(0);
-
-        //head 部分
+        // 标题行
         CreationHelper createHelper = workbook.getCreationHelper();
-
         if (input == null || input.isEmpty()) return workbook;
+        Class<?> aClass = input.get(0).getClass();
+        Field[] fields = aClass.getDeclaredFields();// 取类字段集合
+        int colLen = fields.length;
+        Row row0 = sheet.createRow(0);
+        for (int i = 0 ; i < colLen ; i ++) {
+            sheet.setColumnWidth(i, 30 * 256);
+            Cell cell = row0.createCell(i);
+            cell.setCellStyle(headStyle);
+            cell.setCellValue("");
+        }
 
-        Field[] fields = input.get(0).getClass().getDeclaredFields();// 取类字段集合
+        // 元信息
+        ExcelMeta excelMeta = aClass.getAnnotation(ExcelMeta.class);
+        if (excelMeta == null) {
+            throw new RuntimeException("Class " + aClass.getName() + " has not found annotation @me.about.widget.excel.ExcelMeta");
+        }
+        // 合并行
+        ExcelRowMerge[] excelRowMerges = excelMeta.mergeRows();
+        // 合并列
+        ExcelColumnMerge[] excelColumnMerges = excelMeta.mergeCols();
 
-        int headColumnIndex = 0;
-        for (Field field : fields) {
+        for (int i = 0 ; i < excelColumnMerges.length ; i ++) {
+            ExcelColumnMerge columnMerge = excelColumnMerges[i];
+            int[] mergeCols = columnMerge.mergeCols();
+            sheet.addMergedRegion(new CellRangeAddress(mergeCols[0],mergeCols[1],mergeCols[2],mergeCols[3]));
+            row0.getCell(mergeCols[2]).setCellValue(columnMerge.mergeColsText());
+        }
+
+        Row row = sheet.createRow(excelColumnMerges.length == 0 ? 0 : 1);  //确定起始行
+
+        for (int i = 0 ; i < colLen ; i ++) {
+            Field field = fields[i];
             field.setAccessible(true);
             ExcelColumn ann = field.getAnnotation(ExcelColumn.class);
             if (ann == null) {
                 continue;
             }
-            sheet.setColumnWidth(headColumnIndex, ann.width() * 256);
-            Cell cell = row.createCell(headColumnIndex);
+            sheet.setColumnWidth(i, ann.width() * 256);
+            Cell cell = row.createCell(i);
             cell.setCellStyle(headStyle);
             cell.setCellValue(ann.name());
-            headColumnIndex++;
         }
 
-        //data 部分
-        CellStyle cs = workbook.createCellStyle();
-        int rowIndex = 1;
-        // 行
+        // data 部分
+        CellStyle dataStyle = workbook.createCellStyle();
+        dataStyle.setAlignment(HorizontalAlignment.CENTER);
+        dataStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+        dataStyle.setBorderBottom(BorderStyle.THIN); //下边框
+        dataStyle.setBorderLeft(BorderStyle.THIN);//左边框
+        dataStyle.setBorderTop(BorderStyle.THIN);//上边框
+        dataStyle.setBorderRight(BorderStyle.THIN);//右边框
+
+        int rowIndex = excelColumnMerges.length == 0 ? 1 : 2; //确定起始行
+        // 数据行
         for (T t : input) {
             row = sheet.createRow(rowIndex);
             int columnIndex = 0;
@@ -104,14 +134,13 @@ public class XLSXWriter {
                     continue;
                 }
                 Cell cell = row.createCell(columnIndex);
+                cell.setCellStyle(dataStyle);
                 // 处理数据类型
                 if (o instanceof Date) {
-                    cs.setDataFormat(createHelper.createDataFormat().getFormat(ann == null ? "yyyy-MM-dd HH:mm:ss" : ann.format()));
-                    cell.setCellStyle(cs);
+                    dataStyle.setDataFormat(createHelper.createDataFormat().getFormat(ann == null ? "yyyy-MM-dd HH:mm:ss" : ann.format()));
                     cell.setCellValue((Date) o);
                 } else if (o instanceof Double || o instanceof Float) {
-                    cs.setDataFormat(createHelper.createDataFormat().getFormat("0.00"));
-                    cell.setCellStyle(cs);
+                    dataStyle.setDataFormat(createHelper.createDataFormat().getFormat("0.00"));
                     cell.setCellValue((Double) o);
                 } else if (o instanceof Boolean) {
                     Boolean bool = (Boolean) o;
@@ -138,13 +167,22 @@ public class XLSXWriter {
                         }
                     }
                 } else if (o instanceof BigDecimal) {
-                    cs.setDataFormat(createHelper.createDataFormat().getFormat("0.00"));
-                    cell.setCellStyle(cs);
+                    dataStyle.setDataFormat(createHelper.createDataFormat().getFormat("0.00"));
                     cell.setCellValue(((BigDecimal) o).doubleValue());
                 } else {
                     cell.setCellValue(o.toString());
                 }
                 columnIndex++;
+            }
+
+            //需要迭代行的处理，不能在所有数据行的最后处理  此时的行在内存中的
+            for (int i = 0 ; i < excelRowMerges.length ; i ++) {
+                ExcelRowMerge rowMerge = excelRowMerges[i];
+                int[] mergeRows = rowMerge.mergeRows();
+                if (mergeRows[0] == rowIndex) {
+                    sheet.addMergedRegion(new CellRangeAddress(mergeRows[0],mergeRows[1],mergeRows[2],mergeRows[3]));
+                    row.getCell(mergeRows[2]).setCellValue(rowMerge.mergeRowsText());
+                }
             }
             rowIndex++;
         }

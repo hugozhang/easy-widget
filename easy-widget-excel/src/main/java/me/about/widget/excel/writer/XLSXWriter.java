@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 import me.about.widget.excel.*;
+import me.about.widget.excel.ExcelColumn;
+import me.about.widget.excel.ExcelColumnMerge;
+import me.about.widget.excel.ExcelMeta;
+import me.about.widget.excel.ExcelRowMerge;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -37,7 +41,7 @@ public class XLSXWriter {
 
     public <T> Workbook writeToWorkBook(List<T> input, ExcelDataFormatter edf) throws Exception {
         SXSSFWorkbook workbook = new SXSSFWorkbook();
-        //workbook.setCompressTempFiles(true);
+//        workbook.setCompressTempFiles(true);
         Sheet sheet = workbook.createSheet();
 
         //head style 部分
@@ -61,8 +65,8 @@ public class XLSXWriter {
         // 标题行
         CreationHelper createHelper = workbook.getCreationHelper();
         if (input == null || input.isEmpty()) return workbook;
-        Class<?> aClass = input.get(0).getClass();
-        Field[] fields = aClass.getDeclaredFields();// 取类字段集合
+        Class<?> clazz = input.get(0).getClass();
+        Field[] fields = clazz.getDeclaredFields();// 取类字段集合
         int colLen = fields.length;
         Row row0 = sheet.createRow(0);
         for (int i = 0 ; i < colLen ; i ++) {
@@ -73,20 +77,22 @@ public class XLSXWriter {
         }
 
         // 元信息
-        ExcelMeta excelMeta = aClass.getAnnotation(ExcelMeta.class);
+        ExcelMeta excelMeta = clazz.getAnnotation(ExcelMeta.class);
         if (excelMeta == null) {
-            throw new RuntimeException("Class " + aClass.getName() + " has not found annotation @me.about.widget.excel.ExcelMeta");
+            throw new RuntimeException("Class " + clazz.getName() + " has not found annotation @me.about.widget.excel.ExcelMeta");
         }
         // 合并行
-        ExcelRowMerge[] excelRowMerges = excelMeta.mergeRows();
+//        ExcelRowMerge[] excelRowMerges = excelMeta.mergeRows();
         // 合并列
         ExcelColumnMerge[] excelColumnMerges = excelMeta.mergeCols();
 
         for (int i = 0 ; i < excelColumnMerges.length ; i ++) {
             ExcelColumnMerge columnMerge = excelColumnMerges[i];
             int[] mergeCols = columnMerge.mergeCols();
-            sheet.addMergedRegion(new CellRangeAddress(mergeCols[0],mergeCols[1],mergeCols[2],mergeCols[3]));
-            row0.getCell(mergeCols[2]).setCellValue(columnMerge.mergeColsText());
+            if (mergeCols[0] == 0) {
+                sheet.addMergedRegion(new CellRangeAddress(mergeCols[0],mergeCols[1],mergeCols[2],mergeCols[3]));
+                row0.getCell(mergeCols[2]).setCellValue(columnMerge.mergeColsText());
+            }
         }
 
         Row row = sheet.createRow(excelColumnMerges.length == 0 ? 0 : 1);  //确定起始行
@@ -119,6 +125,17 @@ public class XLSXWriter {
         for (T t : input) {
             row = sheet.createRow(rowIndex);
             int columnIndex = 0;
+
+            for (int i = 0 ; i < excelColumnMerges.length ; i ++) {
+                ExcelColumnMerge columnMerge = excelColumnMerges[i];
+                int[] mergeCols = columnMerge.mergeCols();
+                if (mergeCols[0] == rowIndex) {
+                    sheet.addMergedRegion(new CellRangeAddress(mergeCols[0],mergeCols[1],mergeCols[2],mergeCols[3]));
+                    row.createCell(mergeCols[2]).setCellValue(columnMerge.mergeColsText());
+//                    row.getCell(mergeCols[2]).setCellValue(columnMerge.mergeColsText());
+                }
+            }
+
             // 列
             for (Field field : fields) {
                 field.setAccessible(true);
@@ -172,16 +189,6 @@ public class XLSXWriter {
                     cell.setCellValue(o.toString());
                 }
                 columnIndex++;
-            }
-
-            //需要迭代行的处理，不能在所有数据行的最后处理  此时的行在内存中的
-            for (int i = 0 ; i < excelRowMerges.length ; i ++) {
-                ExcelRowMerge rowMerge = excelRowMerges[i];
-                int[] mergeRows = rowMerge.mergeRows();
-                if (mergeRows[0] == rowIndex) {
-                    sheet.addMergedRegion(new CellRangeAddress(mergeRows[0],mergeRows[1],mergeRows[2],mergeRows[3]));
-                    row.getCell(mergeRows[2]).setCellValue(rowMerge.mergeRowsText());
-                }
             }
             rowIndex++;
         }

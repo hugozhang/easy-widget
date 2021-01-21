@@ -20,9 +20,9 @@ import java.util.Date;
 @ExcelMeta(mergeCols = {
         @ExcelColumnMerge(mergeCols = {0,0,0,1},mergeColsText = "合并列单元格1"),
         @ExcelColumnMerge(mergeCols = {0,0,2,3},mergeColsText = "合并列单元格2"),
-        @ExcelColumnMerge(mergeCols = {0,1,4,5},mergeColsText = "合并列单元格3")
-},mergeRows = {
-        @ExcelRowMerge(mergeRows = {2,5,0,0},mergeRowsText = "合并列单元格1")
+        @ExcelColumnMerge(mergeCols = {0,1,4,5},mergeColsText = "合并列单元格3"),
+        @ExcelColumnMerge(mergeCols = {3,4,0,0},mergeColsText = "就诊人次"),
+        @ExcelColumnMerge(mergeCols = {5,6,0,0},mergeColsText = "就诊人次2")
 })
 public class User {
 

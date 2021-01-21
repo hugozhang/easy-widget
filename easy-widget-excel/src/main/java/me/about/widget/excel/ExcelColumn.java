@@ -21,5 +21,6 @@ public @interface ExcelColumn {
     // 宽度
     int width() default 30;
 
+    // 格式化
     String format() default "yyyy-MM-dd HH:mm:ss";
 }

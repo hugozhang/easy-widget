@@ -92,7 +92,7 @@ public class Main {
 
         //genSQL("PAY_HIS_DIST", "支出分布历史数据");
 
-        XLSXReader.build().open(new FileInputStream("中文.xlsx")).sheetParser(Column.class, (XLSXReader.SheetDone<Column>) (sheetName, rows) -> {
+        XLSXReader.build().open(new FileInputStream("算法表.xlsx")).sheetParser(Column.class, (XLSXReader.SheetDone<Column>) (sheetName, rows) -> {
             String tableName = sheetName.split("-")[0];
             String tableComment = sheetName.split("-")[1];
             System.out.println(tableName);

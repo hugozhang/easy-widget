@@ -1,7 +1,7 @@
 package me.about.bean;
 
 import lombok.Data;
-import me.about.widget.excel.ExcelColumn;
+import me.about.widget.excel.annotation.ExcelColumn;
 
 /**
  * Created with IntelliJ IDEA.
@@ -22,7 +22,7 @@ public class Column {
     @ExcelColumn(name = "类型")
     private String columnType;
 
-    @ExcelColumn(name = "Hive类型")
+//    @ExcelColumn(name = "Hive类型")
     private String columnHiveType;
 
 }

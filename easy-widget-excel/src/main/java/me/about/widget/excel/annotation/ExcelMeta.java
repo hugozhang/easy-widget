@@ -1,4 +1,4 @@
-package me.about.widget.excel;
+package me.about.widget.excel.annotation;
 
 import java.lang.annotation.*;
 
@@ -14,7 +14,8 @@ import java.lang.annotation.*;
 @Documented
 public @interface ExcelMeta {
 
-    ExcelColumnMerge[] mergeCols() default {};
+    int headEndIndex() default 0;
 
-    ExcelRowMerge[] mergeRows() default {};
+    ExcelCellMerge[] mergeCells() default {};
+
 }

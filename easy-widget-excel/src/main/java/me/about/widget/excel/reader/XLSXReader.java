@@ -14,7 +14,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import me.about.widget.excel.CellDataType;
 import me.about.widget.excel.Creator;
-import me.about.widget.excel.ExcelColumn;
+import me.about.widget.excel.annotation.ExcelColumn;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.BuiltinFormats;

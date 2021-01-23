@@ -1,10 +1,9 @@
 package me.about.bean;
 
 import lombok.Data;
-import me.about.widget.excel.ExcelColumn;
-import me.about.widget.excel.ExcelColumnMerge;
-import me.about.widget.excel.ExcelMeta;
-import me.about.widget.excel.ExcelRowMerge;
+import me.about.widget.excel.annotation.ExcelColumn;
+import me.about.widget.excel.annotation.ExcelCellMerge;
+import me.about.widget.excel.annotation.ExcelMeta;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -17,12 +16,12 @@ import java.util.Date;
  * @Description:
  */
 @Data
-@ExcelMeta(mergeCols = {
-        @ExcelColumnMerge(mergeCols = {0,0,0,1},mergeColsText = "合并列单元格1"),
-        @ExcelColumnMerge(mergeCols = {0,0,2,3},mergeColsText = "合并列单元格2"),
-        @ExcelColumnMerge(mergeCols = {0,1,4,5},mergeColsText = "合并列单元格3"),
-        @ExcelColumnMerge(mergeCols = {3,4,0,0},mergeColsText = "就诊人次"),
-        @ExcelColumnMerge(mergeCols = {5,6,0,0},mergeColsText = "就诊人次2")
+@ExcelMeta(headEndIndex = 1, mergeCells = {
+        @ExcelCellMerge(coordinate = {0,0,0,1}, text = "合并列单元格1"),
+        @ExcelCellMerge(coordinate = {0,0,2,3}, text = "合并列单元格2"),
+        @ExcelCellMerge(coordinate = {0,1,4,5}, text = "合并列单元格3"),
+        @ExcelCellMerge(coordinate = {2,4,0,0}, text = "就诊人次"),
+        @ExcelCellMerge(coordinate = {5,6,0,0}, text = "就诊人次2")
 })
 public class User {
 

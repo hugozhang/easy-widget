@@ -8,10 +8,15 @@ import java.lang.annotation.Target;
  * Created with IntelliJ IDEA.
  *
  * @Auther: hugo.zxh
- * @Date: 2021/01/20 10:35
+ * @Date: 2021/01/19 15:26
  * @Description:
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({})
 public @interface ExcelCellMerge {
+
+    int[] coordinate() default {0,0,0,0};
+
+    String text() default "合并单元后标题";
+
 }

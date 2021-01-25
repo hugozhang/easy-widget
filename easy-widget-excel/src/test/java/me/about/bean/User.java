@@ -26,7 +26,7 @@ import java.util.Date;
 })
 public class User {
 
-    @ExcelColumn(name = "年龄", cellFormat = @ExcelCellFormat(payload = "元"))
+    @ExcelColumn(name = "年龄", cellFormat = @ExcelCellFormat(payload = ""))
     private int age;
 
     @ExcelColumn(name = "姓名")

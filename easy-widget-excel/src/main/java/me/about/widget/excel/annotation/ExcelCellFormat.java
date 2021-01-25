@@ -24,6 +24,6 @@ public @interface ExcelCellFormat {
     Class<? extends CellFormatter> format() default CustomerCellFormatter.class;
 
     // 格式化
-    String payload() default "元";
+    String payload() default "";
 
 }

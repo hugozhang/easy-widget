@@ -1,6 +1,8 @@
 package me.about.widget.excel.writer;
 
 import me.about.widget.excel.writer.CellFormatter;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.math.BigDecimal;
 
@@ -15,8 +17,12 @@ public class CustomerCellFormatter implements CellFormatter {
 
     @Override
     public String format(Object value,String payload) {
-        if (value == null) return null;
-        BigDecimal v =  value instanceof BigDecimal ?  (BigDecimal)value : new BigDecimal(value + "");
+
+        if (value == null || !NumberUtils.isDigits(value.toString())) {
+            return value.toString();
+        }
+
+        BigDecimal v =  value instanceof BigDecimal ? (BigDecimal)value : new BigDecimal(value + "");
         BigDecimal y10 = new BigDecimal(1000000000 + "");
         BigDecimal w10 = new BigDecimal(100000 + "");
         if (v.compareTo(y10) >= 0) {

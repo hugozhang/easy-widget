@@ -40,7 +40,7 @@ public class User {
     @ExcelColumn(name = "生日")
     private Date birthday;
 
-    @ExcelColumn(name = "薪水")
+    @ExcelColumn(name = "薪水",customerFormat = CustomerCellFormatter.class,suffix = "元")
     private BigDecimal salary;
 }
 

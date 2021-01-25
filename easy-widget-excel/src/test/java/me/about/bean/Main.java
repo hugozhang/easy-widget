@@ -172,7 +172,13 @@ public class Main {
             u.setCompany("B"+i);
             u.setAddress("C" + i);
             u.setBirthday(new Date());
-            u.setSalary(new BigDecimal(23.45));
+            if (i == 1) {
+                 u.setSalary(new BigDecimal(10000000034.12345+""));
+            } else if (i == 2) {
+                u.setSalary(new BigDecimal(100056.8967+""));
+            } else {
+                u.setSalary(new BigDecimal(123+""));
+            }
             list.add(u);
         }
         Date s = new Date();

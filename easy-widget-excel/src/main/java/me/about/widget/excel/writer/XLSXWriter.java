@@ -186,10 +186,20 @@ public class XLSXWriter {
                 } else {
                     cell.setCellValue(o.toString());
                 }
-                //合并单元格合值
+
+                //单元格合并  显示值
                 if (cellTextMap.containsKey(rowIndex + "" + columnIndex)) {
                     cell.setCellValue(cellTextMap.get(rowIndex + "" + columnIndex));
                 }
+
+                //自定义格式化
+                Class<? extends CellFormatter> customerFormat = ann.customerFormat();
+                if (!customerFormat.equals(DefaultCellFormatter.class) && o != null) {
+                    //单元格格式化
+                    CellFormatter cellFormatter = Creator.of(customerFormat);
+                    cell.setCellValue(cellFormatter.format(o,ann.suffix()));
+                }
+
                 columnIndex++;
             }
             rowIndex++;

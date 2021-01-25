@@ -1,6 +1,7 @@
 package me.about.bean;
 
 import lombok.Data;
+import me.about.widget.excel.annotation.ExcelCellFormat;
 import me.about.widget.excel.annotation.ExcelColumn;
 import me.about.widget.excel.annotation.ExcelCellMerge;
 import me.about.widget.excel.annotation.ExcelMeta;
@@ -25,7 +26,7 @@ import java.util.Date;
 })
 public class User {
 
-    @ExcelColumn(name = "年龄")
+    @ExcelColumn(name = "年龄", cellFormat = @ExcelCellFormat(payload = "元"))
     private int age;
 
     @ExcelColumn(name = "姓名")
@@ -40,7 +41,7 @@ public class User {
     @ExcelColumn(name = "生日")
     private Date birthday;
 
-    @ExcelColumn(name = "薪水",customerFormat = CustomerCellFormatter.class,suffix = "元")
+    @ExcelColumn(name = "薪水")
     private BigDecimal salary;
 }
 

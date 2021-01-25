@@ -1,12 +1,6 @@
 package me.about.widget.excel.annotation;
 
-import me.about.widget.excel.writer.CellFormatter;
-import me.about.widget.excel.writer.DefaultCellFormatter;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -24,12 +18,10 @@ public @interface ExcelColumn {
     // 宽度
     int width() default 30;
 
-    // 格式化
+    // 原生格式化
     String format() default "yyyy-MM-dd HH:mm:ss";
 
-    // 自定义格式化
-    Class<? extends CellFormatter> customerFormat() default DefaultCellFormatter.class;
+    // 单元格格式化
+    ExcelCellFormat cellFormat() default @ExcelCellFormat;
 
-    // 格式化后缀
-    String suffix() default "元";
 }

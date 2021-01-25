@@ -1,4 +1,4 @@
-package me.about.bean;
+package me.about.widget.excel.writer;
 
 import me.about.widget.excel.writer.CellFormatter;
 
@@ -14,19 +14,19 @@ import java.math.BigDecimal;
 public class CustomerCellFormatter implements CellFormatter {
 
     @Override
-    public String format(Object value,String suffix) {
+    public String format(Object value,String payload) {
         if (value == null) return null;
         BigDecimal v =  value instanceof BigDecimal ?  (BigDecimal)value : new BigDecimal(value + "");
         BigDecimal y10 = new BigDecimal(1000000000 + "");
         BigDecimal w10 = new BigDecimal(100000 + "");
         if (v.compareTo(y10) >= 0) {
-            BigDecimal divide = ((BigDecimal) value).divide(y10,2,BigDecimal.ROUND_HALF_UP);
-            return divide.toString() + "亿" + suffix;
+            BigDecimal divide = v.divide(y10,2,BigDecimal.ROUND_HALF_UP);
+            return divide.toString() + "亿" + payload;
         } else if (v.compareTo(w10) >= 0) {
-            BigDecimal divide = ((BigDecimal) value).divide(w10,2,BigDecimal.ROUND_HALF_UP);
-            return divide.toString() + "万" + suffix;
+            BigDecimal divide = v.divide(w10,2,BigDecimal.ROUND_HALF_UP);
+            return divide.toString() + "万" + payload;
         } else if (v.compareTo(BigDecimal.ONE) >= 0 && v.compareTo(new BigDecimal(10000 + "")) < 0) {
-            return v.toString() + "" + suffix;
+            return v.toString() + "" + payload;
         }
         return value.toString();
     }

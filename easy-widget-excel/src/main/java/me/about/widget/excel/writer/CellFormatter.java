@@ -9,6 +9,6 @@ package me.about.widget.excel.writer;
  */
 public interface CellFormatter {
 
-    String format(Object value,String suffix);
+    String format(Object value,String payload);
 
 }

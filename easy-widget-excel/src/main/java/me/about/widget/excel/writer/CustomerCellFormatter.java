@@ -18,7 +18,7 @@ public class CustomerCellFormatter implements CellFormatter {
     @Override
     public String format(Object value,String payload) {
 
-        if (value == null || !NumberUtils.isDigits(value.toString())) {
+        if (value == null || !NumberUtils.isCreatable(value.toString())) {
             return value.toString();
         }
 

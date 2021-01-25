@@ -26,7 +26,7 @@ import java.util.Date;
 })
 public class User {
 
-    @ExcelColumn(name = "年龄", cellFormat = @ExcelCellFormat(payload = ""))
+    @ExcelColumn(name = "年龄")
     private int age;
 
     @ExcelColumn(name = "姓名")
@@ -41,7 +41,7 @@ public class User {
     @ExcelColumn(name = "生日")
     private Date birthday;
 
-    @ExcelColumn(name = "薪水")
+    @ExcelColumn(name = "薪水", cellFormat = @ExcelCellFormat(payload = "元元"))
     private BigDecimal salary;
 }
 

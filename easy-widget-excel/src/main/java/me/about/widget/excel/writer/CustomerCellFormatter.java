@@ -23,18 +23,21 @@ public class CustomerCellFormatter implements CellFormatter {
         }
 
         BigDecimal v =  value instanceof BigDecimal ? (BigDecimal)value : new BigDecimal(value + "");
+
+        BigDecimal absVal = v.abs();
+
         BigDecimal y10 = new BigDecimal(1000000000 + "");
         BigDecimal w10 = new BigDecimal(100000 + "");
-        if (v.compareTo(y10) >= 0) {
+        if (absVal.compareTo(y10) >= 0) {
             BigDecimal divide = v.divide(y10,2,BigDecimal.ROUND_HALF_UP);
             return divide.toString() + "亿" + payload;
-        } else if (v.compareTo(w10) >= 0) {
+        } else if (absVal.compareTo(w10) >= 0) {
             BigDecimal divide = v.divide(w10,2,BigDecimal.ROUND_HALF_UP);
             return divide.toString() + "万" + payload;
-        } else if (v.compareTo(BigDecimal.ONE) >= 0 && v.compareTo(new BigDecimal(10000 + "")) < 0) {
+        } else if (absVal.compareTo(BigDecimal.ONE) >= 0 && absVal.compareTo(new BigDecimal(10000 + "")) < 0) {
             return v.toString() + "" + payload;
         }
-        return value.toString();
+        return value.toString() + payload;
     }
 
 }

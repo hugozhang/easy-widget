@@ -245,12 +245,14 @@
 
     <distributionManagement>
         <repository>
-            <id>Releases</id>
-            <url>http://192.168.37.205:8081/nexus/content/repositories/Winning-Releases/</url>
+            <!-- 这里的ID要和setting的id一致 -->
+            <id>winning-releases</id>
+            <url>http://192.168.3.103:8081/nexus/content/repositories/winning-releases/</url>
         </repository>
+        <!--这是打成快照版本的配置 -->
         <snapshotRepository>
-            <id>Snapshots</id>
-            <url>http://192.168.37.205:8081/nexus/content/repositories/Winning-Snapshots/</url>
+            <id>winning-snapshots</id>
+            <url>http://192.168.3.103:8081/nexus/content/repositories/winning-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 

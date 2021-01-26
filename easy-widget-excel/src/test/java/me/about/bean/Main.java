@@ -176,8 +176,10 @@ public class Main {
                  u.setSalary(new BigDecimal(10000000034.12345+""));
             } else if (i == 2) {
                 u.setSalary(new BigDecimal(100056.8967+""));
+            } else if (i == 3) {
+                u.setSalary(new BigDecimal(-100000005464.12345+""));
             } else {
-                u.setSalary(new BigDecimal(123+""));
+                u.setSalary(new BigDecimal(-1000464.12345+""));
             }
             list.add(u);
         }

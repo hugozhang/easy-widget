@@ -29,7 +29,7 @@ public class CustomerCellFormatter implements CellFormatter {
         BigDecimal y10 = new BigDecimal(1000000000 + "");
         BigDecimal w10 = new BigDecimal(100000 + "");
 
-        BigDecimal y = new BigDecimal(1000000000 + "");
+        BigDecimal y = new BigDecimal(100000000 + "");
         BigDecimal w = new BigDecimal(10000 + "");
 
         if (absVal.compareTo(y10) >= 0) {

@@ -41,7 +41,7 @@ public class User {
     @ExcelColumn(name = "生日")
     private Date birthday;
 
-    @ExcelColumn(name = "薪水", cellFormat = @ExcelCellFormat(payload = "元元"))
+    @ExcelColumn(name = "薪水", cellFormat = @ExcelCellFormat(payload = "元"))
     private BigDecimal salary;
 }
 

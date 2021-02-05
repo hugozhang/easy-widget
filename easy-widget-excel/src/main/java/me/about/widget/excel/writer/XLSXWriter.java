@@ -13,6 +13,7 @@ import me.about.widget.excel.annotation.ExcelMeta;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.DateFormatConverter;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
 /**
@@ -23,6 +24,8 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
  * @Description:
  */
 public class XLSXWriter {
+
+    private CellFormatter cellFormatter;
 
     private XLSXWriter() {}
 
@@ -97,10 +100,7 @@ public class XLSXWriter {
                 Cell cell = row0.createCell(j);
                 cell.setCellStyle(headCellStyle);
                 cell.setCellValue("");
-                //合并单元格后显示值
-                if (cellTextMap.containsKey(i + "" + j)) {
-                    cell.setCellValue(cellTextMap.get(i + "" + j));
-                }
+                newCellValue(cell,i,j,cellTextMap);
             }
         }
 
@@ -119,16 +119,6 @@ public class XLSXWriter {
             cell.setCellValue(ann.name());
         }
 
-        // data 部分
-        CellStyle dataCellStyle = workbook.createCellStyle();
-        dataCellStyle.setAlignment(HorizontalAlignment.CENTER);
-        dataCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-
-        dataCellStyle.setBorderBottom(BorderStyle.THIN);
-        dataCellStyle.setBorderLeft(BorderStyle.THIN);
-        dataCellStyle.setBorderTop(BorderStyle.THIN);
-        dataCellStyle.setBorderRight(BorderStyle.THIN);
-
         rowIndex = headIndex + 1; //确定起始行
 
         // 数据行
@@ -143,22 +133,27 @@ public class XLSXWriter {
                     continue;
                 }
                 // 列数据
-                Object o = field.get(t);// 反射取值
-                if (o == null) {
+                Object fieldValue = field.get(t);// 反射取值
+                if (fieldValue == null) {
                     columnIndex++;// *****跳到下一列
                     continue;
                 }
                 Cell cell = row.createCell(columnIndex);
-                cell.setCellStyle(dataCellStyle);
-                // 处理数据类型
-                if (o instanceof Date) {
-                    dataCellStyle.setDataFormat(createHelper.createDataFormat().getFormat(ann == null ? "yyyy-MM-dd HH:mm:ss" : ann.format()));
-                    cell.setCellValue((Date) o);
-                } else if (o instanceof Double || o instanceof Float) {
+                // 处理数据类型  org.apache.poi.ss.usermodel.BuiltinFormats
+                if (fieldValue instanceof Date) {
+                    CellStyle dataCellStyle = getDataCellStyle(workbook);
+                    String excelFormatPattern = DateFormatConverter.convert(Locale.CHINA, ann.format());
+                    dataCellStyle.setDataFormat(createHelper.createDataFormat().getFormat(excelFormatPattern));
+                    cell.setCellValue((Date) fieldValue);
+                    cell.setCellStyle(dataCellStyle);
+                } else if (fieldValue instanceof Double || fieldValue instanceof Float) {
+                    CellStyle dataCellStyle = getDataCellStyle(workbook);
                     dataCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("0.00"));
-                    cell.setCellValue((Double) o);
-                } else if (o instanceof Boolean) {
-                    Boolean bool = (Boolean) o;
+                    cell.setCellValue((Double) fieldValue);
+                    cell.setCellStyle(dataCellStyle);
+                } else if (fieldValue instanceof Boolean) {
+                    CellStyle dataCellStyle = getDataCellStyle(workbook);
+                    Boolean bool = (Boolean) fieldValue;
                     if (edf == null) {
                         cell.setCellValue(bool);
                     } else {
@@ -169,8 +164,10 @@ public class XLSXWriter {
                             cell.setCellValue(map.get(bool.toString().toLowerCase()));
                         }
                     }
-                } else if (o instanceof Integer) {
-                    Integer intValue = (Integer) o;
+                    cell.setCellStyle(dataCellStyle);
+                } else if (fieldValue instanceof Integer) {
+                    CellStyle dataCellStyle = getDataCellStyle(workbook);
+                    Integer intValue = (Integer) fieldValue;
                     if (edf == null) {
                         cell.setCellValue(intValue);
                     } else {
@@ -181,25 +178,31 @@ public class XLSXWriter {
                             cell.setCellValue(map.get(intValue.toString()));
                         }
                     }
-                } else if (o instanceof BigDecimal) {
+                    cell.setCellStyle(dataCellStyle);
+                } else if (fieldValue instanceof BigDecimal) {
+                    CellStyle dataCellStyle = getDataCellStyle(workbook);
                     dataCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("0.00"));
-                    cell.setCellValue(((BigDecimal) o).doubleValue());
+                    cell.setCellValue(((BigDecimal) fieldValue).doubleValue());
+                    cell.setCellStyle(dataCellStyle);
                 } else {
-                    cell.setCellValue(o.toString());
+                    CellStyle dataCellStyle = getDataCellStyle(workbook);
+                    cell.setCellValue(fieldValue.toString());
+                    cell.setCellStyle(dataCellStyle);
                 }
 
-                //单元格合并  显示值
-                if (cellTextMap.containsKey(rowIndex + "" + columnIndex)) {
-                    cell.setCellValue(cellTextMap.get(rowIndex + "" + columnIndex));
+                //确定是否需要合并以及合并后显示的值
+                newCellValue(cell,rowIndex,columnIndex,cellTextMap);
+
+                //确定是否需要格式化
+                if (cellFormatter == null) {
+                    //自定义格式化
+                    ExcelCellFormat cellFormat = ann.cellFormat();
+                    this.cellFormatter = Creator.of(cellFormat.format());
                 }
 
-                //自定义格式化
-                ExcelCellFormat cellFormat = ann.cellFormat();
-                if (cellFormat != null && o != null) {
-                    //单元格格式化
-                    CellFormatter format = Creator.of(cellFormat.format());
-                    cell.setCellValue(format.format(o,cellFormat.payload()));
-                }
+                //确定是否格式化
+                this.cellFormatter.format(cell,field.getName(),fieldValue,ann.cellFormat().payload());
+
                 columnIndex++;
             }
             rowIndex++;
@@ -212,5 +215,25 @@ public class XLSXWriter {
             sheet.addMergedRegion(new CellRangeAddress(mergeCells[0],mergeCells[1],mergeCells[2],mergeCells[3]));
         }
         return workbook;
+    }
+
+    private CellStyle getDataCellStyle(SXSSFWorkbook workbook) {
+        // data 部分
+        CellStyle dataCellStyle = workbook.createCellStyle();
+        dataCellStyle.setAlignment(HorizontalAlignment.CENTER);
+        dataCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+        dataCellStyle.setBorderBottom(BorderStyle.THIN);
+        dataCellStyle.setBorderLeft(BorderStyle.THIN);
+        dataCellStyle.setBorderTop(BorderStyle.THIN);
+        dataCellStyle.setBorderRight(BorderStyle.THIN);
+        return dataCellStyle;
+    }
+
+    private void newCellValue(Cell cell, int rowIndex, int cellIndex, Map<String,String> cellTextMap) {
+        //合并单元格后显示值
+        if (cellTextMap.containsKey(rowIndex + "" + cellIndex)) {
+            cell.setCellValue(cellTextMap.get(rowIndex + "" + cellIndex));
+        }
     }
 }

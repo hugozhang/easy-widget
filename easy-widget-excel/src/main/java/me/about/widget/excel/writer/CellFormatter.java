@@ -1,5 +1,7 @@
 package me.about.widget.excel.writer;
 
+import org.apache.poi.ss.usermodel.Cell;
+
 /**
  * Created with IntelliJ IDEA.
  *
@@ -9,6 +11,6 @@ package me.about.widget.excel.writer;
  */
 public interface CellFormatter {
 
-    String format(Object value,String payload);
+    void format(Cell cell,String fieldName, Object value, String payload);
 
 }

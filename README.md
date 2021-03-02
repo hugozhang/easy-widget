@@ -7,7 +7,7 @@
 
 ## 分布式缓存
 spring cache不支持不同key不同的过期时间，所以才有这个，也是基于redis实现，支持Spring EL表达式
-*  注解式
+###  注解式
 ```java
 @GetMapping("/cache2")
 @MyCacheable(group = "cn.hsa.mds",key = "#p0",expire = 10,timeUnit = TimeUnit.MINUTES)
@@ -17,7 +17,7 @@ public String testCache2(String test) {
 }
 ```
 
-* API式
+### API式
 ```java
 @GetMapping("/cache")
 public Object cache() {
@@ -30,7 +30,7 @@ public Object cache() {
 
 ## 分布式锁
 基于redis实现(命令set key value nx ex 200)，同时实现JDK Lock接口，也实现key自动续期，通过时间轮+看门狗，支持Spring EL表达式
-*  注解式
+###  注解式
 ```java
 @GetMapping("/lock")
 @DLock(key = "#p0")
@@ -39,7 +39,7 @@ public void lock(String test) throws InterruptedException {
 }
 ```
 
-* API式
+###  API式
 ```java
 @GetMapping("/lock")
 public void lock(String test) {
@@ -59,7 +59,6 @@ public void lock(String test) {
 
 ## 分布式ID生成
 基于redis lua实现(与redis所在的机子的时间（与应用所在机子无关）有关，雪花算法原理)
-
 ```java
 @Resource
 private IdGenerator idGenerator;
@@ -67,5 +66,84 @@ private IdGenerator idGenerator;
 @GetMapping("/id")
 public Object id() {
     return idGenerator.nextId("order");
+}
+```
+
+## excel读写，只支持xlsx文件格式
+### 读
+```java
+@Test
+public void reader() throws Exception {
+    List<User> rows = XLSXReader.build().skipRow(1).open(new FileInputStream("中文.xlsx")).sheetsParser(User.class);
+    StringBuilder buffer = new StringBuilder();
+    for (User user : rows) {
+        buffer.append(user.getAddress());
+    }
+    System.out.println(buffer);
+}
+```
+### 写
+```java
+@Test
+    public void writer() throws Exception {
+        List<User> list = new ArrayList();
+
+        for (int i = 0; i < 1000; i++) {
+            User u = new User();
+            u.setAge(i);
+            u.setUsername("A" + i);
+            u.setCompany("B"+i);
+            u.setAddress("C" + i);
+            u.setBirthday(new Date());
+            if (i == 1) {
+                 u.setSalary(new BigDecimal(10000000034.12345+""));
+            } else if (i == 2) {
+                u.setSalary(new BigDecimal(100056.8967+""));
+            } else if (i == 3) {
+                u.setSalary(new BigDecimal(-100000005464.12345+""));
+            } else {
+                u.setSalary(new BigDecimal(-1000464.12345+""));
+            }
+            list.add(u);
+        }
+        Date s = new Date();
+        System.out.println(s);
+        FileOutputStream out = new FileOutputStream("中文.xlsx");
+        XLSXWriter.build().toOutputStream(list, out);
+        Date e = new Date();
+        System.out.println(e);
+        System.out.println("耗时:" + (e.getTime() - s.getTime()) / 1000);
+        out.close();
+    }
+```
+### 合并单元格
+```java
+@Data
+@ExcelMeta(headEndIndex = 1, mergeCells = {
+        @ExcelCellMerge(coordinate = {0,0,0,1}, text = "合并列单元格1"),
+        @ExcelCellMerge(coordinate = {0,0,2,3}, text = "合并列单元格2"),
+        @ExcelCellMerge(coordinate = {0,1,4,5}, text = "合并列单元格3"),
+        @ExcelCellMerge(coordinate = {2,4,0,0}, text = "就诊人次"),
+        @ExcelCellMerge(coordinate = {5,6,0,0}, text = "就诊人次2")
+})
+public class User {
+
+    @ExcelColumn(name = "年龄")
+    private int age;
+
+    @ExcelColumn(name = "姓名")
+    private String username;
+
+    @ExcelColumn(name = "公司")
+    private String company;
+
+    @ExcelColumn(name = "地址")
+    private String address;
+
+    @ExcelColumn(name = "生日")
+    private Date birthday;
+
+    @ExcelColumn(name = "薪水", cellFormat = @ExcelCellFormat(payload = "元"))
+    private BigDecimal salary;
 }
 ```

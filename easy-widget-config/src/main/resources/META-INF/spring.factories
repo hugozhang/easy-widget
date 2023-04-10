@@ -1,0 +1,11 @@
+org.springframework.context.ApplicationContextInitializer = \
+    me.about.widget.config.spi.CustomApplicationContextInitializer
+
+org.springframework.boot.env.EnvironmentPostProcessor = \
+    me.about.widget.config.spi.CustomEnvironmentPostProcessor
+
+org.springframework.boot.autoconfigure.EnableAutoConfiguration = \
+    me.about.widget.config.spring.boot.autoconfig.BeanAutoConfiguration
+
+me.about.widget.config.spi.PropertySourceLocator = \
+    me.about.widget.config.spi.ZookeeperPropertySourceLocator

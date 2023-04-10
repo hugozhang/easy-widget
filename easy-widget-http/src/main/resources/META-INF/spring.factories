@@ -1,0 +1,3 @@
+
+org.springframework.boot.autoconfigure.EnableAutoConfiguration = \
+    me.about.widget.retrofit2.spring.boot.autoconfig.BeanAutoConfiguration

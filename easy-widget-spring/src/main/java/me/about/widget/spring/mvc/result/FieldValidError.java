@@ -10,7 +10,7 @@ import java.io.Serializable;
  * @description:
  */
 
-public class ValidFieldError implements Serializable {
+public class FieldValidError implements Serializable {
 
     private String field;
 

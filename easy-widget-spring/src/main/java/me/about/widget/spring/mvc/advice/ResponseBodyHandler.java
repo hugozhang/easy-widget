@@ -19,7 +19,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  */
 
 @ControllerAdvice
-public class JsonResultResponseBodyHandler implements ResponseBodyAdvice<Object> {
+public class ResponseBodyHandler implements ResponseBodyAdvice<Object> {
 
     @Value("${me.about.widget.spring.match-url:/hmap}")
     private String matchUrl;

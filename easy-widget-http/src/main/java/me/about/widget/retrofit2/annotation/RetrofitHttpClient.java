@@ -13,6 +13,6 @@ import java.lang.annotation.*;
 @Documented
 public @interface RetrofitHttpClient {
 
-    String baseUrl() default "";
+    String baseUrl();
 
 }

@@ -1,7 +1,7 @@
 package me.about.widget.spring.boot.autoconfig;
 
 import me.about.widget.spring.mvc.advice.GlobalExceptionHandler;
-import me.about.widget.spring.mvc.advice.JsonResultResponseBodyHandler;
+import me.about.widget.spring.mvc.advice.ResponseBodyHandler;
 import me.about.widget.spring.support.SpringContextHolder;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
@@ -18,7 +18,7 @@ public class BeanHub implements ImportSelector {
     public String[] selectImports(AnnotationMetadata annotationMetadata) {
         return new String[] {
                 GlobalExceptionHandler.class.getName(),
-                JsonResultResponseBodyHandler.class.getName(),
+                ResponseBodyHandler.class.getName(),
                 SpringContextHolder.class.getName()
         };
     }

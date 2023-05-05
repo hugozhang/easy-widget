@@ -3,8 +3,10 @@ package me.about.widget.multicache.cache;
 import com.github.benmanes.caffeine.cache.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.support.NullValue;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
@@ -36,6 +38,9 @@ public class MultiCacheManager implements CacheManager {
         String cacheKey = getKey(key);
         Object value = caffeineCache.getIfPresent(cacheKey);
         if (value != null) {
+            if (Objects.equals(value,NullValue.INSTANCE)) {
+                return null;
+            }
             logger.info("From local cache(caffeine),key:{},value:{}." ,cacheKey,value);
             return value;
         }
@@ -71,7 +76,11 @@ public class MultiCacheManager implements CacheManager {
     public void put(Object key, Object value, Long expire, TimeUnit timeUnit) {
         String cacheKey = getKey(key);
         this.redisTemplate.opsForValue().set(cacheKey,value,expire,timeUnit);
-        this.caffeineCache.put(cacheKey,value);
+        if (value == null) {
+            this.caffeineCache.put(cacheKey,NullValue.INSTANCE);
+        } else {
+            this.caffeineCache.put(cacheKey,value);
+        }
     }
 
     @Override

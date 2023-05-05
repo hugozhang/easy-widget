@@ -42,7 +42,9 @@ public class GenericFastJsonRedisSerializerExt implements RedisSerializer<Object
 
     @Override
     public Object deserialize(byte[] bytes) throws SerializationException {
-        if (bytes != null && bytes.length != 0) {
+        if(bytes == null || bytes.length == 0) {
+            return null;
+        } else {
             if (ObjectUtils.nullSafeEquals(bytes, BINARY_NULL_VALUE)) {
                 return NullValue.INSTANCE;
             }
@@ -51,8 +53,6 @@ public class GenericFastJsonRedisSerializerExt implements RedisSerializer<Object
             } catch (Exception var3) {
                 throw new SerializationException("Could not deserialize: " + var3.getMessage(), var3);
             }
-        } else {
-            return null;
         }
     }
 

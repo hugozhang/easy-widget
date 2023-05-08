@@ -5,9 +5,6 @@ import me.about.widget.spring.mvc.result.FieldValidError;
 import me.about.widget.spring.mvc.result.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -92,39 +89,6 @@ public class GlobalExceptionHandler {
             results.add(fieldValidError);
         }
         return Result.failed(400,"【参数异常】: 参数检验失败",results);
-    }
-
-    /**
-     * spring security 异常
-     * @param ex
-     * @return
-     */
-    @ExceptionHandler(InvalidBearerTokenException.class)
-    public Result invalidBearerTokenException(InvalidBearerTokenException ex) {
-        logger.error(ex.getMessage(),ex);
-        return Result.failed(401,"【认证异常】: token 失效");
-    }
-
-    /**
-     * spring security 异常
-     * @param ex
-     * @return
-     */
-    @ExceptionHandler(AccessDeniedException.class)
-    public Result accessDeniedException(AccessDeniedException ex) {
-        logger.error(ex.getMessage(),ex);
-        return Result.failed(401,"【认证异常】: 拒绝访问");
-    }
-
-    /**
-     * spring security 异常
-     * @param ex
-     * @return
-     */
-    @ExceptionHandler(OAuth2AuthenticationException.class)
-    public Result oAuth2AuthenticationException(OAuth2AuthenticationException ex) {
-        logger.error(ex.getMessage(),ex);
-        return Result.failed(400,"【认证异常】: " + ex.getMessage());
     }
 
     /**

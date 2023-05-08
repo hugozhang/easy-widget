@@ -44,8 +44,6 @@
 
         <aliyun.oss.version>2.8.3</aliyun.oss.version>
 
-        <spring-security-oauth2-authorization-server.version>0.4.1</spring-security-oauth2-authorization-server.version>
-
     </properties>
 
     <modules>
@@ -64,13 +62,6 @@
     
     <dependencyManagement>
         <dependencies>
-
-            <!-- spring security -->
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-oauth2-authorization-server</artifactId>
-                <version>${spring-security-oauth2-authorization-server.version}</version>
-            </dependency>
 
             <!-- thread local -->
             <dependency>

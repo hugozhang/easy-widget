@@ -5,7 +5,7 @@ import me.about.widget.spring.mvc.result.FieldValidError;
 import me.about.widget.spring.mvc.result.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.validation.BindException;
@@ -110,10 +110,10 @@ public class GlobalExceptionHandler {
      * @param ex
      * @return
      */
-    @ExceptionHandler(InsufficientAuthenticationException.class)
-    public Result insufficientAuthenticationException(InsufficientAuthenticationException ex) {
+    @ExceptionHandler(AccessDeniedException.class)
+    public Result accessDeniedException(AccessDeniedException ex) {
         logger.error(ex.getMessage(),ex);
-        return Result.failed(403,"【认证异常】: 拒绝访问");
+        return Result.failed(401,"【认证异常】: 拒绝访问");
     }
 
     /**

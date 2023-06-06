@@ -1,4 +1,4 @@
-package me.about.widget.retrofit2.core;
+package me.about.widget.retrofit2.converter;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
@@ -18,41 +18,32 @@ import java.lang.reflect.Type;
  * @author: hugo.zxh
  * @date: 2023/04/02 0:48
  */
-public class Retrofit2FastJsonConverterFactory extends Converter.Factory {
+public class FastJsonConverterFactory extends Converter.Factory {
 
     private static final MediaType MEDIA_TYPE = MediaType.parse("application/json; charset=UTF-8");
 
     private FastJsonConfig fastJsonConfig;
 
-    public Retrofit2FastJsonConverterFactory() {
-        this.fastJsonConfig = new FastJsonConfig();
-    }
-
-    public Retrofit2FastJsonConverterFactory(FastJsonConfig fastJsonConfig) {
+    public FastJsonConverterFactory(FastJsonConfig fastJsonConfig) {
         this.fastJsonConfig = fastJsonConfig;
     }
 
-    public static Retrofit2FastJsonConverterFactory create() {
+    public static FastJsonConverterFactory create() {
         return create(new FastJsonConfig());
     }
 
-    public static Retrofit2FastJsonConverterFactory create(FastJsonConfig fastJsonConfig) {
+    public static FastJsonConverterFactory create(FastJsonConfig fastJsonConfig) {
         if (fastJsonConfig == null) {
             throw new NullPointerException("fastJsonConfig == null");
         }
-        return new Retrofit2FastJsonConverterFactory(fastJsonConfig);
-    }
-
-    public Retrofit2FastJsonConverterFactory setFastJsonConfig(FastJsonConfig fastJsonConfig) {
-        this.fastJsonConfig = fastJsonConfig;
-        return this;
+        return new FastJsonConverterFactory(fastJsonConfig);
     }
 
     @Override
     public Converter<ResponseBody, ?> responseBodyConverter(Type type,
                                                             Annotation[] annotations,
                                                             Retrofit retrofit) {
-        return new Retrofit2FastJsonConverterFactory.ResponseBodyConverter<>(type);
+        return new FastJsonConverterFactory.ResponseBodyConverter<>(type);
     }
 
     @Override
@@ -60,7 +51,7 @@ public class Retrofit2FastJsonConverterFactory extends Converter.Factory {
                                                           Annotation[] parameterAnnotations,
                                                           Annotation[] methodAnnotations,
                                                           Retrofit retrofit) {
-        return new Retrofit2FastJsonConverterFactory.RequestBodyConverter<>();
+        return new FastJsonConverterFactory.RequestBodyConverter<>();
     }
 
     final class ResponseBodyConverter<T> implements Converter<ResponseBody, T> {

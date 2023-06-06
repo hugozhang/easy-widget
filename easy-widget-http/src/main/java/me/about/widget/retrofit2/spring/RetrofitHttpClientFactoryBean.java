@@ -2,8 +2,9 @@ package me.about.widget.retrofit2.spring;
 
 import lombok.extern.slf4j.Slf4j;
 import me.about.widget.retrofit2.annotation.RetrofitHttpClient;
+import me.about.widget.retrofit2.converter.JacksonConverterFactory;
 import me.about.widget.retrofit2.core.Retrofit2AdapterFactory;
-import me.about.widget.retrofit2.core.Retrofit2FastJsonConverterFactory;
+import me.about.widget.retrofit2.converter.FastJsonConverterFactory;
 import me.about.widget.retrofit2.interceptor.LoggingInterceptor;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.FactoryBean;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
+import retrofit2.Converter;
 import retrofit2.Retrofit;
 
 import java.util.concurrent.TimeUnit;
@@ -47,7 +49,11 @@ public class RetrofitHttpClientFactoryBean<T> implements FactoryBean<T>, Environ
     @Override
     public T getObject() throws Exception {
         Assert.isTrue(retrofitHttpClientClass.isInterface(), "RetrofitHttpClient is only interface");
+
         RetrofitHttpClient retrofitHttpClient = retrofitHttpClientClass.getAnnotation(RetrofitHttpClient.class);
+
+        Class<? extends Converter.Factory> converterFactory = retrofitHttpClient.converterFactory();
+
         String baseUrl = environment.resolveRequiredPlaceholders(retrofitHttpClient.baseUrl());
 
         OkHttpClient client = new OkHttpClient.Builder()
@@ -63,7 +69,8 @@ public class RetrofitHttpClientFactoryBean<T> implements FactoryBean<T>, Environ
                 .baseUrl(baseUrl)
                 .client(client)
                 .addCallAdapterFactory(Retrofit2AdapterFactory.create())
-                .addConverterFactory(Retrofit2FastJsonConverterFactory.create())
+                .addConverterFactory(converterFactory == FastJsonConverterFactory.class
+                        ? FastJsonConverterFactory.create() : JacksonConverterFactory.create())
                 .build();
 
         return retrofit.create(retrofitHttpClientClass);

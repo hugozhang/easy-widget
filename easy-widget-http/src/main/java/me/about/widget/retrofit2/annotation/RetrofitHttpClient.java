@@ -1,5 +1,8 @@
 package me.about.widget.retrofit2.annotation;
 
+import me.about.widget.retrofit2.converter.FastJsonConverterFactory;
+import retrofit2.Converter;
+
 import java.lang.annotation.*;
 
 /**
@@ -14,5 +17,7 @@ import java.lang.annotation.*;
 public @interface RetrofitHttpClient {
 
     String baseUrl();
+
+    Class<? extends Converter.Factory> converterFactory() default FastJsonConverterFactory.class;
 
 }

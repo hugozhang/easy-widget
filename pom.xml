@@ -58,6 +58,7 @@
         <module>easy-widget-trace</module>
         <module>easy-widget-util</module>
         <module>easy-widget-oss</module>
+        <module>easy-widget-loki</module>
     </modules>
     
     <dependencyManagement>

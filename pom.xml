@@ -59,6 +59,7 @@
         <module>easy-widget-util</module>
         <module>easy-widget-oss</module>
         <module>easy-widget-loki</module>
+        <module>easy-widget-security</module>
     </modules>
     
     <dependencyManagement>

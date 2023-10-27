@@ -66,7 +66,7 @@ public class RedisLockAspect {
      * @return
      */
     private String parseKey(String key,Method method,Object [] args) {
-        if(StringUtils.isEmpty(key)) {
+        if(!StringUtils.hasText(key)) {
             return null;
         }
 

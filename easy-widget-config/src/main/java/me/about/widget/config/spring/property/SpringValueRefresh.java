@@ -1,4 +1,4 @@
-package me.about.widget.config.spring;
+package me.about.widget.config.spring.property;
 
 import me.about.widget.config.util.ConfigKeys;
 

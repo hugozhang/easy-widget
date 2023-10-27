@@ -1,0 +1,4 @@
+## Auto Configuration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+    me.about.widget.routing.spring.boot.autoconfig.BeanHub,\
+    me.about.widget.routing.spring.RoutingDataSourceConfig

@@ -80,11 +80,16 @@ public class AuthorizationServerConfig {
         return new JdbcTemplate(dataSource);
     }
 
+    /**
+     * 授权服务  定义请求验证处理
+     * @param http
+     * @return
+     * @throws Exception
+     */
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public SecurityFilterChain authServerSecurityFilterChain(HttpSecurity http) throws Exception {
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer();
-
         authorizationServerConfigurer
                 .tokenEndpoint(endpointConfigurer -> endpointConfigurer
                         .accessTokenResponseHandler((request, response, authentication) -> {
@@ -158,6 +163,13 @@ public class AuthorizationServerConfig {
         }
     }
 
+
+    /**
+     * 资源服务  定义哪些是受保护的资源
+     * @param http
+     * @return
+     * @throws Exception
+     */
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public SecurityFilterChain resourceServerSecurityFilterChain(HttpSecurity http) throws Exception {

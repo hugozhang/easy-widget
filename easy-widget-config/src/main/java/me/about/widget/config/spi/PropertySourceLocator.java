@@ -41,7 +41,7 @@ public interface PropertySourceLocator {
      * @param applicationContext
      * @return
      */
-    static Collection<PropertySource<?>> locateCollections(PropertySourceLocator locator, Environment environment, ConfigurableApplicationContext applicationContext) {
+    default Collection<PropertySource<?>> locateCollections(PropertySourceLocator locator, Environment environment, ConfigurableApplicationContext applicationContext) {
         PropertySource<?> propertySource = locator.locate(environment,applicationContext);
         return propertySource == null ? Collections.emptyList() : Collections.singletonList(propertySource);
     }

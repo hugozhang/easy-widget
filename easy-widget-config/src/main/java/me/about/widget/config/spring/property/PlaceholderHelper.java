@@ -1,4 +1,4 @@
-package me.about.widget.config.spring;
+package me.about.widget.config.spring.property;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;

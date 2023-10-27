@@ -1,7 +1,7 @@
 package me.about.widget.config.spi;
 
 import lombok.extern.slf4j.Slf4j;
-import me.about.widget.config.spring.SpringValueRefresh;
+import me.about.widget.config.spring.property.SpringValueRefresh;
 import me.about.widget.config.util.ConfigKeys;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;

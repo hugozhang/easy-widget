@@ -1,10 +1,12 @@
-package me.about.widget.config.spring;
+package me.about.widget.config.spring.property;
 
 import lombok.Getter;
-import lombok.SneakyThrows;
+import org.springframework.core.MethodParameter;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * SpringValue
@@ -15,6 +17,8 @@ import java.lang.reflect.Field;
  */
 @Getter
 public class SpringValue {
+
+    private MethodParameter methodParameter;
 
     /**
      * bean 的弱引用
@@ -58,9 +62,31 @@ public class SpringValue {
         this.targetType = field.getType();
     }
 
-    @SneakyThrows
-    public void update(Object newVal) {
-        injectField(newVal);
+    /**
+     *
+     * @param key
+     * @param placeholder
+     * @param bean
+     * @param beanName
+     * @param method
+     */
+    public SpringValue(String key, String placeholder, Object bean, String beanName, Method method) {
+        this.beanRef = new WeakReference<>(bean);
+        this.beanName = beanName;
+        this.methodParameter = new MethodParameter(method, 0);
+        this.key = key;
+        this.placeholder = placeholder;
+        Class<?>[] paramTps = method.getParameterTypes();
+        this.targetType = paramTps[0];
+    }
+
+
+    public void update(Object newVal) throws IllegalAccessException, InvocationTargetException {
+        if (isField()) {
+            injectField(newVal);
+        } else {
+            injectMethod(newVal);
+        }
     }
 
 
@@ -81,13 +107,31 @@ public class SpringValue {
         field.setAccessible(accessible);
     }
 
+    private void injectMethod(Object newVal)
+            throws InvocationTargetException, IllegalAccessException {
+        Object bean = beanRef.get();
+        if (bean == null) {
+            return;
+        }
+        methodParameter.getMethod().invoke(bean, newVal);
+    }
+
+    public boolean isField() {
+        return this.field != null;
+    }
+
     @Override
     public String toString() {
         Object bean = beanRef.get();
         if (bean == null) {
             return "";
         }
-        return String.format("key: %s, beanName: %s, field: %s.%s", key, beanName, bean.getClass().getName(), field.getName());
+        if (isField()) {
+            return String
+                    .format("key: %s, beanName: %s, field: %s.%s", key, beanName, bean.getClass().getName(), field.getName());
+        }
+        return String.format("key: %s, beanName: %s, method: %s.%s", key, beanName, bean.getClass().getName(),
+                methodParameter.getMethod().getName());
     }
 
 }

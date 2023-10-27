@@ -12,7 +12,7 @@
     <artifactId>easy-widget-security</artifactId>
 
     <properties>
-        <spring-security-oauth2-authorization-server.version>1.1.2</spring-security-oauth2-authorization-server.version>
+        <spring-security-oauth2-authorization-server.version>0.4.1</spring-security-oauth2-authorization-server.version>
     </properties>
 
 

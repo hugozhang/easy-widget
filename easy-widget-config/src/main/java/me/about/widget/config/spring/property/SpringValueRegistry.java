@@ -1,4 +1,4 @@
-package me.about.widget.config.spring;
+package me.about.widget.config.spring.property;
 
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Maps;

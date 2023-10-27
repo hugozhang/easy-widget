@@ -19,6 +19,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
+        <calcite.version>1.26.0</calcite.version>
+        <druid.version>1.2.5</druid.version>
         <asm.version>7.2</asm.version>
         <caffeine.version>2.9.2</caffeine.version>
         <poi.version>3.17</poi.version>
@@ -58,8 +60,8 @@
         <module>easy-widget-trace</module>
         <module>easy-widget-util</module>
         <module>easy-widget-oss</module>
-        <module>easy-widget-loki</module>
         <module>easy-widget-security</module>
+        <module>easy-widget-routing</module>
     </modules>
     
     <dependencyManagement>
@@ -256,8 +258,37 @@
                 <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
+
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid</artifactId>
+                <version>${druid.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.calcite</groupId>
+                <artifactId>calcite-core</artifactId>
+                <version>${calcite.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.ctrip.framework.apollo</groupId>
+                <artifactId>apollo-client</artifactId>
+                <version>1.6.0</version>
+                <scope>provided</scope>
+<!--                <version>${apollo-client.version}</version>-->
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>

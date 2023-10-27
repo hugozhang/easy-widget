@@ -56,7 +56,7 @@ public class RedisLock implements Lock {
             if (tryLock()) {
                 return true;
             }
-            // 超时
+            // timeout
             if (deadline <= System.nanoTime()) {
                 return false;
             }

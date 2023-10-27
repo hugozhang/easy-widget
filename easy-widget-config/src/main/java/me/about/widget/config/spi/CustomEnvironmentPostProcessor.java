@@ -17,6 +17,8 @@ import java.util.Properties;
 /**
  * 配置中心
  *
+ * 注意这里的log不是slf4j的，因为这个时候slf4j还没有初始化
+ *
  * @author: hugo.zxh
  * @date: 2023/02/03 13:48
  * @description:

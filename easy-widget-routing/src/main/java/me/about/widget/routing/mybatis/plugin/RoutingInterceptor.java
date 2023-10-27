@@ -1,11 +1,14 @@
-package me.about.widget.mybatis.plugin;
+package me.about.widget.routing.mybatis.plugin;
 
 
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ParameterMapping;
-import org.apache.ibatis.plugin.*;
+import org.apache.ibatis.plugin.Interceptor;
+import org.apache.ibatis.plugin.Intercepts;
+import org.apache.ibatis.plugin.Invocation;
+import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
@@ -13,8 +16,6 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
@@ -24,22 +25,21 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 
 /**
- * mybatis 完整日志打印多数据源AOP
- * @see ApplicationListener<ContextRefreshedEvent>
+ * 解析sql 设置路由key
  *
  * @author: hugo.zxh
- * @date: 2020/11/09 14:23
+ * @date: 2023/10/19 13:14
  * @description:
  *
  */
 
-
 @Intercepts({
         @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}),
-        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class})})
-public class MybatisInterceptor implements Interceptor {
+        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class})
+})
+public class RoutingInterceptor implements Interceptor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MybatisInterceptor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RoutingInterceptor.class);
 
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
@@ -58,6 +58,7 @@ public class MybatisInterceptor implements Interceptor {
         Configuration configuration = mappedStatement.getConfiguration();
         // 获取到最终的sql语句
         String sql = showSql(configuration, boundSql);
+
         Object proceed;
         try {
             proceed = invocation.proceed();
@@ -76,7 +77,7 @@ public class MybatisInterceptor implements Interceptor {
         return proceed;
     }
 
-    public static String getSql(String sql, String sqlId, long time) {
+    public String getSql(String sql, String sqlId, long time) {
         StringBuilder str = new StringBuilder(100);
         str.append(sqlId);
         str.append("\t\n执行SQL:");
@@ -90,7 +91,9 @@ public class MybatisInterceptor implements Interceptor {
     /**
      * 进行？的替换
      */
-    public static String showSql(Configuration configuration, BoundSql boundSql) {
+    public String showSql(Configuration configuration, BoundSql boundSql) {
+        // 检查分区键
+//        Map<String, Set<String>> shardingKeyValue = Maps.newHashMap();
         // 获取参数
         Object parameterObject = boundSql.getParameterObject();
         List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
@@ -109,11 +112,13 @@ public class MybatisInterceptor implements Interceptor {
                     String propertyName = parameterMapping.getProperty();
                     if (metaObject.hasGetter(propertyName)) {
                         Object obj = metaObject.getValue(propertyName);
-                        sql = sql.replaceFirst("\\?",Matcher.quoteReplacement(getParameterValue(obj)));
+                        String parameterValue = getParameterValue(obj);
+                        sql = sql.replaceFirst("\\?",Matcher.quoteReplacement(parameterValue));
                     } else if (boundSql.hasAdditionalParameter(propertyName)) {
                         // 该分支是动态sql
                         Object obj = boundSql.getAdditionalParameter(propertyName);
-                        sql = sql.replaceFirst("\\?",Matcher.quoteReplacement(getParameterValue(obj)));
+                        String parameterValue = getParameterValue(obj);
+                        sql = sql.replaceFirst("\\?",Matcher.quoteReplacement(parameterValue));
                     } else {
                         // 未知参数，替换？防止错位
                         sql = sql.replaceFirst("\\?", "unknown");
@@ -121,6 +126,8 @@ public class MybatisInterceptor implements Interceptor {
                 }
             }
         }
+        // 确定路由哪里TODO
+
         return sql;
     }
 
@@ -128,7 +135,7 @@ public class MybatisInterceptor implements Interceptor {
      * 如果参数是String，则添加单引号
      * 如果参数是日期，则转换为时间格式器并加单引号； 对参数是null和不是null的情况作了处理
      */
-    private static String getParameterValue(Object obj) {
+    private String getParameterValue(Object obj) {
         String value;
         if (obj instanceof String) {
             value = "'" + obj.toString() + "'";

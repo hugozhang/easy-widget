@@ -1,4 +1,4 @@
-package me.about.widget.config.spring;
+package me.about.widget.config.spring.property;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,12 +9,14 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -48,6 +50,9 @@ public class SpringValueProcessor implements ApplicationContextAware,BeanPostPro
         for (Field field : findAllField(clazz)) {
             processField(bean, beanName, field);
         }
+        for (Method method : findAllMethod(clazz)) {
+            processMethod(bean, beanName, method);
+        }
         return bean;
     }
 
@@ -57,10 +62,6 @@ public class SpringValueProcessor implements ApplicationContextAware,BeanPostPro
         if (value == null) {
             return;
         }
-        doRegister(bean, beanName, field, value);
-    }
-
-    private void doRegister(Object bean, String beanName, Field field, Value value) {
         Set<String> keys = placeholderHelper.extractPlaceholderKeys(value.value());
         if (keys.isEmpty()) {
             return;
@@ -72,6 +73,34 @@ public class SpringValueProcessor implements ApplicationContextAware,BeanPostPro
         }
     }
 
+    private void processMethod(Object bean, String beanName, Method method) {
+        //register @Value on method
+        Value value = method.getAnnotation(Value.class);
+        if (value == null) {
+            return;
+        }
+        //skip Configuration bean methods
+        if (method.getAnnotation(Bean.class) != null) {
+            return;
+        }
+        if (method.getParameterTypes().length != 1) {
+            logger.error("Ignore @Value setter {}.{}, expecting 1 parameter, actual {} parameters",
+                    bean.getClass().getName(), method.getName(), method.getParameterTypes().length);
+            return;
+        }
+        Set<String> keys = placeholderHelper.extractPlaceholderKeys(value.value());
+
+        if (keys.isEmpty()) {
+            return;
+        }
+        for (String key : keys) {
+            SpringValue springValue = new SpringValue(key, value.value(), bean, beanName, method);
+            springValueRegistry.register(beanFactory, key, springValue);
+            logger.info("Monitoring {}", springValue);
+        }
+    }
+
+
     @Override
     public int getOrder() {
         return Ordered.LOWEST_PRECEDENCE;
@@ -80,6 +109,12 @@ public class SpringValueProcessor implements ApplicationContextAware,BeanPostPro
     private List<Field> findAllField(Class<?> clazz) {
         final List<Field> res = new LinkedList<>();
         ReflectionUtils.doWithFields(clazz, res::add);
+        return res;
+    }
+
+    private List<Method> findAllMethod(Class clazz) {
+        final List<Method> res = new LinkedList<>();
+        ReflectionUtils.doWithMethods(clazz, res::add);
         return res;
     }
 

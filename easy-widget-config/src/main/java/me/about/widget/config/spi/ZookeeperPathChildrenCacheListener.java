@@ -1,9 +1,9 @@
 package me.about.widget.config.spi;
 
-import me.about.widget.config.spring.PlaceholderHelper;
-import me.about.widget.config.spring.SpringValue;
-import me.about.widget.config.spring.SpringValueRefresh;
-import me.about.widget.config.spring.SpringValueRegistry;
+import me.about.widget.config.spring.property.PlaceholderHelper;
+import me.about.widget.config.spring.property.SpringValue;
+import me.about.widget.config.spring.property.SpringValueRefresh;
+import me.about.widget.config.spring.property.SpringValueRegistry;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;

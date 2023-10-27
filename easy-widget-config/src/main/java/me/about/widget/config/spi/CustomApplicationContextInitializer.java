@@ -36,7 +36,7 @@ public class CustomApplicationContextInitializer implements ApplicationContextIn
         MutablePropertySources mutablePropertySources = environment.getPropertySources();
         for(PropertySourceLocator locator : this.propertySourceLocators) {
             Collection<PropertySource<?>> sources = locator.locateCollection(environment,applicationContext);
-            if(sources == null|| sources.size() == 0) {
+            if(sources.isEmpty()) {
                 continue;
             }
             for (PropertySource<?> p:sources) {

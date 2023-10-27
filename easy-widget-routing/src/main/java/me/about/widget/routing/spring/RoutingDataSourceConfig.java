@@ -3,6 +3,8 @@ package me.about.widget.routing.spring;
 import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import me.about.widget.routing.RoutingContext;
+import me.about.widget.routing.exception.ExtendNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -12,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.util.Map;
@@ -33,9 +36,25 @@ public class RoutingDataSourceConfig {
     @Resource
     private RoutingDataSourceProperties routingDataSourceProperties;
 
+    @PostConstruct
+    public void init() {
+        RoutingDataSourceProperties.Ext ext = routingDataSourceProperties.getExt();
+        if (ext == null) {
+            throw new ExtendNotFoundException("{routing.ext} not found");
+        }
+        if (ext.getBroadcastTables() == null) {
+            throw new ExtendNotFoundException("{routing.ext.broadcast-tables} not found");
+        }
+        if (ext.getShardingColumns() == null) {
+            throw new ExtendNotFoundException("{routing.ext.sharding-columns} not found");
+        }
+        RoutingContext.addBroadcastTables(ext.getBroadcastTables());
+        RoutingContext.addShardingColumns(ext.getShardingColumns());
+    }
+
     private DataSource initShardingDataSource() {
         Map<String, Map<?, ?>> databases = routingDataSourceProperties.getDatabases();
-        Preconditions.checkArgument(!CollectionUtils.isEmpty(databases), "sharding.databases config is'not found.");
+        Preconditions.checkArgument(!CollectionUtils.isEmpty(databases), "{sharding.databases} config is'not found.");
 
         Map<Object, Object> targetDataSources = Maps.newHashMap();
         DataSource defaultTargetDataSource = null;
@@ -43,6 +62,8 @@ public class RoutingDataSourceConfig {
         Set<Map.Entry<String, Map<?, ?>>> entries = databases.entrySet();
         for (Map.Entry<String, Map<?, ?>> entry : entries) {
             String databaseId = entry.getKey();
+            RoutingContext.addDatabaseId(databaseId);
+
             Map<?, ?> properties = entry.getValue();
             DataSource dataSource = createDataSource(properties);
             if (dataSource != null) {
@@ -53,7 +74,7 @@ public class RoutingDataSourceConfig {
             }
         }
 
-        Preconditions.checkArgument(!CollectionUtils.isEmpty(targetDataSources), "sharding.databases config is'not found.");
+        Preconditions.checkArgument(!CollectionUtils.isEmpty(targetDataSources), "{sharding.databases} config is'not found.");
 
         Preconditions.checkNotNull(defaultTargetDataSource, "defaultTargetDataSource is required.");
 
@@ -76,7 +97,7 @@ public class RoutingDataSourceConfig {
     }
 
     @Bean
-    public DataSource shardingDataSource() {
+    public DataSource routingDataSource() {
         LazyConnectionDataSourceProxy dataSourceProxy = new LazyConnectionDataSourceProxy();
         dataSourceProxy.setTargetDataSource(initShardingDataSource());
         return dataSourceProxy;

@@ -1,5 +1,6 @@
 package me.about.widget.routing.sqlparse;
 
+import me.about.widget.routing.RoutingContext;
 import me.about.widget.routing.sqlparse.model.CalciteSqlParseResult;
 import org.apache.calcite.avatica.util.Casing;
 import org.apache.calcite.sql.*;
@@ -19,14 +20,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CalciteSqlParse {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CalciteSqlParse.class);
-
-    private static final List<String> shardingColumns = new ArrayList<>();
-
-    static {
-        shardingColumns.add("medins_no");
-        shardingColumns.add("yljgdm");
-        shardingColumns.add("fixmedins_code");
-    }
 
     private static void parseFromNode(SqlNode from, CalciteSqlParseResult result,String operate){
         SqlKind kind = from.getKind();
@@ -73,7 +66,7 @@ public class CalciteSqlParse {
                 String value = literal.toValue();
                 LOGGER.info("[sql where parse] field: " + field + ", value: " + value);
                 System.out.println("[sql where parse] field: " + field + ", value: " + value);
-                if (shardingColumns.contains(field)) {
+                if (RoutingContext.getShardingColumns().contains(field)) {
                     result.addConditionField(field, value);
                 }
                 break;
@@ -107,7 +100,7 @@ public class CalciteSqlParse {
                 insert.getTargetColumnList().forEach(columnSqlNode -> {
                     SqlIdentifier sqlIdentifier = (SqlIdentifier)columnSqlNode;
                     String column = sqlIdentifier.getSimple();
-                    if(shardingColumns.contains(column)) {
+                    if(RoutingContext.getShardingColumns().contains(column)) {
                         shardingColumn.put(column,shardingColumnIndex.get());
                     }
                     shardingColumnIndex.getAndIncrement();

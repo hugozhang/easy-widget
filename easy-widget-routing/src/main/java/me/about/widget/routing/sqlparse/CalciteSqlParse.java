@@ -1,14 +1,17 @@
 package me.about.widget.routing.sqlparse;
 
 import me.about.widget.routing.RoutingContext;
-import me.about.widget.routing.sqlparse.model.CalciteSqlParseResult;
+import me.about.widget.routing.sqlparse.model.SqlParseResult;
 import org.apache.calcite.avatica.util.Casing;
+import org.apache.calcite.avatica.util.Quoting;
 import org.apache.calcite.sql.*;
 import org.apache.calcite.sql.parser.SqlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -21,34 +24,40 @@ public class CalciteSqlParse {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CalciteSqlParse.class);
 
-    private static void parseFromNode(SqlNode from, CalciteSqlParseResult result,String operate){
-        SqlKind kind = from.getKind();
+    private static void parseFromNode(SqlNode sqlNode, SqlParseResult result, String operate) {
+        if (sqlNode == null) {
+            return;
+        }
+        SqlKind kind = sqlNode.getKind();
         switch (kind) {
             case IDENTIFIER:
-                SqlIdentifier sqlIdentifier = (SqlIdentifier) from;
+                SqlIdentifier sqlIdentifier = (SqlIdentifier) sqlNode;
                 result.addTableOperator(sqlIdentifier.getSimple(),operate);
                 break;
             case AS:
-                SqlBasicCall sqlBasicCall = (SqlBasicCall) from;
+                SqlBasicCall sqlBasicCall = (SqlBasicCall) sqlNode;
                 SqlNode selectNode = sqlBasicCall.getOperandList().get(0);
                 parseSqlNode(selectNode, result,operate);
                 break;
             case JOIN:
-                SqlJoin sqlJoin = (SqlJoin) from;
+                SqlJoin sqlJoin = (SqlJoin) sqlNode;
                 SqlNode left = sqlJoin.getLeft();
                 parseFromNode(left, result,"join");
                 SqlNode right = sqlJoin.getRight();
                 parseFromNode(right, result,"join");
                 break;
             case SELECT:
-                parseSqlNode(from, result,operate);
+                parseSqlNode(sqlNode, result,operate);
                 break;
             default:
                 break;
         }
     }
 
-    private static void parseConditionNode(SqlNode sqlNode,CalciteSqlParseResult result) {
+    private static void parseConditionNode(SqlNode sqlNode, SqlParseResult result) {
+        if (sqlNode == null) {
+            return;
+        }
         SqlKind kind = sqlNode.getKind();
         switch (kind) {
             case AND:
@@ -64,8 +73,7 @@ public class CalciteSqlParse {
                 // a.b 取 b
                 String field = identifier.names.get(identifier.names.size() - 1);
                 String value = literal.toValue();
-                LOGGER.info("[sql where parse] field: " + field + ", value: " + value);
-                System.out.println("[sql where parse] field: " + field + ", value: " + value);
+                LOGGER.info("[sql condition] field: " + field + ", value: " + value);
                 if (RoutingContext.getShardingColumns().contains(field)) {
                     result.addConditionField(field, value);
                 }
@@ -78,7 +86,10 @@ public class CalciteSqlParse {
         }
     }
 
-    private static void parseSqlNode(SqlNode sqlNode, CalciteSqlParseResult result,String operate) {
+    private static void parseSqlNode(SqlNode sqlNode, SqlParseResult result, String operate) {
+        if (sqlNode == null) {
+            return;
+        }
         SqlKind kind = sqlNode.getKind();
         switch (kind) {
             case IDENTIFIER:
@@ -118,7 +129,7 @@ public class CalciteSqlParse {
                                 SqlCharStringLiteral stringLiteral = (SqlCharStringLiteral) valueNode;
                                 result.addConditionField(column,stringLiteral.toValue());
                             } else {
-                                LOGGER.warn("column : {},value : {} not support!",column,index);
+                                LOGGER.warn("[insert column] column : {},value : {} not support!",column,index);
                             }
                         }
                     });
@@ -147,15 +158,16 @@ public class CalciteSqlParse {
         }
     }
 
-    private static void handlerOrderBy(SqlNode node, CalciteSqlParseResult result) {
-        SqlOrderBy sqlOrderBy = (SqlOrderBy) node;
+    private static void handlerOrderBy(SqlNode sqlNode, SqlParseResult result) {
+        SqlOrderBy sqlOrderBy = (SqlOrderBy) sqlNode;
         SqlNode query = sqlOrderBy.query;
         parseSqlNode(query, result,"");
     }
 
-    public static CalciteSqlParseResult parse(String sql) {
-        CalciteSqlParseResult result = new CalciteSqlParseResult();
+    public static SqlParseResult parse(String sql) {
+        SqlParseResult result = new SqlParseResult();
         SqlParser.Config myConfig = SqlParser.config()
+                .withQuoting(Quoting.BACK_TICK)
                 .withQuotedCasing(Casing.TO_LOWER)
                 .withUnquotedCasing(Casing.TO_LOWER);
         SqlParser parser = SqlParser.create(sql,myConfig);
@@ -169,16 +181,18 @@ public class CalciteSqlParse {
     }
 
     public static void main(String[] args) {
+//        String sql = "SELECT (select zd_z from s_sys_zd_tbl where zd_lx='DBL' ) as dbl, (select zd_z from s_sys_zd_tbl where zd_lx='GBL' ) as gbl FROM s_sys_zd_tbl group by dbl,gbl";
 //        String sql = "SELECT * FROM STORY a left join (select * from a where dd.medins_no = '1' and g.bb_1 = '2' ) b on a.id=b.id where medins_no='c' and b=1 order by a desc";
-//        String sql = "select * from a left join b on a.id = b.id where a.id =1";
-//        String sql = "insert into a select * from c where c=1";
+        String sql = "select * from a left join b on a.id = b.id where a.id =1 ";
+//        String sql = "insert into a(a,b,c) select * from c where c=1";
 //        String sql = "insert into a(a,b,c) values('1',2,'3')";
-//          String sql = "update b set a =1 where c = 1";
+//        String sql = "update b set a =1 where c = 1";
 //        String sql = "delete from a where id = 2";
-        String sql = "select * from a where medins_no = '123qq' and age=2";
+//        String sql = "select * from a where medins_no = '123qq' and age=2";
 //        String sql = "select * from a where id = 1 or age=2";
-
-        CalciteSqlParseResult result = parse(sql);
+//        String sql = "select name, `value` from t_cast_ddl";
+//        String sql = "SELECT t.ID,t.TASK_NAME,t.CRON, t.REMARK,t.STATUS,t.JOB_NAME, u.YH_MC AS \"CREATE_ID\", t.MODIFY_ID,t.MODIFY_AT,t.DELE_FLG FROM T_TASK t LEFT JOIN S_SYS_YH_TBL u ON t.MODIFY_ID=u.YH_ID WHERE t.DELE_FLG='0'\n";
+        SqlParseResult result = parse(sql.replaceAll("\"",""));
         System.out.println(result);
 
     }

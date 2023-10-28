@@ -12,7 +12,6 @@ import javax.sql.DataSource;
  * @date: 2023/10/17 0:03
  */
 public class RoutingDataSource extends AbstractRoutingDataSource {
-
     @Override
     protected Object determineCurrentLookupKey() {
         return RoutingContext.getRoutingDatabase();

@@ -6,13 +6,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * CalciteSql  解析结果
+ * SqlParseResult  解析结果
  *
  * @author: hugo.zxh
  * @date: 2023/10/26 10:39
  */
 @Data
-public class CalciteSqlParseResult {
+public class SqlParseResult {
 
     private Set<TableOperator> tableOperators = new HashSet<>();
 

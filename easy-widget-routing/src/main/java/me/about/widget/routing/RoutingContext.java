@@ -24,6 +24,9 @@ public class RoutingContext {
     public static void addDatabaseId(String databaseId) {
         DATABASE_IDS.add(databaseId);
     }
+    public static List<String> getDatabaseIds() {
+        return DATABASE_IDS;
+    }
 
 
     public static List<String> getBroadcastTables() {
@@ -42,6 +45,7 @@ public class RoutingContext {
     public static void addShardingColumns(List<String> shardingColumns) {
         SHARDING_COLUMNS.addAll(shardingColumns);
     }
+
 
     public static String getRoutingDatabase() {
         String currentDatabase = ROUTING_DATABASE.get();

@@ -170,8 +170,8 @@ public class CalciteSqlParseTest {
 
     public static void main(String[] args) {
 
-        String sql1 = "update ";
-        String sql = "SELECT * FROM STORY a left join (select * from a where dd.aa_1 = '1' and g.bb_1 = '2' ) b on a.id=b.id where a='c' and b=1 order by a desc";
+        String sql = "select name, value from t_cast_ddl ";
+//        String sql = "SELECT * FROM STORY a left join (select * from a where dd.aa_1 = '1' and g.bb_1 = '2' ) b on a.id=b.id where a='c' and b=1 order by a desc";
 //        String sql = "SELECT\n" +
 //                "          a.id,\n" +
 //                "          a.`name`,\n" +

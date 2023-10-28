@@ -7,7 +7,6 @@ package me.about.widget.routing.exception;
  * @date: 2023/10/27 17:16
  */
 public class DatabaseNotFoundException extends RuntimeException {
-
     public DatabaseNotFoundException(String message) {
         super(message);
     }

@@ -1,5 +1,6 @@
 package me.about.widget.routing.spring.boot.autoconfig;
 
+import me.about.widget.routing.spring.RoutingDataSourceConfig;
 import me.about.widget.routing.spring.RoutingDataSourceProperties;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
@@ -12,13 +13,11 @@ import org.springframework.core.type.AnnotationMetadata;
  * @description:
  */
 public class BeanHub implements ImportSelector {
-
     @Override
     public String[] selectImports(AnnotationMetadata annotationMetadata) {
         return new String[] {
-//                ShardingDataSourceConfig.class.getName(),
+                RoutingDataSourceConfig.class.getName(),
                 RoutingDataSourceProperties.class.getName()
         };
     }
-
 }

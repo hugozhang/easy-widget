@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- *   表名 and 表参与的操作 主要是关注更新 update,insert,delete
+ * 表名 and 表操作 主要是关注更新 update,insert,delete
  *
  * @author: hugo.zxh
  * @date: 2023/10/26 10:48

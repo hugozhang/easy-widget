@@ -4,7 +4,6 @@ import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import me.about.widget.routing.RoutingContext;
-import me.about.widget.routing.exception.ExtendNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -38,24 +37,20 @@ public class RoutingDataSourceConfig {
 
     @PostConstruct
     public void init() {
-        RoutingDataSourceProperties.Ext ext = routingDataSourceProperties.getExt();
-        if (ext == null) {
-            throw new ExtendNotFoundException("{routing.ext} not found");
-        }
-        if (ext.getBroadcastTables() == null) {
-            throw new ExtendNotFoundException("{routing.ext.broadcast-tables} not found");
-        }
-        if (ext.getShardingColumns() == null) {
-            throw new ExtendNotFoundException("{routing.ext.sharding-columns} not found");
-        }
-        RoutingContext.addBroadcastTables(ext.getBroadcastTables());
-        RoutingContext.addShardingColumns(ext.getShardingColumns());
+        RoutingDataSourceProperties.RoutingRules routingRules = routingDataSourceProperties.getRules();
+        Preconditions.checkArgument(routingRules != null,"{routing.rules} not found");
+        Preconditions.checkArgument(!CollectionUtils.isEmpty(routingRules.getBroadcastTables()),"{routing.rules.broadcastTables} not found");
+        Preconditions.checkArgument(!CollectionUtils.isEmpty(routingRules.getShardingColumns()),"{routing.rules.shardingColumns} not found");
+
+        RoutingContext.addBroadcastTables(routingRules.getBroadcastTables());
+        RoutingContext.addShardingColumns(routingRules.getShardingColumns());
+
+        Map<String, Map<?, ?>> databases = routingDataSourceProperties.getDatabases();
+        Preconditions.checkArgument(!CollectionUtils.isEmpty(databases), "{routing.databases} config is'not found.");
     }
 
     private DataSource initShardingDataSource() {
         Map<String, Map<?, ?>> databases = routingDataSourceProperties.getDatabases();
-        Preconditions.checkArgument(!CollectionUtils.isEmpty(databases), "{sharding.databases} config is'not found.");
-
         Map<Object, Object> targetDataSources = Maps.newHashMap();
         DataSource defaultTargetDataSource = null;
 

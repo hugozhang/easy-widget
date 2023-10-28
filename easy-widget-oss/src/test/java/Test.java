@@ -1,5 +1,3 @@
-package me.about.widget.oss;
-
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
@@ -8,6 +6,8 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import me.about.widget.oss.OssService;
+import me.about.widget.oss.S3OssServiceImpl;
 
 import java.io.File;
 

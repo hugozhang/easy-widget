@@ -24,23 +24,30 @@ public class RoutingDataSourceProperties {
      * 配置举例
      *
      * routing:
-     *   databases:
-     *     db1:
-     *       username: 11
-     *       password: 11
+     *  rules:
+     *     shardingColumns:
+     *       - medins_no
+     *       - yljgdm
+     *     broadcastTables:
+     *       - a
+     *       - b
+     *       - c
+     *  databases:
+     *    db1:
+     *      username: 11
+     *      password: 11
      * 或
      * sharding.databases.db2.username = 22
      * sharding.databases.db2.password = 22
      */
     private Map<String, Map<?,?>> databases;
 
-    private Ext ext;
-
+    private RoutingRules rules;
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class Ext {
+    public static class RoutingRules {
 
         private List<String> shardingColumns;
 

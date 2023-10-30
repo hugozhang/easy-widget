@@ -46,7 +46,7 @@ public class RoutingDataSourceConfig {
         RoutingContext.addShardingColumns(routingRules.getShardingColumns());
 
         Map<String, Map<?, ?>> databases = routingDataSourceProperties.getDatabases();
-        Preconditions.checkArgument(!CollectionUtils.isEmpty(databases), "{routing.databases} config is'not found.");
+        Preconditions.checkArgument(!CollectionUtils.isEmpty(databases), "{routing.databases} not found.");
     }
 
     private DataSource initShardingDataSource() {
@@ -69,8 +69,7 @@ public class RoutingDataSourceConfig {
             }
         }
 
-        Preconditions.checkArgument(!CollectionUtils.isEmpty(targetDataSources), "{sharding.databases} config is'not found.");
-
+        Preconditions.checkArgument(!CollectionUtils.isEmpty(targetDataSources), "targetDataSources is required.");
         Preconditions.checkNotNull(defaultTargetDataSource, "defaultTargetDataSource is required.");
 
         RoutingDataSource shardingDataSource = new RoutingDataSource();

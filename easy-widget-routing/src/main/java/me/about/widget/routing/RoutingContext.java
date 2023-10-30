@@ -21,6 +21,7 @@ public class RoutingContext {
 
     private static final List<String> BROADCAST_TABLES = Lists.newArrayList();
 
+
     public static void addDatabaseId(String databaseId) {
         DATABASE_IDS.add(databaseId);
     }
@@ -32,7 +33,6 @@ public class RoutingContext {
     public static List<String> getBroadcastTables() {
         return BROADCAST_TABLES;
     }
-
     public static void addBroadcastTables(List<String> broadcastTables) {
         BROADCAST_TABLES.addAll(broadcastTables);
     }
@@ -41,11 +41,9 @@ public class RoutingContext {
     public static List<String> getShardingColumns() {
         return SHARDING_COLUMNS;
     }
-
     public static void addShardingColumns(List<String> shardingColumns) {
         SHARDING_COLUMNS.addAll(shardingColumns);
     }
-
 
     public static String getRoutingDatabase() {
         String currentDatabase = ROUTING_DATABASE.get();
@@ -54,7 +52,6 @@ public class RoutingContext {
         }
         return currentDatabase;
     }
-
     public static void setRoutingDatabase(String shardingDatabase) {
         ROUTING_DATABASE.set(shardingDatabase);
     }

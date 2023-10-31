@@ -1,6 +1,7 @@
 package me.about.widget.config;
 
-import com.ctrip.framework.apollo.model.ConfigChangeEvent;
+
+import me.about.widget.config.model.ConfigChangeEvent;
 
 /**
  * 配置变更监听器

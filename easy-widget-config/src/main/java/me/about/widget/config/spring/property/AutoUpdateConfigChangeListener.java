@@ -1,8 +1,8 @@
 package me.about.widget.config.spring.property;
 
 
-import com.ctrip.framework.apollo.model.ConfigChangeEvent;
 import me.about.widget.config.ConfigChangeListener;
+import me.about.widget.config.model.ConfigChangeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeConverter;

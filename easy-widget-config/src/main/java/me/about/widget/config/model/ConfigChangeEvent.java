@@ -1,7 +1,5 @@
 package me.about.widget.config.model;
 
-import com.ctrip.framework.apollo.model.ConfigChange;
-
 import java.util.Map;
 import java.util.Set;
 

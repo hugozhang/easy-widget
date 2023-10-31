@@ -40,7 +40,9 @@ public class RoutingDataSourceProperties {
      * sharding.databases.db2.username = 22
      * sharding.databases.db2.password = 22
      */
-    private Map<String, Map<?,?>> databases;
+    private Map<String, Map<String,Object>> databases;
+
+    private Map<String,Object> databaseProperties;
 
     private RoutingRules rules;
 

@@ -1,4 +1,3 @@
-import com.ctrip.framework.apollo.core.utils.PropertiesUtil;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertiesPropertySource;
@@ -41,8 +40,8 @@ public class Test {
         System.out.println(mutablePropertySources);
 
 
-        String string = PropertiesUtil.toString(properties);
-        System.out.println(string);
+//        String string = PropertiesUtil.toString(properties);
+//        System.out.println(string);
 
     }
 

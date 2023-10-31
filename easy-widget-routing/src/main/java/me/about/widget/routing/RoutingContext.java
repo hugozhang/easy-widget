@@ -15,16 +15,17 @@ public class RoutingContext {
 
     private static final ThreadLocal<String> ROUTING_DATABASE = new ThreadLocal<>();
 
+    /********** 以下变量 spring 启动初始化 *************/
     private static final List<String> DATABASE_IDS = Lists.newArrayList();
 
     private static final List<String> SHARDING_COLUMNS = Lists.newArrayList();
 
     private static final List<String> BROADCAST_TABLES = Lists.newArrayList();
 
-
     public static void addDatabaseId(String databaseId) {
         DATABASE_IDS.add(databaseId);
     }
+
     public static List<String> getDatabaseIds() {
         return DATABASE_IDS;
     }

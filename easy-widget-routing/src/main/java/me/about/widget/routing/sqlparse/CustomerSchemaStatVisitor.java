@@ -9,7 +9,7 @@ import com.google.common.collect.Lists;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
+ * 扩展 MySqlSchemaStatVisitor
  *
  * @author: hugo.zxh
  * @date: 2023/10/31 12:48

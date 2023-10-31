@@ -53,17 +53,27 @@ public class RoutingDataSourceConfig {
         RoutingContext.addBroadcastTables(mergeList);
         RoutingContext.addShardingColumns(routingRules.getShardingColumns());
 
-        Map<String, Map<?, ?>> databases = routingDataSourceProperties.getDatabases();
+        Map<String, Map<String, Object>> databases = routingDataSourceProperties.getDatabases();
         Preconditions.checkArgument(!CollectionUtils.isEmpty(databases), "{routing.databases} not found.");
+        Map<String, Object> databaseProperties = routingDataSourceProperties.getDatabaseProperties();
+        Preconditions.checkArgument(!CollectionUtils.isEmpty(databaseProperties), "{routing.databaseProperties} not found.");
+
+        // merge
+        for (Map.Entry<String,Object> databasePropertiesEntry : databaseProperties.entrySet()) {
+            for (Map.Entry<String, Map<String, Object>> entry : databases.entrySet()) {
+                Map<String, Object> value = entry.getValue();
+                value.putIfAbsent(databasePropertiesEntry.getKey(),databasePropertiesEntry.getValue());
+            }
+        }
     }
 
     private DataSource initShardingDataSource() {
-        Map<String, Map<?, ?>> databases = routingDataSourceProperties.getDatabases();
+        Map<String, Map<String, Object>> databases = routingDataSourceProperties.getDatabases();
         Map<Object, Object> targetDataSources = Maps.newHashMap();
         DataSource defaultTargetDataSource = null;
 
-        Set<Map.Entry<String, Map<?, ?>>> entries = databases.entrySet();
-        for (Map.Entry<String, Map<?, ?>> entry : entries) {
+        Set<Map.Entry<String, Map<String, Object>>> entries = databases.entrySet();
+        for (Map.Entry<String, Map<String, Object>> entry : entries) {
             String databaseId = entry.getKey();
             RoutingContext.addDatabaseId(databaseId);
 

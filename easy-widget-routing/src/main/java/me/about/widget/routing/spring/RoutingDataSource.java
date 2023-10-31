@@ -1,6 +1,8 @@
 package me.about.widget.routing.spring;
 
 import me.about.widget.routing.RoutingContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
 import javax.sql.DataSource;
@@ -12,9 +14,14 @@ import javax.sql.DataSource;
  * @date: 2023/10/17 0:03
  */
 public class RoutingDataSource extends AbstractRoutingDataSource {
+
+    private Logger logger = LoggerFactory.getLogger(RoutingDataSource.class);
+
     @Override
     protected Object determineCurrentLookupKey() {
-        return RoutingContext.getRoutingDatabase();
+        String routingDatabase = RoutingContext.getRoutingDatabase();
+        logger.info("current database is {}.",routingDatabase);
+        return routingDatabase;
     }
 
     public DataSource getActualDataSource() {

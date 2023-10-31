@@ -189,12 +189,12 @@ public class CalciteSqlParse {
 //        String sql = "SELECT * FROM STORY a left join (select * from a where dd.medins_no = '1' and g.bb_1 = '2' ) b on a.id=b.id where medins_no='c' and b=1 order by a desc";
 //        String sql = "select * from a left join b on a.id = b.id where a.id =1 ";
 //        String sql = "insert into a(a,b,c) select * from c where c=1";
-        String sql = "insert into a(a,b,c) values('1',2,'3'),(1,2,3)";
+//        String sql = "insert into a(a,b,c) values('1',2,'3'),(1,2,3)";
 //        String sql = "update b set a =1 where c = 1";
 //        String sql = "delete from a where id = 2";
 //        String sql = "select * from a where medins_no = '123qq' and age=2";
 //        String sql = "select * from a where id = 1 or age=2";
-//        String sql = "select name, `value` from t_cast_ddl";
+        String sql = "select name, `value` from t_cast_ddl";
 //        String sql = "SELECT t.ID,t.TASK_NAME,t.CRON, t.REMARK,t.STATUS,t.JOB_NAME, u.YH_MC AS \"CREATE_ID\", t.MODIFY_ID,t.MODIFY_AT,t.DELE_FLG FROM T_TASK t LEFT JOIN S_SYS_YH_TBL u ON t.MODIFY_ID=u.YH_ID WHERE t.DELE_FLG='0'\n";
 //        String sql = "DELETE users, orders FROM users JOIN orders ON users.user_id = orders.user_id WHERE users.username = 'John'";
 //        String sql = "DELETE orders FROM orders JOIN users ON orders.user_id = users.user_id WHERE users.username = 'John'";

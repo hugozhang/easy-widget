@@ -70,12 +70,12 @@ public class DruidSqlParse {
 //        String sql = "delete from a where id = 2";
 //        String sql = "select * from a where medins_no = '123qq' and age=2";
 //        String sql = "select * from a where id = 1 or age=2";
-//        String sql = "select name, `value` from t_cast_ddl";
+        String sql = "select name, `value` from t_cast_ddl";
 //        String sql = "SELECT t.ID,t.TASK_NAME,t.CRON, t.REMARK,t.STATUS,t.JOB_NAME, u.YH_MC AS \"CREATE_ID\", t.MODIFY_ID,t.MODIFY_AT,t.DELE_FLG FROM T_TASK t LEFT JOIN S_SYS_YH_TBL u ON t.MODIFY_ID=u.YH_ID WHERE t.DELE_FLG='0'\n";
 //        String sql = "DELETE users, orders FROM users JOIN orders ON users.user_id = orders.user_id WHERE users.username = 'John'";
 //        String sql = "DELETE orders FROM orders JOIN users ON orders.user_id = users.user_id WHERE users.username = 'John'";
 //        String sql = "UPDATE library l, book b SET l.book_count = l.book_count - 2, b.book_count = b.book_count + 2 WHERE l.id = b.book_id AND b.id = '1AG'";
-        String sql = "UPDATE A JOIN B ON A.id=B.order_id SET A.order_status=B.target_status AND A.address=B.target_address WHERE a = '123'";
+//        String sql = "UPDATE A JOIN B ON A.id=B.order_id SET A.order_status=B.target_status AND A.address=B.target_address WHERE a = '123'";
 //        SQLStatementParser parser = new MySqlStatementParser(sql);
 //        SQLStatement sqlStatement = parser.parseStatement();
 //        CustomerSchemaStatVisitor visitor = new CustomerSchemaStatVisitor();

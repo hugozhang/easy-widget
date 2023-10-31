@@ -30,6 +30,9 @@ public class RoutingContext {
     }
 
 
+    public static void addBroadcastTable(String broadcastTable) {
+        BROADCAST_TABLES.add(broadcastTable);
+    }
     public static List<String> getBroadcastTables() {
         return BROADCAST_TABLES;
     }

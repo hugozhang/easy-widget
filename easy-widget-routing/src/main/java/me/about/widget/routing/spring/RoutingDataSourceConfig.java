@@ -2,6 +2,8 @@ package me.about.widget.routing.spring;
 
 import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.about.widget.routing.RoutingContext;
 import org.slf4j.Logger;
@@ -16,6 +18,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,7 +45,12 @@ public class RoutingDataSourceConfig {
         Preconditions.checkArgument(!CollectionUtils.isEmpty(routingRules.getBroadcastTables()),"{routing.rules.broadcastTables} not found");
         Preconditions.checkArgument(!CollectionUtils.isEmpty(routingRules.getShardingColumns()),"{routing.rules.shardingColumns} not found");
 
-        RoutingContext.addBroadcastTables(routingRules.getBroadcastTables());
+        List<String> mergeList = Lists.newArrayList();
+        for (String row : routingRules.getBroadcastTables()) {
+            List<String> splitToList = Splitter.on(",").splitToList(row);
+            mergeList.addAll(splitToList);
+        }
+        RoutingContext.addBroadcastTables(mergeList);
         RoutingContext.addShardingColumns(routingRules.getShardingColumns());
 
         Map<String, Map<?, ?>> databases = routingDataSourceProperties.getDatabases();

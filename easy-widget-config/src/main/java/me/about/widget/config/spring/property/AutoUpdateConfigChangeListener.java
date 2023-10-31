@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.Set;
 
 /**
- * Created with IntelliJ IDEA.
+ * 配置变更监听
  *
  * @author: hugo.zxh
  * @date: 2023/10/20 14:35

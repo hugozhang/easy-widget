@@ -4,6 +4,7 @@ import me.about.widget.routing.RoutingContext;
 import me.about.widget.routing.sqlparse.model.SqlParseResult;
 import org.apache.calcite.avatica.util.Casing;
 import org.apache.calcite.avatica.util.Quoting;
+import org.apache.calcite.config.Lex;
 import org.apache.calcite.sql.*;
 import org.apache.calcite.sql.parser.SqlParser;
 import org.slf4j.Logger;
@@ -42,9 +43,9 @@ public class CalciteSqlParse {
             case JOIN:
                 SqlJoin sqlJoin = (SqlJoin) sqlNode;
                 SqlNode left = sqlJoin.getLeft();
-                parseFromNode(left, result,"join");
+                parseFromNode(left, result,"join left table ");
                 SqlNode right = sqlJoin.getRight();
-                parseFromNode(right, result,"join");
+                parseFromNode(right, result,"join right table");
                 break;
             case SELECT:
                 parseSqlNode(sqlNode, result,operate);
@@ -97,7 +98,7 @@ public class CalciteSqlParse {
                 break;
             case SELECT:
                 SqlSelect select = (SqlSelect) sqlNode;
-                parseFromNode(select.getFrom(), result,"from");
+                parseFromNode(select.getFrom(), result,"select");
                 parseConditionNode(select.getWhere(),result);
                 break;
             case INSERT:
@@ -116,7 +117,9 @@ public class CalciteSqlParse {
                     }
                     shardingColumnIndex.getAndIncrement();
                 });
-                if (!shardingColumn.isEmpty()) {
+                if (insert.getSource() instanceof SqlSelect) {
+                    parseSqlNode(insert.getSource(),result,"select");
+                } else {
                     ((SqlBasicCall) insert.getSource()).getOperandList().forEach(innerSqlNode -> {
                         SqlBasicCall sqlBasicCall = (SqlBasicCall) innerSqlNode;
                         Iterator<Map.Entry<String, Integer>> it = shardingColumn.entrySet().iterator();
@@ -161,12 +164,13 @@ public class CalciteSqlParse {
     private static void handlerOrderBy(SqlNode sqlNode, SqlParseResult result) {
         SqlOrderBy sqlOrderBy = (SqlOrderBy) sqlNode;
         SqlNode query = sqlOrderBy.query;
-        parseSqlNode(query, result,"");
+        parseSqlNode(query, result,"select");
     }
 
     public static SqlParseResult parse(String sql) {
         SqlParseResult result = new SqlParseResult();
         SqlParser.Config myConfig = SqlParser.config()
+                .withLex(Lex.MYSQL_ANSI)
                 .withQuoting(Quoting.BACK_TICK)
                 .withQuotedCasing(Casing.TO_LOWER)
                 .withUnquotedCasing(Casing.TO_LOWER);
@@ -183,15 +187,17 @@ public class CalciteSqlParse {
     public static void main(String[] args) {
 //        String sql = "SELECT (select zd_z from s_sys_zd_tbl where zd_lx='DBL' ) as dbl, (select zd_z from s_sys_zd_tbl where zd_lx='GBL' ) as gbl FROM s_sys_zd_tbl group by dbl,gbl";
 //        String sql = "SELECT * FROM STORY a left join (select * from a where dd.medins_no = '1' and g.bb_1 = '2' ) b on a.id=b.id where medins_no='c' and b=1 order by a desc";
-        String sql = "select * from a left join b on a.id = b.id where a.id =1 ";
+//        String sql = "select * from a left join b on a.id = b.id where a.id =1 ";
 //        String sql = "insert into a(a,b,c) select * from c where c=1";
-//        String sql = "insert into a(a,b,c) values('1',2,'3')";
+        String sql = "insert into a(a,b,c) values('1',2,'3'),(1,2,3)";
 //        String sql = "update b set a =1 where c = 1";
 //        String sql = "delete from a where id = 2";
 //        String sql = "select * from a where medins_no = '123qq' and age=2";
 //        String sql = "select * from a where id = 1 or age=2";
 //        String sql = "select name, `value` from t_cast_ddl";
 //        String sql = "SELECT t.ID,t.TASK_NAME,t.CRON, t.REMARK,t.STATUS,t.JOB_NAME, u.YH_MC AS \"CREATE_ID\", t.MODIFY_ID,t.MODIFY_AT,t.DELE_FLG FROM T_TASK t LEFT JOIN S_SYS_YH_TBL u ON t.MODIFY_ID=u.YH_ID WHERE t.DELE_FLG='0'\n";
+//        String sql = "DELETE users, orders FROM users JOIN orders ON users.user_id = orders.user_id WHERE users.username = 'John'";
+//        String sql = "DELETE orders FROM orders JOIN users ON orders.user_id = users.user_id WHERE users.username = 'John'";
         SqlParseResult result = parse(sql.replaceAll("\"",""));
         System.out.println(result);
 

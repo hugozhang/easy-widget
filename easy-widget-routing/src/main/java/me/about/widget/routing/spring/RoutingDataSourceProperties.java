@@ -25,13 +25,13 @@ public class RoutingDataSourceProperties {
      *
      * routing:
      *  rules:
-     *     shardingColumns:
-     *       - medins_no
-     *       - yljgdm
-     *     broadcastTables:
-     *       - a
-     *       - b
-     *       - c
+     *    shardingColumns:
+     *      - medins_no
+     *      - yljgdm
+     *    broadcastTables:
+     *      - a
+     *      - b
+     *      - c
      *  databases:
      *    db1:
      *      username: 11

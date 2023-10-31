@@ -41,6 +41,9 @@ public class RoutingContext {
     public static List<String> getShardingColumns() {
         return SHARDING_COLUMNS;
     }
+    public static void addShardingColumn(String shardingColumn) {
+        SHARDING_COLUMNS.add(shardingColumn);
+    }
     public static void addShardingColumns(List<String> shardingColumns) {
         SHARDING_COLUMNS.addAll(shardingColumns);
     }

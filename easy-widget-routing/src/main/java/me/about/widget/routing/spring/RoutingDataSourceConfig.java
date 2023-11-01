@@ -12,7 +12,6 @@ import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
@@ -82,6 +81,7 @@ public class RoutingDataSourceConfig {
             if (dataSource != null) {
                 targetDataSources.put(databaseId, dataSource);
                 if (defaultTargetDataSource == null) {
+                    RoutingContext.setRoutingDatabase(databaseId);
                     defaultTargetDataSource = dataSource;
                 }
             }
@@ -110,8 +110,9 @@ public class RoutingDataSourceConfig {
 
     @Bean
     public DataSource routingDataSource() {
-        LazyConnectionDataSourceProxy dataSourceProxy = new LazyConnectionDataSourceProxy();
-        dataSourceProxy.setTargetDataSource(initShardingDataSource());
-        return dataSourceProxy;
+//        LazyConnectionDataSourceProxy dataSourceProxy = new LazyConnectionDataSourceProxy();
+//        dataSourceProxy.setTargetDataSource(initShardingDataSource());
+//        return dataSourceProxy;
+        return initShardingDataSource();
     }
 }

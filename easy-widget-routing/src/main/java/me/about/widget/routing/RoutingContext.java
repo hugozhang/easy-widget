@@ -62,7 +62,6 @@ public class RoutingContext {
     public static void setRoutingDatabase(String shardingDatabase) {
         ROUTING_DATABASE.set(shardingDatabase);
     }
-
     public static void clear() {
         RoutingContext.ROUTING_DATABASE.remove();
     }

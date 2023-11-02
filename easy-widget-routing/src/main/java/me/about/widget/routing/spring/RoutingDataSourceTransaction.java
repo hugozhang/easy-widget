@@ -27,9 +27,6 @@ public class RoutingDataSourceTransaction implements Transaction {
 
     private final RoutingDataSource dataSource;
 
-    /**
-     * 默认源的链接
-     */
     private Connection mainConnection;
 
     private String mainDatabaseIdentification;
@@ -50,6 +47,7 @@ public class RoutingDataSourceTransaction implements Transaction {
     @Override
     public Connection getConnection() throws SQLException {
         String databaseIdentification = RoutingContext.getRoutingDatabase();
+        LOGGER.info("JDBC Connection from {}.",databaseIdentification);
         if (databaseIdentification.equals(mainDatabaseIdentification)) {
             if (mainConnection == null) {
                 openMainConnection();
@@ -58,7 +56,6 @@ public class RoutingDataSourceTransaction implements Transaction {
             return mainConnection;
         } else {
             if (!otherConnectionMap.containsKey(databaseIdentification)) {
-                /**链接**/
                 Connection conn = DataSourceUtils.getConnection(this.dataSource.getActualDataSource());
                 conn.setAutoCommit(autoCommit);
                 otherConnectionMap.put(databaseIdentification, conn);

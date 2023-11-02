@@ -19,9 +19,7 @@ public class RoutingDataSource extends AbstractRoutingDataSource {
 
     @Override
     protected Object determineCurrentLookupKey() {
-        String routingDatabase = RoutingContext.getRoutingDatabase();
-        logger.info("current database is {}.",routingDatabase);
-        return routingDatabase;
+        return RoutingContext.getRoutingDatabase();
     }
 
     public DataSource getActualDataSource() {

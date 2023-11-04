@@ -1,4 +1,4 @@
-package me.about.widget.routing.spring;
+package me.about.widget.routing.spring.annotation;
 
 import java.lang.annotation.*;
 
@@ -12,6 +12,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-public @interface DbSelect {
+public @interface HintRouting {
     String value();
 }

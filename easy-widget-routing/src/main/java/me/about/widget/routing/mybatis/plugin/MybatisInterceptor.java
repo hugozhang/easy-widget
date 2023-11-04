@@ -2,7 +2,7 @@ package me.about.widget.routing.mybatis.plugin;
 
 import com.google.common.collect.Lists;
 import me.about.widget.routing.RoutingContext;
-import me.about.widget.routing.spring.DbSelect;
+import me.about.widget.routing.spring.annotation.HintRouting;
 import me.about.widget.routing.sqlparse.DruidSqlParse;
 import me.about.widget.routing.sqlparse.model.ConditionField;
 import me.about.widget.routing.sqlparse.model.SqlParseResult;
@@ -36,14 +36,14 @@ public class MybatisInterceptor implements Interceptor {
     private final static Logger logger = LoggerFactory.getLogger(RoutingInterceptor.class);
 
 
-    private DbSelect getMapperMethodAnnotation(MappedStatement mappedStatement) throws ClassNotFoundException {
+    private HintRouting getMapperMethodAnnotation(MappedStatement mappedStatement) throws ClassNotFoundException {
         String id = mappedStatement.getId();
         String className = id.substring(0, id.lastIndexOf("."));
         String methodName = id.substring(id.lastIndexOf(".") + 1);
         final Method[] methods = Class.forName(className).getMethods();
         for (Method method : methods) {
             if (method.getName().equals(methodName)) {
-                return method.getAnnotation(DbSelect.class);
+                return method.getAnnotation(HintRouting.class);
             }
         }
         return null;
@@ -65,7 +65,7 @@ public class MybatisInterceptor implements Interceptor {
             
             sql = showSql(configuration, boundSql);
 
-            DbSelect mapperMethodAnnotation = getMapperMethodAnnotation(mappedStatement);
+            HintRouting mapperMethodAnnotation = getMapperMethodAnnotation(mappedStatement);
             if (mapperMethodAnnotation != null) {
                 String value = mapperMethodAnnotation.value();
                 RoutingContext.setRoutingDatabase(value);

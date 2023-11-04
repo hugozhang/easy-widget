@@ -11,9 +11,12 @@ import java.util.Set;
  */
 public class ConfigChangeEvent {
 
+    private final String namespace;
+
     private final Map<String, ConfigChange> changes;
 
-    public ConfigChangeEvent(Map<String, ConfigChange> changes) {
+    public ConfigChangeEvent(String namespace, Map<String, ConfigChange> changes) {
+        this.namespace = namespace;
         this.changes = changes;
     }
 
@@ -27,6 +30,10 @@ public class ConfigChangeEvent {
 
     public boolean isChanged(String key) {
         return changes.containsKey(key);
+    }
+
+    public String getNamespace() {
+        return namespace;
     }
 
 }

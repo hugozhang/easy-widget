@@ -1,6 +1,7 @@
 package me.about.widget.routing.spring;
 
 import me.about.widget.routing.RoutingContext;
+import me.about.widget.routing.spring.annotation.HintRouting;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Around;
@@ -23,7 +24,7 @@ import java.lang.reflect.Method;
 @Order(-1)
 public class RoutingDataSourceAspect {
 
-    @Pointcut("@annotation(me.about.widget.routing.spring.DbSelect)")
+    @Pointcut("@annotation(me.about.widget.routing.spring.annotation.HintRouting)")
     public void dsPointCut()  {
 
     }
@@ -31,7 +32,7 @@ public class RoutingDataSourceAspect {
     @Around("dsPointCut()")
     public Object around(ProceedingJoinPoint point) throws Throwable {
         Method targetMethod = this.getTargetMethod(point);
-        DbSelect dataSource = targetMethod.getAnnotation(DbSelect.class);
+        HintRouting dataSource = targetMethod.getAnnotation(HintRouting.class);
         RoutingContext.setRoutingDatabase(dataSource.value());
         try {
             return point.proceed();

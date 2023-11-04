@@ -1,11 +1,13 @@
 org.springframework.context.ApplicationContextInitializer = \
-    me.about.widget.config.spi.CustomApplicationContextInitializer
+    me.about.widget.config.spi.PropertySourceApplicationContextInitializer
+
+org.springframework.context.ApplicationListener = \
+    me.about.widget.config.spi.StartupApplicationListener
 
 org.springframework.boot.env.EnvironmentPostProcessor = \
-    me.about.widget.config.spi.CustomEnvironmentPostProcessor
+    me.about.widget.config.spi.PropertySourcesProcessor
 
 org.springframework.boot.autoconfigure.EnableAutoConfiguration = \
     me.about.widget.config.spring.boot.autoconfig.BeanAutoConfiguration
 
-me.about.widget.config.spi.PropertySourceLocator = \
-    me.about.widget.config.spi.ZookeeperPropertySourceLocator
+

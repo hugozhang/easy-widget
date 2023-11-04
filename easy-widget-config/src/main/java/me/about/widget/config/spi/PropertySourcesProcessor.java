@@ -23,7 +23,7 @@ import java.util.Properties;
  * @date: 2023/02/03 13:48
  * @description:
  */
-public class CustomEnvironmentPostProcessor implements EnvironmentPostProcessor {
+public class PropertySourcesProcessor implements EnvironmentPostProcessor {
 
     private final Log logger;
 
@@ -33,8 +33,8 @@ public class CustomEnvironmentPostProcessor implements EnvironmentPostProcessor 
 
     private final String propertiesFile = "classpath:config/**/*.properties";
 
-    public CustomEnvironmentPostProcessor(DeferredLogFactory logFactory) {
-        this.logger = logFactory.getLog(CustomEnvironmentPostProcessor.class);
+    public PropertySourcesProcessor(DeferredLogFactory logFactory) {
+        this.logger = logFactory.getLog(PropertySourcesProcessor.class);
     }
 
     @SneakyThrows

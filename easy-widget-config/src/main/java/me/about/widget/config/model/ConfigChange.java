@@ -11,13 +11,15 @@ import me.about.widget.config.enums.PropertyChangeType;
  */
 public class ConfigChange {
 
+    private final String namespace;
     private final String propertyName;
     private String oldValue;
     private String newValue;
     private PropertyChangeType changeType;
 
-    public ConfigChange(String propertyName, String oldValue, String newValue,
+    public ConfigChange(String namespace, String propertyName, String oldValue, String newValue,
                         PropertyChangeType changeType) {
+        this.namespace = namespace;
         this.propertyName = propertyName;
         this.oldValue = oldValue;
         this.newValue = newValue;
@@ -52,10 +54,15 @@ public class ConfigChange {
         this.changeType = changeType;
     }
 
+    public String getNamespace() {
+        return namespace;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ConfigChange{");
-        sb.append("propertyName='").append(propertyName).append('\'');
+        sb.append("namespace='").append(namespace).append('\'');
+        sb.append(", propertyName='").append(propertyName).append('\'');
         sb.append(", oldValue='").append(oldValue).append('\'');
         sb.append(", newValue='").append(newValue).append('\'');
         sb.append(", changeType=").append(changeType);

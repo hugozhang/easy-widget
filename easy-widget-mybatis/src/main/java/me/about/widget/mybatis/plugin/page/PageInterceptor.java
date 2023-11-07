@@ -91,26 +91,29 @@ public class PageInterceptor implements Interceptor {
             return invocation.proceed();
         }
 
+        // 方法返回类型
         ResolvableType resolvableType = ResolvableType.forMethodReturnType(method);
         Class<?> resolve = resolvableType.getGeneric(0).resolve();
 
+        // 构建新的ResultMap
         ResultMap resultMap = new ResultMap.Builder(ms.getConfiguration()
                 , ms.getId(), resolve, Lists.newArrayList())
                 .build();
 
+        // 设置ResultMap
         Field resultMapsField = MappedStatement.class.getDeclaredField("resultMaps");
         resultMapsField.setAccessible(true);
         resultMapsField.set(ms,Lists.newArrayList(resultMap));
 
-        int pageSize = pageParam.getPageSize() < 0 ? 10 : pageParam.getPageSize();
-        int currentPage = pageParam.getCurrentPage() < 0 ? 1 : pageParam.getCurrentPage();
+        int pageSize = pageParam.getPageSize() <= 0 ? 10 : pageParam.getPageSize();
+        int currentPage = pageParam.getCurrentPage() <= 0 ? 1 : pageParam.getCurrentPage();
         pageParam.setCurrentPage(currentPage);
 
-        // 分页参数作为参数对象parameterObject的一个属性
+        // 生成分页sql
         String sql = boundSql.getSql();
         String pageSql = buildPageSql(sql, pageParam);
 
-        // 重写分页sql
+        // 设置分页sql
         Field sqlField = BoundSql.class.getDeclaredField("sql");
         sqlField.setAccessible(true);
         sqlField.set(boundSql, pageSql);
@@ -121,6 +124,7 @@ public class PageInterceptor implements Interceptor {
         long total = getTotal(sql, ms, boundSql);
         int totalPage = (int) (total / pageSize + ((total % pageSize == 0) ? 0 : 1));
 
+        // 设置返回值
         InternalResult<?> internalResult = new InternalResult<>();
         internalResult.setTotal(total);
         internalResult.setTotalPage(totalPage);
@@ -133,8 +137,7 @@ public class PageInterceptor implements Interceptor {
     private PageParam<?> findPageParameter(Object param) {
         if (param instanceof PageParam<?>) {
             return (PageParam<?>) param;
-        }
-        else if (param instanceof Map) {
+        } else if (param instanceof Map) {
             for (Object value : ((Map<?, ?>) param).values()) {
                 if (value instanceof PageResult<?>) {
                     return (PageParam<?>) value;

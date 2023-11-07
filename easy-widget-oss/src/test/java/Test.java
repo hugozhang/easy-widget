@@ -25,7 +25,7 @@ public class Test {
         clientConfiguration.setMaxConnections(100);
 
         AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration("http://192.168.5.220:9000","shanghai");
-        AWSCredentials awsCredentials = new BasicAWSCredentials("MM0E08D343BM45EFGSBE","lYo4APyVO5LdfTLzYImnmfR5fV3wYotcgALDQyYV");
+        AWSCredentials awsCredentials = new BasicAWSCredentials("EVZAX8MYH5MH21NM593L","gqPu1l0PXPy3bU+imKSS27OS1oTy9AwaHjJQe+Pk");
         AWSCredentialsProvider awsCredentialsProvider = new AWSStaticCredentialsProvider(awsCredentials);
 
         AmazonS3 amazonS3 = AmazonS3Client.builder()
@@ -35,7 +35,7 @@ public class Test {
                 .disableChunkedEncoding()
                 .build();
 
-        OssService ossService = new S3OssServiceImpl(amazonS3,"wbqtest");
+        OssService ossService = new S3OssServiceImpl(amazonS3,"test1");
         ossService.putObject("123.docx",new File("D:\\Downloads\\日志链路追踪 一   .docx"));
     }
 

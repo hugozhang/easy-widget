@@ -81,7 +81,6 @@ public class RoutingDataSourceConfig {
             if (dataSource != null) {
                 targetDataSources.put(databaseId, dataSource);
                 if (defaultTargetDataSource == null) {
-                    RoutingContext.setRoutingDatabase(databaseId);
                     defaultTargetDataSource = dataSource;
                 }
             }

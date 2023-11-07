@@ -37,9 +37,9 @@ import java.util.regex.Matcher;
 @Intercepts({
         @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}),
         @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class})})
-public class MybatisInterceptor implements Interceptor {
+public class StopWatchInterceptor implements Interceptor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MybatisInterceptor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StopWatchInterceptor.class);
 
     @Override
     public Object intercept(Invocation invocation) throws Throwable {

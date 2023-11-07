@@ -70,7 +70,7 @@ public class DruidSqlParse {
 //        String sql = "delete from a where id = 2";
 //        String sql = "select * from a where medins_no = '123qq' and age=2";
 //        String sql = "select * from a where id = 1 or age=2";
-        String sql = "select name, `value` from t_cast_ddl";
+//        String sql = "select name, `value` from t_cast_ddl";
 //        String sql = "SELECT t.ID,t.TASK_NAME,t.CRON, t.REMARK,t.STATUS,t.JOB_NAME, u.YH_MC AS \"CREATE_ID\", t.MODIFY_ID,t.MODIFY_AT,t.DELE_FLG FROM T_TASK t LEFT JOIN S_SYS_YH_TBL u ON t.MODIFY_ID=u.YH_ID WHERE t.DELE_FLG='0'\n";
 //        String sql = "DELETE users, orders FROM users JOIN orders ON users.user_id = orders.user_id WHERE users.username = 'John'";
 //        String sql = "DELETE orders FROM orders JOIN users ON orders.user_id = users.user_id WHERE users.username = 'John'";
@@ -85,6 +85,7 @@ public class DruidSqlParse {
 //        System.out.println(visitor.getConditions()); //[acct.id = 10]
 //        System.out.println(visitor.getDbType());//mysql
 //        System.out.println(visitor.getValues());
+        String sql = "select dipzbm,dipzmc from T_DIP_FZTJ_TBL where 1=1 and dddsbm =  and dipzbm like CONCAT(CONCAT('%','40511_l/1__'),'%')";
 
         RoutingContext.addShardingColumn("a");
         RoutingContext.addShardingColumn("username");

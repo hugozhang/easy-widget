@@ -52,9 +52,13 @@ public class RoutingContext {
         SHARDING_COLUMNS.addAll(shardingColumns);
     }
 
+    public static String defaultDatabase() {
+        return getDatabaseIds().get(0);
+    }
+
     public static String getRoutingDatabase() {
         String currentDatabase = ROUTING_DATABASE.get();
-        if (currentDatabase != null && !DATABASE_IDS.contains(currentDatabase)) {
+        if (currentDatabase == null || !DATABASE_IDS.contains(currentDatabase)) {
             throw new DatabaseNotFoundException("{" + currentDatabase + "}, not found");
         }
         return currentDatabase;

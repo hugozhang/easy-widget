@@ -1,3 +1,3 @@
 ## Auto Configuration
-#org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-#    me.about.widget.mybatis.sensitive.spring.boot.autoconfig.SensitiveMapperAutoConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+    me.about.widget.mybatis.plugin.page.spring.boot.autoconfig.BeanAutoConfiguration

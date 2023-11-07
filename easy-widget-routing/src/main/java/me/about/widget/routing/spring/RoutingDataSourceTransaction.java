@@ -41,7 +41,7 @@ public class RoutingDataSourceTransaction implements Transaction {
     public RoutingDataSourceTransaction(DataSource dataSource) {
         notNull(dataSource, "No DataSource specified");
         this.dataSource = (RoutingDataSource) dataSource;
-        this.mainDatabaseIdentification= RoutingContext.getRoutingDatabase();
+        this.mainDatabaseIdentification= RoutingContext.defaultDatabase();
     }
 
     @Override

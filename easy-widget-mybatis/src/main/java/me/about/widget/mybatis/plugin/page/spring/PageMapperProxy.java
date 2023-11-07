@@ -3,7 +3,6 @@ package me.about.widget.mybatis.plugin.page.spring;
 import me.about.widget.mybatis.plugin.page.model.PageResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.aop.support.AopUtils;
 import org.springframework.util.StringValueResolver;
 
 import java.io.Serializable;
@@ -35,11 +34,7 @@ public class PageMapperProxy <T> implements InvocationHandler, Serializable {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         try {
-            if (AopUtils.isEqualsMethod(method) || AopUtils.isHashCodeMethod(method) || AopUtils.isToStringMethod(method)) {
-                return method.invoke(mapper, args);
-            }
-
-            LOGGER.info("invoke proxy={} method={} args={}", proxy, method, args);
+            LOGGER.debug("invoke proxy={} method={} args={}", proxy, method, args);
 
             Object result = method.invoke(mapper, args);
             if ((method.getReturnType().equals(Void.TYPE))) {
@@ -55,6 +50,5 @@ public class PageMapperProxy <T> implements InvocationHandler, Serializable {
         } finally {
             InternalResultContext.clear();
         }
-
     }
 }

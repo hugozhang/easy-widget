@@ -5,7 +5,10 @@ import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ParameterMapping;
-import org.apache.ibatis.plugin.*;
+import org.apache.ibatis.plugin.Interceptor;
+import org.apache.ibatis.plugin.Intercepts;
+import org.apache.ibatis.plugin.Invocation;
+import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
@@ -13,8 +16,6 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
@@ -24,8 +25,7 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 
 /**
- * mybatis 完整日志打印多数据源AOP
- * @see ApplicationListener<ContextRefreshedEvent>
+ * mybatis 完整日志打印
  *
  * @author: hugo.zxh
  * @date: 2020/11/09 14:23

@@ -48,7 +48,7 @@ public class PageMapperBeanPostProcessor implements BeanPostProcessor, EmbeddedV
     }
 
 
-    private static boolean isMapper(Class<?> mapperClass) {
+    private static boolean isPageMapper(Class<?> mapperClass) {
         Method[] methods = mapperClass.getMethods();
         for(Method method : methods) {
             if (PageResult.class.isAssignableFrom(method.getReturnType())) {
@@ -64,19 +64,19 @@ public class PageMapperBeanPostProcessor implements BeanPostProcessor, EmbeddedV
         if(bean instanceof MapperFactoryBean) {
             MapperFactoryBean mapperFactoryBean = (MapperFactoryBean) bean;
             Class<?> mapperInterface = mapperFactoryBean.getMapperInterface();
-            if(isMapper(mapperInterface)) {
+            if(isPageMapper(mapperInterface)) {
                 mapperClasps.add(mapperInterface);
                 LOGGER.info("find MapperFactoryBean beanName={} mapperInterface={}",beanName,mapperInterface);
             }
         } else {
             for(Class<?> mapperClass : mapperClasps) {
                 if(bean.getClass().equals(mapperClass)) {
-                    LOGGER.info("proxy Mapper beanName={} class={} ",beanName,mapperClass);
+                    LOGGER.info("[1]proxy Mapper beanName={} class={} ",beanName,mapperClass);
                     return createMapperProxy(bean, mapperClass);
                 } else {
                     for(Class<?> interfaceClass : bean.getClass().getInterfaces()){
                         if(interfaceClass.equals(mapperClass)) {
-                            LOGGER.info("proxy Mapper beanName={} class={} ",beanName,mapperClass);
+                            LOGGER.info("[2]proxy Mapper beanName={} class={} ",beanName,mapperClass);
                             return createMapperProxy(bean, mapperClass);
                         }
                     }

@@ -1,7 +1,7 @@
 package me.about.widget.mybatis.plugin.page.spring;
 
 /**
- * Created with IntelliJ IDEA.
+ * 内部使用 分页结果上下文
  *
  * @author: hugo.zxh
  * @date: 2023/11/07 10:26

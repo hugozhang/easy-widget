@@ -21,7 +21,6 @@ import org.springframework.core.ResolvableType;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import javax.sql.DataSource;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -91,20 +90,6 @@ public class PageInterceptor implements Interceptor {
             return invocation.proceed();
         }
 
-        // 方法返回类型
-        ResolvableType resolvableType = ResolvableType.forMethodReturnType(method);
-        Class<?> resolve = resolvableType.getGeneric(0).resolve();
-
-        // 构建新的ResultMap
-        ResultMap resultMap = new ResultMap.Builder(ms.getConfiguration()
-                , ms.getId(), resolve, Lists.newArrayList())
-                .build();
-
-        // 设置ResultMap
-        Field resultMapsField = MappedStatement.class.getDeclaredField("resultMaps");
-        resultMapsField.setAccessible(true);
-        resultMapsField.set(ms,Lists.newArrayList(resultMap));
-
         int pageSize = pageParam.getPageSize() <= 0 ? 10 : pageParam.getPageSize();
         int currentPage = pageParam.getCurrentPage() <= 0 ? 1 : pageParam.getCurrentPage();
         pageParam.setCurrentPage(currentPage);
@@ -113,16 +98,33 @@ public class PageInterceptor implements Interceptor {
         String sql = boundSql.getSql();
         String pageSql = buildPageSql(sql, pageParam);
 
-        // 设置分页sql
-        Field sqlField = BoundSql.class.getDeclaredField("sql");
-        sqlField.setAccessible(true);
-        sqlField.set(boundSql, pageSql);
+        ResolvableType resolvableType = ResolvableType.forMethodReturnType(method);
+        Class<?> resolve = resolvableType.getGeneric(0).resolve();
 
-        Object proceed = invocation.proceed();
+        // 用方法返回类型里的泛型参数构建新的ResultMap
+        ResultMap resultMap = new ResultMap.Builder(ms.getConfiguration()
+                , ms.getId(), resolve, Lists.newArrayList())
+                .build();
+
+        MappedStatement internalMs = new MappedStatement.Builder(ms.getConfiguration()
+                , ms.getId(), ms.getSqlSource(), ms.getSqlCommandType()).resultMaps(Lists.newArrayList(resultMap)).build();
+
+        //设置分页boundSql 通过反射不可行,因为没有boundSql变量
+        BoundSql pageBoundSql = new BoundSql(ms.getConfiguration(), pageSql, boundSql.getParameterMappings(), boundSql.getParameterObject());
+
+        //        Object proceed = invocation.proceed();
+
+        Object proceed;
 
         // 重设分页参数里的总页数等
         long total = getTotal(sql, ms, boundSql);
         int totalPage = (int) (total / pageSize + ((total % pageSize == 0) ? 0 : 1));
+
+        if (total == 0 || pageParam.getCurrentPage() > totalPage) {
+            proceed = Lists.newArrayList();
+        } else {
+            proceed = executor.query(internalMs,parameter,rowBounds,resultHandler,cacheKey,pageBoundSql);
+        }
 
         // 设置返回值
         InternalResult<?> internalResult = new InternalResult<>();
@@ -167,11 +169,11 @@ public class PageInterceptor implements Interceptor {
      * 获取总记录数
      *
      * @param sql
-     * @param mappedStatement
+     * @param ms
      * @param boundSql
      */
     private long getTotal(String sql,
-                          MappedStatement mappedStatement,
+                          MappedStatement ms,
                           BoundSql boundSql) {
         // 记录总记录数
         String countSql = "SELECT COUNT(0) FROM (" + sql + ") tmp_total";
@@ -180,14 +182,14 @@ public class PageInterceptor implements Interceptor {
         PreparedStatement countStmt = null;
         ResultSet rs = null;
         try {
-            dataSource = mappedStatement.getConfiguration().getEnvironment().getDataSource();
+            dataSource = ms.getConfiguration().getEnvironment().getDataSource();
             connection = dataSource.getConnection();
             countStmt = connection.prepareStatement(countSql);
-            BoundSql countBoundSql = new BoundSql(mappedStatement.getConfiguration(),
+            BoundSql countBoundSql = new BoundSql(ms.getConfiguration(),
                     countSql,
                     boundSql.getParameterMappings(),
                     boundSql.getParameterObject());
-            setParameters(countStmt, mappedStatement, countBoundSql, boundSql.getParameterObject());
+            setParameters(countStmt, ms, countBoundSql, boundSql.getParameterObject());
             rs = countStmt.executeQuery();
             long total = 0;
             if (rs.next()) {

@@ -46,6 +46,9 @@ public class SpringValueProcessor implements ApplicationContextAware,BeanPostPro
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        if (beanName.startsWith("scopedTarget.")) {
+            return bean;
+        }
         Class<?> clazz = bean.getClass();
         for (Field field : findAllField(clazz)) {
             processField(bean, beanName, field);

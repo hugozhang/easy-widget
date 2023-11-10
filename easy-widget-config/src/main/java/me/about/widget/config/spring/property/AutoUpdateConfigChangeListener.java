@@ -2,18 +2,26 @@ package me.about.widget.config.spring.property;
 
 
 import me.about.widget.config.ConfigChangeListener;
+import me.about.widget.config.model.ConfigChange;
 import me.about.widget.config.model.ConfigChangeEvent;
+import me.about.widget.config.refresh.RefreshBeanEvent;
+import me.about.widget.config.refresh.constant.RefreshBeanConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeConverter;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.core.env.Environment;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.MapPropertySource;
+import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertySource;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 配置变更监听
@@ -26,19 +34,41 @@ public class AutoUpdateConfigChangeListener implements ConfigChangeListener {
     private static final Logger logger = LoggerFactory.getLogger(AutoUpdateConfigChangeListener.class);
 
     private final boolean typeConverterHasConvertIfNecessaryWithFieldParameter;
-    private final Environment environment;
+    private final ConfigurableEnvironment environment;
     private final ConfigurableBeanFactory beanFactory;
     private final TypeConverter typeConverter;
     private final PlaceholderHelper placeholderHelper;
     private final SpringValueRegistry springValueRegistry;
+    private final ConfigurableApplicationContext applicationContext;
 
-    public AutoUpdateConfigChangeListener(Environment environment, ConfigurableListableBeanFactory beanFactory){
+    public AutoUpdateConfigChangeListener(ConfigurableApplicationContext applicationContext){
         this.typeConverterHasConvertIfNecessaryWithFieldParameter = testTypeConverterHasConvertIfNecessaryWithFieldParameter();
-        this.beanFactory = beanFactory;
+        this.beanFactory = applicationContext.getBeanFactory();
         this.typeConverter = this.beanFactory.getTypeConverter();
-        this.environment = environment;
+        this.environment = applicationContext.getEnvironment();
         this.placeholderHelper = PlaceholderHelper.getInstance();
         this.springValueRegistry = SpringValueRegistry.getInstance();
+        this.applicationContext = applicationContext;
+    }
+
+    private void refreshEnvironment(ConfigChangeEvent changeEvent) {
+        // refresh environment
+        Map<String, Object> changeMap = changeEvent.getChanges().values()
+                .stream()
+                .collect(Collectors.toMap(ConfigChange::getPropertyName, ConfigChange::getNewValue, (k1, k2) -> k1));
+
+        MutablePropertySources propertySources = applicationContext.getEnvironment().getPropertySources();
+        if (propertySources.contains(RefreshBeanConstant.SCOPE_NAME)) {
+            PropertySource<?> x = propertySources.get(RefreshBeanConstant.SCOPE_NAME);
+            if (x instanceof MapPropertySource) {
+                MapPropertySource propertySource = (MapPropertySource) x;
+                Map<String, Object> source = propertySource.getSource();
+                source.putAll(changeMap);
+            }
+        } else {
+            MapPropertySource refresh = new MapPropertySource(RefreshBeanConstant.SCOPE_NAME, changeMap);
+            propertySources.addFirst(refresh);
+        }
     }
 
     @Override
@@ -47,7 +77,11 @@ public class AutoUpdateConfigChangeListener implements ConfigChangeListener {
         if (CollectionUtils.isEmpty(keys)) {
             return;
         }
+
+        refreshEnvironment(changeEvent);
+
         for (String key : keys) {
+
             // 1. check whether the changed key is relevant
             Collection<SpringValue> targetValues = springValueRegistry.get(beanFactory, key);
             if (targetValues == null || targetValues.isEmpty()) {
@@ -56,8 +90,12 @@ public class AutoUpdateConfigChangeListener implements ConfigChangeListener {
             // 2. update the value
             for (SpringValue val : targetValues) {
                 updateSpringValue(val);
+
             }
         }
+
+        // 1. refresh bean
+        applicationContext.publishEvent(new RefreshBeanEvent(this,keys));
     }
 
     private void updateSpringValue(SpringValue springValue) {
@@ -65,10 +103,10 @@ public class AutoUpdateConfigChangeListener implements ConfigChangeListener {
             Object value = resolvePropertyValue(springValue);
             springValue.update(value);
 
-            logger.info("Auto update apollo changed value successfully, new value: {}, {}", value,
+            logger.info("Auto update changed value successfully, new value: {}, {}", value,
                     springValue);
         } catch (Throwable ex) {
-            logger.error("Auto update apollo changed value failed, {}", springValue.toString(), ex);
+            logger.error("Auto update changed value failed, {}", springValue.toString(), ex);
         }
     }
 

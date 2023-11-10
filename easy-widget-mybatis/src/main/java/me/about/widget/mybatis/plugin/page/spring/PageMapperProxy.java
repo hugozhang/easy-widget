@@ -3,7 +3,8 @@ package me.about.widget.mybatis.plugin.page.spring;
 import me.about.widget.mybatis.plugin.page.model.PageResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringValueResolver;
+import org.springframework.aop.scope.ScopedObject;
+import org.springframework.aop.support.AopUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
@@ -19,21 +20,28 @@ public class PageMapperProxy <T> implements InvocationHandler, Serializable {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(PageMapperProxy.class);
 
-    private Class<T> mapperClass;
-
     private Object mapper;
 
-    private StringValueResolver resolver;
-
-    public PageMapperProxy(Class<T> mapperClass, Object mapper, StringValueResolver resolver) {
-        this.mapperClass = mapperClass;
+    public PageMapperProxy(Object mapper) {
         this.mapper = mapper;
-        this.resolver = resolver;
+    }
+
+    private boolean isScopedObjectGetTargetObject(Method method) {
+        return method.getDeclaringClass().equals(ScopedObject.class)
+                && method.getName().equals("getTargetObject")
+                && method.getParameterTypes().length == 0;
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         try {
+            if (AopUtils.isEqualsMethod(method) || AopUtils.isToStringMethod(method)
+                    || AopUtils.isHashCodeMethod(method)
+                    || isScopedObjectGetTargetObject(method)
+                    || !PageResult.class.isAssignableFrom(method.getReturnType())) {
+                return method.invoke(mapper, args);
+            }
+
             LOGGER.debug("invoke proxy={} method={} args={}", proxy, method, args);
 
             Object result = method.invoke(mapper, args);

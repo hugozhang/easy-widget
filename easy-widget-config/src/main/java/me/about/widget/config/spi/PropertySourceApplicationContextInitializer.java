@@ -39,7 +39,7 @@ public class PropertySourceApplicationContextInitializer implements ApplicationC
         ConfigurableEnvironment environment = applicationContext.getEnvironment();
         ConfigurableListableBeanFactory beanFactory = applicationContext.getBeanFactory();
 
-        ConfigChangeListener configChangeListener = new AutoUpdateConfigChangeListener(environment,beanFactory);
+        ConfigChangeListener configChangeListener = new AutoUpdateConfigChangeListener(applicationContext);
         ConfigService.getInstance().addConfigChangeListener(configChangeListener);
 
         MutablePropertySources mutablePropertySources = environment.getPropertySources();

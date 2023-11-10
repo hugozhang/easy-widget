@@ -87,6 +87,6 @@ public class PageMapperBeanPostProcessor implements BeanPostProcessor, EmbeddedV
     }
 
     private Object createMapperProxy(Object bean, Class<?> mapperClass) {
-        return Proxy.newProxyInstance(mapperClass.getClassLoader(),new Class[]{ mapperClass },new PageMapperProxy<>(mapperClass,bean,resolver));
+        return Proxy.newProxyInstance(mapperClass.getClassLoader(),new Class[]{ mapperClass },new PageMapperProxy<>(bean));
     }
 }

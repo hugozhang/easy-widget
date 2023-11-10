@@ -18,6 +18,20 @@
 6. 敏感数据
    https://blog.csdn.net/why_still_confused/article/details/113060605
 
+7. 分页组件的使用
+   mapper 里面的方法直接这样写
+   
+   PageResult<Medins> selectByPage(PageParam pageParam);
+
+   xml 里面更简洁的写法，不需要再指定返回，参数
+  
+   <select id="selectByPage">
+       select medins_no medinsNo,medins_name medinsName
+       from medins where medins_no = #{paramObj.medinsNo}
+   </select>
+   
+   
+
 ````
 
 例子：

@@ -81,12 +81,10 @@ public class PageInterceptor implements Interceptor {
         }
 
         Method method = getMethod(ms);
-        if (method == null) {
-            return invocation.proceed();
-        }
 
         PageParam<?> pageParam = findPageParameter(boundSql.getParameterObject());
-        if (pageParam == null) {
+
+        if (method == null || pageParam == null) {
             return invocation.proceed();
         }
 
@@ -98,10 +96,10 @@ public class PageInterceptor implements Interceptor {
         String sql = boundSql.getSql();
         String pageSql = buildPageSql(sql, pageParam);
 
+        // 用方法返回类型里的泛型参数构建新的ResultMap
         ResolvableType resolvableType = ResolvableType.forMethodReturnType(method);
         Class<?> resolve = resolvableType.getGeneric(0).resolve();
 
-        // 用方法返回类型里的泛型参数构建新的ResultMap
         ResultMap resultMap = new ResultMap.Builder(ms.getConfiguration()
                 , ms.getId(), resolve, Lists.newArrayList())
                 .build();
@@ -110,7 +108,8 @@ public class PageInterceptor implements Interceptor {
                 , ms.getId(), ms.getSqlSource(), ms.getSqlCommandType()).resultMaps(Lists.newArrayList(resultMap)).build();
 
         //设置分页boundSql 通过反射不可行,因为没有boundSql变量
-        BoundSql pageBoundSql = new BoundSql(ms.getConfiguration(), pageSql, boundSql.getParameterMappings(), boundSql.getParameterObject());
+        BoundSql pageBoundSql = new BoundSql(ms.getConfiguration(), pageSql
+                , boundSql.getParameterMappings(), boundSql.getParameterObject());
 
         //        Object proceed = invocation.proceed();
 
@@ -185,10 +184,9 @@ public class PageInterceptor implements Interceptor {
             dataSource = ms.getConfiguration().getEnvironment().getDataSource();
             connection = dataSource.getConnection();
             countStmt = connection.prepareStatement(countSql);
-            BoundSql countBoundSql = new BoundSql(ms.getConfiguration(),
-                    countSql,
-                    boundSql.getParameterMappings(),
-                    boundSql.getParameterObject());
+            BoundSql countBoundSql = new BoundSql(ms.getConfiguration(), countSql
+                    , boundSql.getParameterMappings()
+                    , boundSql.getParameterObject());
             setParameters(countStmt, ms, countBoundSql, boundSql.getParameterObject());
             rs = countStmt.executeQuery();
             long total = 0;

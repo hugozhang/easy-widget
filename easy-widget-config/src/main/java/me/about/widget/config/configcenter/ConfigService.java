@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -42,6 +43,7 @@ public class ConfigService {
         return new Properties();
     }
 
+
     private ConfigService() {
     }
 
@@ -52,9 +54,10 @@ public class ConfigService {
     }
 
 
+    private ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+
     public void startSchedule() {
-        Executors.newScheduledThreadPool(1)
-                .scheduleWithFixedDelay(() -> checkProperties(),1,5, TimeUnit.SECONDS);
+        executor.scheduleWithFixedDelay(() -> checkProperties(),1,10, TimeUnit.SECONDS);
     }
 
     private void checkProperties() {

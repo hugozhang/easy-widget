@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created with IntelliJ IDEA.
+ * 配置变量事件
  *
  * @author: hugo.zxh
  * @date: 2023/10/20 14:25
@@ -26,6 +26,10 @@ public class ConfigChangeEvent {
 
     public ConfigChange getChange(String key) {
         return changes.get(key);
+    }
+
+    public Map<String, ConfigChange> getChanges() {
+        return changes;
     }
 
     public boolean isChanged(String key) {

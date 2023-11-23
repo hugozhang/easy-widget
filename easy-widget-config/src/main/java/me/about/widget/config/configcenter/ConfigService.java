@@ -12,8 +12,9 @@ import me.about.widget.config.model.ConfigChangeEvent;
 import me.about.widget.config.util.ClassLoaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
+import org.springframework.core.io.FileSystemResource;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,6 @@ public class ConfigService {
         return new Properties();
     }
 
-
     private ConfigService() {
     }
 
@@ -53,7 +53,6 @@ public class ConfigService {
         return INSTANCE;
     }
 
-
     private ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
     public void startSchedule() {
@@ -61,28 +60,40 @@ public class ConfigService {
     }
 
     private void checkProperties() {
-        Properties properties = loadFromResource();
-        onRepositoryChange(properties);
+        try {
+            Properties properties = loadFromResource();
+            onRepositoryChange(properties);
+        } catch (Exception e) {
+            logger.error(e.getMessage(),e);
+        }
     }
 
     private Properties loadFromResource() {
+        YamlPropertiesFactoryBean factoryBean = new YamlPropertiesFactoryBean();
+
+
 //        String name = String.format("META-INF/config/%s.properties", namespace);
         InputStream in = ClassLoaderUtil.getLoader().getResourceAsStream(namespace);
-        Properties properties = new Properties();
-        if (in != null) {
-            try {
-                properties.load(in);
-            } catch (IOException ex) {
-                logger.error("Load resource config for namespace {} failed", namespace, ex);
-            } finally {
-                try {
-                    in.close();
-                } catch (IOException ex) {
-                    // ignore
-                }
-            }
-        }
-        return properties;
+
+        factoryBean.setResources(new FileSystemResource("D:\\workspace\\hmap_saas\\HMAP-CONTAINER\\hmap-container\\src\\main\\resources\\application.yaml"));
+
+        return factoryBean.getObject();
+
+//        Properties properties = new Properties();
+//        if (in != null) {
+//            try {
+//                properties.load(in);
+//            } catch (IOException ex) {
+//                logger.error("Load resource config for namespace {} failed", namespace, ex);
+//            } finally {
+//                try {
+//                    in.close();
+//                } catch (IOException ex) {
+//                    // ignore
+//                }
+//            }
+//        }
+//        return properties;
     }
 
     private void onRepositoryChange(Properties newProperties) {

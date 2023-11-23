@@ -177,7 +177,5 @@ public class RefreshBeanScope implements Scope, BeanDefinitionRegistryPostProces
                     && method.getName().equals("getTargetObject")
                     && method.getParameterTypes().length == 0;
         }
-
     }
-
 }

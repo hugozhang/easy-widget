@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import me.about.widget.config.refresh.config.annotation.RefreshBeanScope;
 import me.about.widget.routing.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.util.List;
@@ -37,8 +37,8 @@ public class RoutingDataSourceConfig {
     @Resource
     private RoutingDataSourceProperties routingDataSourceProperties;
 
-    @PostConstruct
-    public void init() {
+//    @PostConstruct
+    public void afterPropertiesSet() {
         RoutingDataSourceProperties.RoutingRules routingRules = routingDataSourceProperties.getRules();
         Preconditions.checkArgument(routingRules != null,"{routing.rules} not found");
         Preconditions.checkArgument(!CollectionUtils.isEmpty(routingRules.getBroadcastTables()),"{routing.rules.broadcastTables} not found");
@@ -57,7 +57,7 @@ public class RoutingDataSourceConfig {
         Map<String, Object> databaseProperties = routingDataSourceProperties.getDatabaseProperties();
         Preconditions.checkArgument(!CollectionUtils.isEmpty(databaseProperties), "{routing.databaseProperties} not found.");
 
-        // merge
+        // merge properties
         for (Map.Entry<String,Object> databasePropertiesEntry : databaseProperties.entrySet()) {
             for (Map.Entry<String, Map<String, Object>> entry : databases.entrySet()) {
                 Map<String, Object> value = entry.getValue();
@@ -66,7 +66,7 @@ public class RoutingDataSourceConfig {
         }
     }
 
-    private DataSource initShardingDataSource() {
+    private RoutingDataSource initShardingDataSource() {
         Map<String, Map<String, Object>> databases = routingDataSourceProperties.getDatabases();
         Map<Object, Object> targetDataSources = Maps.newHashMap();
         DataSource defaultTargetDataSource = null;
@@ -108,10 +108,12 @@ public class RoutingDataSourceConfig {
     }
 
     @Bean
-    public DataSource routingDataSource() {
+    @RefreshBeanScope
+    public RoutingDataSource routingDataSource() {
 //        LazyConnectionDataSourceProxy dataSourceProxy = new LazyConnectionDataSourceProxy();
 //        dataSourceProxy.setTargetDataSource(initShardingDataSource());
 //        return dataSourceProxy;
+        afterPropertiesSet();
         return initShardingDataSource();
     }
 }

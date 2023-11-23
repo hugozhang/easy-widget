@@ -3,6 +3,7 @@ package me.about.widget.routing.spring;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import me.about.widget.config.refresh.config.annotation.RefreshBeanScope;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,6 +18,7 @@ import java.util.Map;
  */
 @Configuration
 @ConfigurationProperties(prefix = "routing")
+@RefreshBeanScope
 @Data
 public class RoutingDataSourceProperties {
 

@@ -1,11 +1,12 @@
 package me.about.widget.config.spring.property;
 
 
+import com.google.common.collect.Maps;
 import me.about.widget.config.ConfigChangeListener;
+import me.about.widget.config.enums.PropertyChangeType;
 import me.about.widget.config.model.ConfigChange;
 import me.about.widget.config.model.ConfigChangeEvent;
 import me.about.widget.config.refresh.RefreshBeanEvent;
-import me.about.widget.config.refresh.constant.RefreshBeanConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeConverter;
@@ -13,15 +14,12 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
-import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.PropertySource;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * 配置变更监听
@@ -53,22 +51,52 @@ public class AutoUpdateConfigChangeListener implements ConfigChangeListener {
 
     private void refreshEnvironment(ConfigChangeEvent changeEvent) {
         // refresh environment
-        Map<String, Object> changeMap = changeEvent.getChanges().values()
-                .stream()
-                .collect(Collectors.toMap(ConfigChange::getPropertyName, ConfigChange::getNewValue, (k1, k2) -> k1));
 
-        MutablePropertySources propertySources = applicationContext.getEnvironment().getPropertySources();
-        if (propertySources.contains(RefreshBeanConstant.SCOPE_NAME)) {
-            PropertySource<?> x = propertySources.get(RefreshBeanConstant.SCOPE_NAME);
-            if (x instanceof MapPropertySource) {
-                MapPropertySource propertySource = (MapPropertySource) x;
-                Map<String, Object> source = propertySource.getSource();
-                source.putAll(changeMap);
+        environment.getPropertySources().forEach(propertySource -> {
+            if (propertySource instanceof MapPropertySource) {
+                MapPropertySource mapPropertySource = (MapPropertySource) propertySource;
+                Map<String, Object> source = mapPropertySource.getSource();
+
+                Map<String, Object> copy = Maps.newHashMap();
+                copy.putAll(source);
+
+                Set<Map.Entry<String, ConfigChange>> entrySet = changeEvent.getChanges().entrySet();
+                for (Map.Entry<String, ConfigChange> entry : entrySet) {
+                    if (copy.containsKey(entry.getKey())) {
+                        ConfigChange value = entry.getValue();
+                        PropertyChangeType changeType = value.getChangeType();
+                        switch(changeType) {
+                            case ADDED :
+                            case MODIFIED:
+                                copy.put(value.getPropertyName(),value.getNewValue());
+                                break;
+                            case DELETED:
+                                copy.remove(value.getPropertyName());
+                                break;
+                        }
+                    }
+                }
+                environment.getPropertySources().replace(mapPropertySource.getName(),new MapPropertySource(mapPropertySource.getName(),copy));
             }
-        } else {
-            MapPropertySource refresh = new MapPropertySource(RefreshBeanConstant.SCOPE_NAME, changeMap);
-            propertySources.addFirst(refresh);
-        }
+        });
+
+//
+//        Map<String, Object> changeMap = changeEvent.getChanges().values()
+//                .stream()
+//                .collect(Collectors.toMap(ConfigChange::getPropertyName, ConfigChange::getNewValue, (k1, k2) -> k1));
+//
+//        MutablePropertySources propertySources = environment.getPropertySources();
+//        if (propertySources.contains(RefreshBeanConstant.SCOPE_NAME)) {
+//            PropertySource<?> x = propertySources.get(RefreshBeanConstant.SCOPE_NAME);
+//            if (x instanceof MapPropertySource) {
+//                MapPropertySource propertySource = (MapPropertySource) x;
+//                Map<String, Object> source = propertySource.getSource();
+//                source.putAll(changeMap);
+//            }
+//        } else {
+//            MapPropertySource refresh = new MapPropertySource(RefreshBeanConstant.SCOPE_NAME, changeMap);
+//            propertySources.addFirst(refresh);
+//        }
     }
 
     @Override

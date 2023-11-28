@@ -20,6 +20,24 @@ Call<User> updateUser(@Field("first_name") String first, @Field("last_name") Str
 @FormUrlEncoded
 @POST("user/edit")
 Call<User> updateUser(@FieldMap Map<String,String> fieldMap);
+
+@Headers("X-Header: MessageBox")
+@FormUrlEncoded
+@POST("/rest/hmap/auth/login")
+LoginResponse login(@Field("yh_mc") String username, @Field("yh_mm") String password, @Field("zhid") String tenantCode);
+
+@POST("/rest/hmap/auth/logout")
+LogoutResponse loginOut();
+
+@GET("/hmap/portal/getConfigInfo")
+R<String> getConfigInfo();
+
+
+url带参数与body 一起使用
+@POST("/cgi-bin/webhook/send")
+String sendToBot(@Query ("key")String key,@Body WeChatMarkdown weChatMarkdown);
+
+
 ````
 
 参考：
@@ -27,3 +45,6 @@ Call<User> updateUser(@FieldMap Map<String,String> fieldMap);
 https://www.jianshu.com/p/0079156b7b98
 https://github.com/square/retrofit
 ````
+
+TODO
+1、不同域名使用不同的池子管理

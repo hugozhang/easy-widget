@@ -7,6 +7,7 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 /**
  * spring SpEL 表达式解析
@@ -31,7 +32,7 @@ public class SpelParser {
 
         //获取被拦截方法参数名列表(使用Spring支持类库)
         LocalVariableTableParameterNameDiscoverer u = new LocalVariableTableParameterNameDiscoverer();
-        String[] paraNameArr = u.getParameterNames(method);
+        String[] paraNameArr = Optional.ofNullable(u.getParameterNames(method)).orElse(new String[0]);
 
         //使用SPEL进行key的解析
         ExpressionParser parser = new SpelExpressionParser();

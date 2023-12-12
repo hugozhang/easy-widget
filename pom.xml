@@ -12,7 +12,7 @@
 
     <groupId>me.about</groupId>
     <artifactId>easy-widget</artifactId>
-    <version>1.0.5-SNAPSHOT</version>
+    <version>1.0.7-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>

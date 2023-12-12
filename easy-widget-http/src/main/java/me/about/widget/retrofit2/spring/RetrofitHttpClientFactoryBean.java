@@ -11,6 +11,9 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.Assert;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
@@ -54,7 +57,14 @@ public class RetrofitHttpClientFactoryBean<T> implements FactoryBean<T>, Environ
 
         Class<? extends Converter.Factory> converterFactory = retrofitHttpClient.converterFactory();
 
-        String baseUrl = environment.resolveRequiredPlaceholders(retrofitHttpClient.baseUrl());
+
+        ExpressionParser parser = new SpelExpressionParser();
+        //SPEL上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+
+        String hostUrl = environment.resolveRequiredPlaceholders(retrofitHttpClient.baseUrl());
+
+        String baseUrl = parser.parseExpression(hostUrl).getValue(context, String.class);
 
         OkHttpClient client = new OkHttpClient.Builder()
                 .connectTimeout(connectTimeout, TimeUnit.SECONDS)
@@ -89,5 +99,15 @@ public class RetrofitHttpClientFactoryBean<T> implements FactoryBean<T>, Environ
     @Override
     public void setEnvironment(Environment environment) {
         this.environment = environment;
+    }
+
+    public static void main(String[] args) {
+        ExpressionParser parser = new SpelExpressionParser();
+        //SPEL上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+
+        String baseUrl = parser.parseExpression("#{T(com.example.UrlUtils).getHost('http://127.0.0.1/api/v3/sys/config')}").getValue(context, String.class);
+        System.out.println(baseUrl);
+
     }
 }

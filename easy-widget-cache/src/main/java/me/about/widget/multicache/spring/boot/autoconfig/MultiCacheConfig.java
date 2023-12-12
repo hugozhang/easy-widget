@@ -48,7 +48,7 @@ public class MultiCacheConfig {
     }
 
     @Bean
-    public Cache caffeineCache() {
+    public Cache<?,?> caffeineCache() {
         return Caffeine.newBuilder().recordStats()
                 .initialCapacity(100)
                 .maximumSize(500_000)

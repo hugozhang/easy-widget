@@ -26,6 +26,7 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -69,7 +70,7 @@ public class MultiCacheAspect {
         Object[] args = joinPoint.getArgs();
         Class<?> returnType = method.getReturnType();
 
-        if (key == null || key.trim().length() == 0) {
+        if (key == null || key.trim().isEmpty()) {
             log.error("【分级缓存】cache key is null.");
             return joinPoint.proceed(args);
         }
@@ -80,7 +81,7 @@ public class MultiCacheAspect {
 
         String spel = SpelParser.parseKey(key,method,args);
         //解析key
-        String parseKey = (keyPrefix == null || keyPrefix.trim().length() == 0) ? spel : keyPrefix + Constants.JOIN_ON + spel;
+        String parseKey = (keyPrefix == null || keyPrefix.trim().isEmpty()) ? spel : keyPrefix + Constants.JOIN_ON + spel;
         //是不是清缓存
         if (multiLevelCache.type() == MultiLevelTypeEnum.EVICT) {
             cacheManager.evict(parseKey);
@@ -119,7 +120,7 @@ public class MultiCacheAspect {
                                      Object[] args, String parseKey) throws Throwable {
         InQueryMode inQueryMode = getFieldNames(method);
         //1、如果最后一个参数是list，说明db查询是带in条件的
-        List<Object> result = new ArrayList();
+        List<Object> result = new ArrayList<>();
         List<Object> needQuery = new ArrayList<>();
         MethodParameter[] methodParameters = buildMethodParameter(method, args);
         Arrays.stream(methodParameters).forEach(e -> {
@@ -147,7 +148,7 @@ public class MultiCacheAspect {
             return result;
         }
         //2、没有命中缓存中，需要把对应的参数组装查询db，查到的数据就放进缓存
-        List existDb = new ArrayList();
+        List existDb = new ArrayList<>();
         // 更新原来参数所在位置的参数  确定list参数的位置 然后重新覆盖
         args[inQueryMode.getParameterIndex()] = needQuery;
         Object proceed = joinPoint.proceed(args);
@@ -180,7 +181,7 @@ public class MultiCacheAspect {
      * @param timeUnit
      * @param emptyExpire
      * @param emptyTimeUnit
-     * @return
+     * @return 缓存对象
      * @throws Throwable
      */
     private Object do1To1Cache(ProceedingJoinPoint joinPoint,String key,
@@ -240,7 +241,7 @@ public class MultiCacheAspect {
         List<String> fieldNames = new ArrayList<>();
         Parameter[] parameters = method.getParameters();
         Annotation[][] paramAnnotations = method.getParameterAnnotations();
-        Class[] paramTypes = method.getParameterTypes();
+        Class<?>[] paramTypes = method.getParameterTypes();
         for (int i = 0; i < paramAnnotations.length; i++) {
             for (Annotation a: paramAnnotations[i]) {
                 if (a instanceof FieldName) {
@@ -267,7 +268,7 @@ public class MultiCacheAspect {
    private MethodParameter[] buildMethodParameter(Method method, Object [] args) {
        MethodParameter[] methodParameters = new MethodParameter[args.length];
        LocalVariableTableParameterNameDiscoverer u = new LocalVariableTableParameterNameDiscoverer();
-       String[] paraNameArr = u.getParameterNames(method);
+       String[] paraNameArr = Optional.ofNullable(u.getParameterNames(method)).orElse(new String[0]);
        for(int i = 0; i < paraNameArr.length; i++) {
            MethodParameter methodParameter = new MethodParameter();
            methodParameter.setParameterName(paraNameArr[i]);

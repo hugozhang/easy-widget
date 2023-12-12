@@ -31,9 +31,7 @@ public class RoutingDataSourceTransaction implements Transaction {
 
     private String mainDatabaseIdentification;
 
-    private ConcurrentMap<String, Connection> otherConnectionMap = new ConcurrentHashMap<>();
-
-    private boolean isConnectionTransactional;
+    private final ConcurrentMap<String, Connection> otherConnectionMap = new ConcurrentHashMap<>();
 
     private boolean autoCommit = false;
 
@@ -68,13 +66,13 @@ public class RoutingDataSourceTransaction implements Transaction {
     private void openMainConnection() throws SQLException {
         this.mainConnection = DataSourceUtils.getConnection(this.dataSource);
         this.mainConnection.setAutoCommit(autoCommit);
-        this.isConnectionTransactional = DataSourceUtils.isConnectionTransactional(this.mainConnection, this.dataSource);
+        boolean isConnectionTransactional = DataSourceUtils.isConnectionTransactional(this.mainConnection, this.dataSource);
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("JDBC Connection ["
                             + this.mainConnection
                             + "] will"
-                            + (this.isConnectionTransactional ? " " : " not ")
+                            + (isConnectionTransactional ? " " : " not ")
                             + "be managed by Spring");
         }
     }

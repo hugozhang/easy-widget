@@ -59,7 +59,7 @@ public class MultiCacheConfig {
     }
 
     @Bean
-    public MultiCacheManager multiCacheManager(@Autowired RedisTemplate fastJsonRedisTemplate, @Autowired Cache caffeineCache) {
+    public MultiCacheManager multiCacheManager(@Autowired RedisTemplate<String,Object> fastJsonRedisTemplate, @Autowired Cache<?,?> caffeineCache) {
         return new MultiCacheManager(cacheName,fastJsonRedisTemplate,caffeineCache);
     }
 

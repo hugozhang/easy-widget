@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 public interface CacheManager {
 
     /**
-     * 从缓存读取
+     * 从缓存读取  返回值可能是一个Object 也可能是一个List<Object>
      * @param key
      * @param <V>
      * @return

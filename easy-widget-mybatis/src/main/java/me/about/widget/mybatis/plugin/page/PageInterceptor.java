@@ -159,9 +159,7 @@ public class PageInterceptor implements Interceptor {
     }
 
     public String buildPageSql(String sql, PageParam<?> pageParam) {
-        StringBuilder pageSql = new StringBuilder(sql);
-        pageSql.append(" LIMIT " + (pageParam.getCurrentPage() - 1) * pageParam.getPageSize() + "," + pageParam.getPageSize());
-        return pageSql.toString();
+        return sql + " LIMIT " + (pageParam.getCurrentPage() - 1) * pageParam.getPageSize() + "," + pageParam.getPageSize();
     }
 
     /**
@@ -175,7 +173,7 @@ public class PageInterceptor implements Interceptor {
                           MappedStatement ms,
                           BoundSql boundSql) {
         // 记录总记录数
-        String countSql = "SELECT COUNT(0) FROM (" + sql + ") tmp_total";
+        String countSql = "SELECT COUNT(0) FROM (" + sql + ") auto_gen_total";
         DataSource dataSource = null;
         Connection connection = null;
         PreparedStatement countStmt = null;

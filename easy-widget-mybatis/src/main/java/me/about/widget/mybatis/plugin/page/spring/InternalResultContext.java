@@ -8,13 +8,13 @@ package me.about.widget.mybatis.plugin.page.spring;
  */
 public class InternalResultContext {
 
-    private static final ThreadLocal<InternalResult> INTERNAL_RESULT = new ThreadLocal<>();
+    private static final ThreadLocal<InternalResult<?>> INTERNAL_RESULT = new ThreadLocal<>();
 
-    public static void setResult(InternalResult internalResult) {
+    public static void setResult(InternalResult<?> internalResult) {
         INTERNAL_RESULT.set(internalResult);
     }
 
-    public static InternalResult getResult() {
+    public static InternalResult<?> getResult() {
         return INTERNAL_RESULT.get();
     }
 

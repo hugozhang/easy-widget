@@ -7,9 +7,9 @@ import org.springframework.core.type.AnnotationMetadata;
 /**
  * spring boot autoconfig
  *
- * @Author: hugo.zxh
- * @Date: 2022/02/26 21:40
- * @Description:
+ * @author: hugo.zxh
+ * @date: 2022/02/26 21:40
+ * @description:
  */
 public class BeanHub implements ImportSelector {
     @Override

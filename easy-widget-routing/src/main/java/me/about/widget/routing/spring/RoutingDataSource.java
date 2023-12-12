@@ -15,7 +15,7 @@ import javax.sql.DataSource;
  */
 public class RoutingDataSource extends AbstractRoutingDataSource {
 
-    private Logger logger = LoggerFactory.getLogger(RoutingDataSource.class);
+    private final Logger logger = LoggerFactory.getLogger(RoutingDataSource.class);
 
     @Override
     protected Object determineCurrentLookupKey() {
@@ -27,7 +27,6 @@ public class RoutingDataSource extends AbstractRoutingDataSource {
         if(null == lookupKey) {
             return this;
         }
-        DataSource determineTargetDataSource = this.determineTargetDataSource();
-        return determineTargetDataSource == null ? this : determineTargetDataSource;
+        return this.determineTargetDataSource();
     }
 }

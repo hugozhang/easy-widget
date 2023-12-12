@@ -13,6 +13,7 @@ import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.lang.NonNull;
 import org.springframework.util.StringValueResolver;
 
 import java.lang.reflect.Method;
@@ -35,7 +36,7 @@ public class PageMapperBeanPostProcessor implements BeanPostProcessor, EmbeddedV
 
     private StringValueResolver resolver;
 
-    private Set<Class<?>> mapperClasps = Sets.newHashSet();
+    private final Set<Class<?>> mapperClasps = Sets.newHashSet();
 
     @Override
     public void setEmbeddedValueResolver(StringValueResolver resolver) {
@@ -43,7 +44,7 @@ public class PageMapperBeanPostProcessor implements BeanPostProcessor, EmbeddedV
     }
 
     @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+    public Object postProcessBeforeInitialization(@NonNull Object bean, @NonNull String beanName) throws BeansException {
         return bean;
     }
 
@@ -60,9 +61,9 @@ public class PageMapperBeanPostProcessor implements BeanPostProcessor, EmbeddedV
 
 
     @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+    public Object postProcessAfterInitialization(@NonNull Object bean, @NonNull String beanName) throws BeansException {
         if(bean instanceof MapperFactoryBean) {
-            MapperFactoryBean mapperFactoryBean = (MapperFactoryBean) bean;
+            MapperFactoryBean<?> mapperFactoryBean = (MapperFactoryBean<?>) bean;
             Class<?> mapperInterface = mapperFactoryBean.getMapperInterface();
             if(isPageMapper(mapperInterface)) {
                 mapperClasps.add(mapperInterface);

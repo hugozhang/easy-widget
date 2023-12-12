@@ -6,7 +6,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cache.support.NullValue;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
@@ -20,7 +22,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class MultiCacheManager implements CacheManager {
 
-    private Logger logger = LoggerFactory.getLogger(MultiCacheManager.class);
+    private final Logger logger = LoggerFactory.getLogger(MultiCacheManager.class);
 
     private String name;
 
@@ -76,11 +78,7 @@ public class MultiCacheManager implements CacheManager {
     public void put(Object key, Object value, Long expire, TimeUnit timeUnit) {
         String cacheKey = getKey(key);
         this.redisTemplate.opsForValue().set(cacheKey,value,expire,timeUnit);
-        if (value == null) {
-            this.caffeineCache.put(cacheKey,NullValue.INSTANCE);
-        } else {
-            this.caffeineCache.put(cacheKey,value);
-        }
+        this.caffeineCache.put(cacheKey,value);
     }
 
     @Override
@@ -92,7 +90,7 @@ public class MultiCacheManager implements CacheManager {
 
     @Override
     public void clear() {
-        Set<String> keys = this.redisTemplate.keys(this.name.concat(":"));
+        Set<String> keys = Optional.ofNullable(this.redisTemplate.keys(this.name.concat(":"))).orElse(new HashSet<>());
         for (String key : keys) {
             this.redisTemplate.delete(key);
         }

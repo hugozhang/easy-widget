@@ -27,7 +27,7 @@ public class InQueryMode {
     /**
      * 参数类型
      */
-    private Class parameterType;
+    private Class<?> parameterType;
 
 
     /**

@@ -24,9 +24,7 @@ public class DruidSqlParse {
         for (SQLStatement sqlStatement : statementList) {
             CustomerSchemaStatVisitor visitor = new CustomerSchemaStatVisitor();
             sqlStatement.accept(visitor);
-            visitor.getTables().entrySet().forEach(entry -> {
-                sqlParseResult.addTableOperator(entry.getKey().getName(),entry.getValue().toString());
-            });
+            visitor.getTables().forEach((key, value) -> sqlParseResult.addTableOperator(key.getName(), value.toString()));
             visitor.getConditions().forEach(condition -> {
                 if (RoutingContext.getShardingColumns().contains(condition.getColumn().getName())
                         && condition.getOperator().equalsIgnoreCase("=")

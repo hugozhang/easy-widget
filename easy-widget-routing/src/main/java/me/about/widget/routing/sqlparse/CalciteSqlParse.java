@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -122,17 +121,15 @@ public class CalciteSqlParse {
                 } else {
                     ((SqlBasicCall) insert.getSource()).getOperandList().forEach(innerSqlNode -> {
                         SqlBasicCall sqlBasicCall = (SqlBasicCall) innerSqlNode;
-                        Iterator<Map.Entry<String, Integer>> it = shardingColumn.entrySet().iterator();
-                        while (it.hasNext()) {
-                            Map.Entry<String, Integer> next = it.next();
+                        for (Map.Entry<String, Integer> next : shardingColumn.entrySet()) {
                             String column = next.getKey();
                             Integer index = next.getValue();
                             SqlNode valueNode = sqlBasicCall.getOperandList().get(index);
                             if (valueNode instanceof SqlCharStringLiteral) {
                                 SqlCharStringLiteral stringLiteral = (SqlCharStringLiteral) valueNode;
-                                result.addConditionField(column,stringLiteral.toValue());
+                                result.addConditionField(column, stringLiteral.toValue());
                             } else {
-                                LOGGER.warn("[insert column] column : {},value : {} not support!",column,index);
+                                LOGGER.warn("[insert column] column : {},value : {} not support!", column, index);
                             }
                         }
                     });

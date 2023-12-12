@@ -8,11 +8,10 @@ import java.lang.reflect.Proxy;
  *
  * @author: hugo.zxh
  * @date: 2022/02/10 15:24
- * @Description:
+ * @description:
  */
 public class MapperProxyFactory {
-    public static    <T> T getMapper(Class<T> mapperClass, String resource ) throws IOException {
-        T proxy= (T) Proxy.newProxyInstance(mapperClass.getClassLoader(),new Class[]{mapperClass}, new SqlHandler(resource));
-        return proxy;
+    public static Object getMapper(Class<?> mapperClass, String resource ) throws IOException {
+        return  Proxy.newProxyInstance(mapperClass.getClassLoader(),new Class[]{mapperClass}, new SqlHandler(resource));
     }
 }

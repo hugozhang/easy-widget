@@ -53,8 +53,7 @@ public class OssServiceFactoryBean implements FactoryBean<OssService> {
                 .disableChunkedEncoding()
                 .build();
 
-        OssService ossService = new S3OssServiceImpl(amazonS3,bucketName);
-        return ossService;
+        return new S3OssServiceImpl(amazonS3,bucketName);
     }
 
     @Override

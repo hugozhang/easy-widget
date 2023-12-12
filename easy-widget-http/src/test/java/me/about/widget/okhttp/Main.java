@@ -1,36 +1,19 @@
 package me.about.widget.okhttp;
 
-import org.junit.Test;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import java.io.File;
-import java.io.IOException;
-
-/**
- * Created with IntelliJ IDEA.
- *
- * @Auther: hugo.zxh
- * @Date: 2020/11/02 9:50
- * @Description:
- */
 public class Main {
 
-    @Test
-    public void postForm() throws IOException {
-        String asString = OkHttp.builder().url("http://www.baidu.com").form("q", "腾讯").file("asda", new File("pom.xml")).form().asString();
-        System.out.println(asString);
-    }
+    public static void main(String[] args) {
+        ExpressionParser parser = new SpelExpressionParser();
+        //SPEL上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
 
-    @Test
-    public void postJson() throws IOException {
+        String baseUrl = parser.parseExpression("#{T(com.example.UrlUtils).getHost('http://127.0.0.1/api/v3/sys/config')}").getValue(context, String.class);
+        System.out.println(baseUrl);
 
-        String asString = OkHttp.builder().header("aa","bbb").url("http://localhost:8080/test/").body(new User("test")).post().asString();
-        System.out.println(asString);
-    }
-
-    @Test
-    public void get() throws IOException {
-        String asString = OkHttp.builder().url("http://www.baidu.com").get().asString();
-        System.out.println(asString);
     }
 
 }

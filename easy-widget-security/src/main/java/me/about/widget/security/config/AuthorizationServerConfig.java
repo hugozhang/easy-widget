@@ -58,7 +58,7 @@ import java.util.UUID;
 @Configuration(proxyBeanMethods = false)
 public class AuthorizationServerConfig {
 
-    private Logger logger = LoggerFactory.getLogger(AuthorizationServerConfig.class);
+    private final Logger logger = LoggerFactory.getLogger(AuthorizationServerConfig.class);
 
     @Resource
     private RedisTemplate<String, RegisteredClient> redisTemplateRegisteredClient;

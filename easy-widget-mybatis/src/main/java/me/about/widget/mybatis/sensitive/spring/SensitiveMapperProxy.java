@@ -135,17 +135,15 @@ public class SensitiveMapperProxy<T> implements InvocationHandler, Serializable 
                 if (fields != null && fields.length != 0) {
                     List<MapEntry> entryList = new ArrayList<>();
                     List<String> fieldList = Arrays.asList(fields);
-                    Iterator<Object> iterator = argMap.keySet().iterator();
-                    while (iterator.hasNext()) {
-                        Object key = iterator.next();
+                    for (Object key : argMap.keySet()) {
                         if (key == null) {
                             continue;
                         }
-                        if (fieldList.indexOf(key.toString()) != -1) {
+                        if (fieldList.contains(key.toString())) {
                             Object value = argMap.get(key);
-                            if (value != null && value instanceof String) {
-                                argMap.put(key,encrypt(sensitive,(String)value));
-                                entryList.add(new MapEntry(key,value));
+                            if (value instanceof String) {
+                                argMap.put(key, encrypt(sensitive, (String) value));
+                                entryList.add(new MapEntry(key, value));
                             }
                         }
                     }
@@ -258,7 +256,7 @@ public class SensitiveMapperProxy<T> implements InvocationHandler, Serializable 
                 Integer index = iterator.next();
                 List<StringEntry> stringEntryList = resetStringArg.get(index);
                 Object o = parameterAndIndexMap.get(index);
-                if (o != null && o instanceof List) {
+                if (o instanceof List) {
                     List list = (List) o;
                     for (StringEntry stringEntry : stringEntryList) {
                         list.set(stringEntry.vIndex,stringEntry.value);
@@ -275,7 +273,7 @@ public class SensitiveMapperProxy<T> implements InvocationHandler, Serializable 
                 Integer index = iterator.next();
                 List<MapEntry> entryList = resetMapArg.get(index);
                 Object o = parameterAndIndexMap.get(index);
-                if (o != null && o instanceof Map) {
+                if (o instanceof Map) {
                     Map map = (Map)o;
                     for (MapEntry entry : entryList) {
                         map.put(entry.key,entry.value);
@@ -301,7 +299,7 @@ public class SensitiveMapperProxy<T> implements InvocationHandler, Serializable 
     }
 
     private Object handlerResult(Method method, Object object) {
-        if (isNotSupport(object) || object == null) {
+        if (isNotSupport(object)) {
             return object;
         }
         Class<?> clazz = method.getReturnType();
@@ -330,14 +328,13 @@ public class SensitiveMapperProxy<T> implements InvocationHandler, Serializable 
         String[] fields = sensitive.fields();
         if (fields != null) {
             List<String> fieldList = Arrays.asList(fields);
-            Iterator<Object> iterator = mapField.keySet().iterator();
-            while (iterator.hasNext()) {
-                String key = iterator.next().toString();
-                if (fieldList.indexOf(key) != -1) {
+            for (Object object : mapField.keySet()) {
+                String key = object.toString();
+                if (fieldList.contains(key)) {
                     Object o = mapField.get(key);
                     if (o != null) {
-                        String v = (String)o;
-                        mapField.put(key,decrypt(sensitive,v));
+                        String v = (String) o;
+                        mapField.put(key, decrypt(sensitive, v));
                     }
                 }
             }
@@ -413,12 +410,12 @@ public class SensitiveMapperProxy<T> implements InvocationHandler, Serializable 
 
 
     private Object handlerPojo(Object object) {
-        handlerPojoFields(object, true);
+        handlerPojoFields(object);
         return object;
     }
 
-    private Map<Field, String> handlerPojoFields(Object object, boolean isDecryption) {
-        return this.handlerPojoFields(object, isDecryption, false);
+    private void handlerPojoFields(Object object) {
+        this.handlerPojoFields(object, true, false);
     }
 
     private Map<Field, String> handlerPojoFields(Object object, boolean isDecryption, boolean needOldValue) {
@@ -481,7 +478,7 @@ public class SensitiveMapperProxy<T> implements InvocationHandler, Serializable 
                     }
                 }
             }
-            classAndSensitiveFields.putIfAbsent(clazz, encryptFields.size() > 0 ? encryptFields : Collections.emptyList());
+            classAndSensitiveFields.putIfAbsent(clazz, !encryptFields.isEmpty() ? encryptFields : Collections.emptyList());
         }
         return classAndSensitiveFields.get(clazz);
     }

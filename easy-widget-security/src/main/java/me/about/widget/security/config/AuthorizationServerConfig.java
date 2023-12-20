@@ -123,14 +123,10 @@ public class AuthorizationServerConfig {
                                 logger.info(authentication.getClass().getName());
                             }
                         })
-                        .errorResponseHandler((request, response, exception) -> {
-                            exceptionHandler(request,response, exception);
-                        })
+                        .errorResponseHandler(this::exceptionHandler)
                 )
                 .clientAuthentication(clientAuthenticationConfigurer ->
-                        clientAuthenticationConfigurer.errorResponseHandler((request, response, exception) -> {
-                            exceptionHandler(request,response, exception);
-                        })
+                        clientAuthenticationConfigurer.errorResponseHandler(this::exceptionHandler)
         );
 
         RequestMatcher endpointsMatcher = authorizationServerConfigurer.getEndpointsMatcher();

@@ -1,5 +1,6 @@
 package me.about.widget.spring.mvc.advice;
 
+import com.alibaba.fastjson.JSON;
 import me.about.widget.spring.mvc.result.Result;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.MethodParameter;
@@ -40,7 +41,12 @@ public class ResponseBodyHandler implements ResponseBodyAdvice<Object> {
             return body;
         }
 
-        Result result = new Result();
+        // 如果是字符串，直接返回 这种不改变header会保证返回值是一个文本  其它非字符串的还是可以json格式化
+        if (body instanceof String) {
+            return JSON.toJSONString(Result.success(body));
+        }
+
+        Result result = new Result<>();
         result.setCode(0);
         result.setType("success");
         result.setMessage("成功");

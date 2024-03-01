@@ -103,6 +103,7 @@
         <dependency>
             <artifactId>easy-widget-config</artifactId>
             <groupId>me.about</groupId>
+            <version>1.0.7-SNAPSHOT</version>
         </dependency>
 
     </dependencies>

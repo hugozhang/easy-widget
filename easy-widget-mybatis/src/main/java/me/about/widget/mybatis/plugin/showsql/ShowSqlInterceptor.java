@@ -1,4 +1,4 @@
-package me.about.widget.mybatis.plugin;
+package me.about.widget.mybatis.plugin.showsql;
 
 
 import org.apache.ibatis.executor.Executor;
@@ -17,7 +17,7 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
@@ -37,14 +37,37 @@ import java.util.regex.Matcher;
 @Intercepts({
         @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}),
         @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class})})
-public class StopWatchInterceptor implements Interceptor {
+public class ShowSqlInterceptor implements Interceptor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(StopWatchInterceptor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ShowSqlInterceptor.class);
+
+
+    private boolean isShowSql(MappedStatement mappedStatement) throws ClassNotFoundException {
+        String id = mappedStatement.getId();
+        String className = id.substring(0, id.lastIndexOf("."));
+        String methodName = id.substring(id.lastIndexOf(".") + 1);
+        final Method[] methods = Class.forName(className).getMethods();
+        for (Method method : methods) {
+            if (method.getName().equals(methodName)) {
+                // 检查方法上是不是有注解
+                IgnoreShowSql annotation = method.getAnnotation(IgnoreShowSql.class);
+                if (annotation != null) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    };
 
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
         // 获取xml中的一个select/update/insert/delete节点，是一条SQL语句
         MappedStatement mappedStatement = (MappedStatement) invocation.getArgs()[0];
+
+        if (!isShowSql(mappedStatement)) {
+            return invocation.proceed();
+        }
+
         Object parameter = null;
         // 获取参数，if语句成立，表示sql语句有参数
         if (invocation.getArgs().length > 1) {
@@ -61,12 +84,8 @@ public class StopWatchInterceptor implements Interceptor {
         Object proceed;
         try {
             proceed = invocation.proceed();
-        } catch (InvocationTargetException e) {
-            LOGGER.error("ERROR SQL : ",sql);
-            LOGGER.error(e.getMessage(),e);
-            throw e;
-        } catch (IllegalAccessException e) {
-            LOGGER.error("ERROR SQL : ",sql);
+        } catch (Exception e) {
+            LOGGER.error("ERROR SQL : {}",sql);
             LOGGER.error(e.getMessage(),e);
             throw e;
         }

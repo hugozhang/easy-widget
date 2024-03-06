@@ -41,7 +41,6 @@ public class ResponseBodyHandler implements ResponseBodyAdvice<Object> {
             return body;
         }
 
-        // 如果是字符串，直接返回 这种不改变header会保证返回值是一个文本  其它非字符串的还是可以json格式化
         if (body instanceof String) {
             return JSON.toJSONString(Result.success(body));
         }

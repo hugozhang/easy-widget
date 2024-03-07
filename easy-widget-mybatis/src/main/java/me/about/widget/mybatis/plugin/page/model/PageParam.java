@@ -2,6 +2,8 @@ package me.about.widget.mybatis.plugin.page.model;
 
 import lombok.Data;
 
+import javax.validation.constraints.Min;
+
 /**
  * 分页参数与业务参数
  *
@@ -15,11 +17,13 @@ public class PageParam<T> {
     /**
      * 当前页
      */
+    @Min(1)
     private int currentPage;
 
     /**
      * 页大小
      */
+    @Min(1)
     private int pageSize;
 
 

@@ -31,3 +31,15 @@ public class BeanConfig {
 }
 
 ````
+
+### 自定义验证器
+
+```
+@PositiveNumberList
+@ApiModelProperty("科室id数组")
+private List<Long> deptIds;
+
+@ApiModelProperty(value = "性别")
+@EnumString(value = {"F","M"}, message="性别只允许为F或M")
+private String sex;
+```

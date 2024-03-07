@@ -4,6 +4,8 @@ import me.about.widget.spring.mvc.advice.GlobalExceptionHandler;
 import me.about.widget.spring.mvc.advice.ResponseBodyHandler;
 import me.about.widget.spring.mvc.config.MvcConfig;
 import me.about.widget.spring.support.SpringContextHolder;
+import me.about.widget.spring.validation.EnumStringValidator;
+import me.about.widget.spring.validation.PositiveNumberListValidator;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
 
@@ -18,6 +20,8 @@ public class BeanHub implements ImportSelector {
     @Override
     public String[] selectImports(AnnotationMetadata annotationMetadata) {
         return new String[] {
+                EnumStringValidator.class.getName(),
+                PositiveNumberListValidator.class.getName(),
                 MvcConfig.class.getName(),
                 GlobalExceptionHandler.class.getName(),
                 ResponseBodyHandler.class.getName(),

@@ -1,7 +1,6 @@
 package me.about.bean;
 
 import lombok.Data;
-import me.about.widget.excel.annotation.ExcelCellFormat;
 import me.about.widget.excel.annotation.ExcelColumn;
 
 import java.math.BigDecimal;
@@ -20,19 +19,24 @@ public class User {
     @ExcelColumn(name = "年龄")
     private int age;
 
-    @ExcelColumn(name = "姓名",groupName = "YY",cellMerge = true)
+//    @ExcelColumn(name = "姓名",groupName = "YY",cellMerge = true)
+    @ExcelColumn(name = "姓名")
     private String username;
 
     @ExcelColumn(name = "公司")
     private String company;
 
-    @ExcelColumn(name = "地址",groupName = "YY")
+//    @ExcelColumn(name = "地址",groupName = "YY")
+    @ExcelColumn(name = "地址")
     private String address;
 
-    @ExcelColumn(name = "生日",groupName = "ZZ")
+//    @ExcelColumn(name = "生日",groupName = "ZZ")
+    @ExcelColumn(name = "生日")
+
     private Date birthday;
 
-    @ExcelColumn(name = "薪水",groupName = "ZZ", cellFormat = @ExcelCellFormat(payload = "元"))
+//    @ExcelColumn(name = "薪水",groupName = "ZZ", cellFormat = @ExcelCellFormat(payload = "元"))
+    @ExcelColumn(name = "薪水")
     private BigDecimal salary;
 }
 

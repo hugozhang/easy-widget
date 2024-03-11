@@ -87,25 +87,31 @@ public class XlsxWriter {
         List<ExcelCellMergeParams> mergeCellParamList = new ArrayList<>();
         //列的移动
         int curColIdx = 0;
-        for (ExcelColumnParams columnParams:columnParamsSortList) {
-            if (Constants.DEFAULT_GROUP.equals(columnParams.getGroupName())) {
-                mergeCellMap.put(columnParams.getName(),new ExcelCellMergeParams(0,1,curColIdx,curColIdx));
-            } else {
-                //相同的组要合并  窗口移动
-                if(mergeCellMap.containsKey(columnParams.getGroupName())) {
-                    ExcelCellMergeParams mergeCellParams = mergeCellMap.get(columnParams.getGroupName());
-                    mergeCellParams.setStartCol(mergeCellParams.getStartCol());
-                    mergeCellParams.setEndCol(curColIdx);
+
+        //大于一个分组的情况才执行如下操作
+        if (groupSize != 0) {
+            for (ExcelColumnParams columnParams:columnParamsSortList) {
+                if (Constants.DEFAULT_GROUP.equals(columnParams.getGroupName())) {
+                    mergeCellMap.put(columnParams.getName(),new ExcelCellMergeParams(0,1,curColIdx,curColIdx));
                 } else {
-                    mergeCellMap.put(columnParams.getGroupName(),new ExcelCellMergeParams(0,0,curColIdx,curColIdx));
+                    //相同的组要合并  窗口移动
+                    if(mergeCellMap.containsKey(columnParams.getGroupName())) {
+                        ExcelCellMergeParams mergeCellParams = mergeCellMap.get(columnParams.getGroupName());
+                        mergeCellParams.setStartCol(mergeCellParams.getStartCol());
+                        mergeCellParams.setEndCol(curColIdx);
+                    } else {
+                        mergeCellMap.put(columnParams.getGroupName(),new ExcelCellMergeParams(0,0,curColIdx,curColIdx));
+                    }
                 }
+                curColIdx++;
             }
-            curColIdx++;
         }
-        //要合并的窗口保存下来
-        Iterator<Map.Entry<String, ExcelCellMergeParams>> it = mergeCellMap.entrySet().iterator();
-        while (it.hasNext()) {
-            mergeCellParamList.add(it.next().getValue());
+
+        if (!mergeCellMap.isEmpty()) {
+            //要合并的窗口保存下来
+            for (Map.Entry<String, ExcelCellMergeParams> stringExcelCellMergeParamsEntry : mergeCellMap.entrySet()) {
+                mergeCellParamList.add(stringExcelCellMergeParamsEntry.getValue());
+            }
         }
 
         //4、构建表头行
@@ -268,7 +274,7 @@ public class XlsxWriter {
         //head style 部分
         CellStyle headCellStyle = workbook.createCellStyle();
 
-        headCellStyle.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
+        headCellStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
         headCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         headCellStyle.setAlignment(HorizontalAlignment.CENTER);
         headCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);

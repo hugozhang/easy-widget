@@ -1,4 +1,4 @@
-package me.about.widget.excel.support.spring;
+package me.about.widget.excel.spring.support;
 
 import me.about.widget.excel.writer.XlsxWriter;
 import org.springframework.core.MethodParameter;
@@ -9,6 +9,8 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 import javax.servlet.http.HttpServletResponse;
 import java.net.URLEncoder;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -38,12 +40,22 @@ public class XlsxViewReturnValueHandler implements HandlerMethodReturnValueHandl
         HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
         XlsxView xlsxView = methodParameter.getMethodAnnotation(XlsxView.class);
 
+        String fileName = URLEncoder.encode(xlsxView.fileName() + suffix() + ".xlsx","UTF-8");
+
         response.setCharacterEncoding("utf-8");
         response.setContentType("application/octet-stream");
-        response.setHeader("Content-Disposition", "attachment;filename*=UTF-8''" + URLEncoder.encode(xlsxView.fileName() + ".xlsx","UTF-8"));
+        response.setHeader("Content-Disposition", "attachment;filename*=UTF-8''" + fileName);
 
         if (returnValue instanceof List) {
             XlsxWriter.build(xlsxView.inputClass()).toOutputStream((List)returnValue,response.getOutputStream());
         }
+        response.getOutputStream().flush();
+    }
+
+    private String suffix() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        LocalDate currentDate = LocalDate.now();
+        String formattedDate = currentDate.format(formatter);
+        return formattedDate + System.currentTimeMillis();
     }
 }

@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
  */
 public class XlsxWriter {
 
+    // 为什么不直接从List<T> data 获取这个类型呢，
+    // 因为List为空的时候不能通过data.get(0).getClass()拿到这个类型，但是下载要能下载到空的excel文件
     private Class inputClass;
 
     private XlsxWriter(Class inputClass) {
@@ -51,9 +53,7 @@ public class XlsxWriter {
         Sheet sheet = workbook.createSheet();
 
         CreationHelper createHelper = workbook.getCreationHelper();
-        if (data == null || data.isEmpty()) {
-            return workbook;
-        }
+
         CellStyle headCellStyle = buildHeadCellStyle(workbook);
 
         List<ExcelColumnParams> columnParamsList = new ArrayList<>();
@@ -137,6 +137,11 @@ public class XlsxWriter {
         //6、表头行的合并
         for (ExcelCellMergeParams mergeCellParams : mergeCellParamList) {
             sheet.addMergedRegion(new CellRangeAddress(mergeCellParams.getStartRow(),mergeCellParams.getEndRow(),mergeCellParams.getStartCol(),mergeCellParams.getEndCol()));
+        }
+
+        // 表头的excel 要生成,如果没有数据行就退出
+        if (data == null || data.isEmpty()) {
+            return workbook;
         }
 
         //数据起始行

@@ -6,6 +6,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 /**
  * spring context holder
@@ -15,6 +17,7 @@ import org.springframework.context.ApplicationContextAware;
  * @description:
  */
 @Slf4j
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class SpringContextHolder implements ApplicationContextAware, DisposableBean {
 
     @Getter

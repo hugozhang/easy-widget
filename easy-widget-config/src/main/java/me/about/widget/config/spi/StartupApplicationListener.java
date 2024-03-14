@@ -1,6 +1,5 @@
 package me.about.widget.config.spi;
 
-import me.about.widget.config.configcenter.ConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
@@ -19,6 +18,6 @@ public class StartupApplicationListener implements ApplicationListener<ContextRe
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         logger.info("spring boot startup finished.");
-        ConfigService.getInstance().startSchedule();
+//        ConfigService.getInstance().startSchedule();
     }
 }

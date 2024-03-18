@@ -32,10 +32,7 @@ import java.util.stream.Collectors;
         @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class})})
 
 public class MybatisInterceptor implements Interceptor {
-
     private final static Logger logger = LoggerFactory.getLogger(RoutingInterceptor.class);
-
-
     private HintRouting getMapperMethodAnnotation(MappedStatement mappedStatement) throws ClassNotFoundException {
         String id = mappedStatement.getId();
         String className = id.substring(0, id.lastIndexOf("."));
@@ -92,7 +89,7 @@ public class MybatisInterceptor implements Interceptor {
                         .filter(tableOperator -> RoutingContext.getBroadcastTables().contains(tableOperator.getTableName()))
                         .collect(Collectors.toList());
                 // 广播表不为空
-                if (broadcasts.size() != 0) {
+                if (!broadcasts.isEmpty()) {
                     //确认读写操作
                     if ("Select".equalsIgnoreCase(broadcasts.get(0).getOperate())) {
                         RoutingContext.setRoutingDatabase(RoutingContext.getDatabaseIds().get(0));
@@ -106,9 +103,7 @@ public class MybatisInterceptor implements Interceptor {
                                     RoutingContext.setRoutingDatabase(databaseId);
                                     Object rst = invoke(invocation,sqlId, finalSql1);
                                     results.add(rst);
-                                } catch (InvocationTargetException e) {
-                                    logger.error(e.getMessage(),e);
-                                } catch (IllegalAccessException e) {
+                                } catch (InvocationTargetException | IllegalAccessException e) {
                                     logger.error(e.getMessage(),e);
                                 }
                             });
@@ -117,7 +112,7 @@ public class MybatisInterceptor implements Interceptor {
                         CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
                         allFutures.join();
 
-                        return results == null || results.isEmpty() ? null : results.get(0);
+                        return results.isEmpty() ? null : results.get(0);
                     }
 
                 } else {
@@ -151,26 +146,22 @@ public class MybatisInterceptor implements Interceptor {
     }
 
     public static String getSql(String sql, String sqlId, long time) {
-        StringBuilder str = new StringBuilder(100);
-        str.append(sqlId);
-        str.append("  执行SQL:【");
-        str.append(sql);
-        str.append("】   执行时间");
-        str.append(":");
-        str.append(time);
-        str.append("ms");
-        return str.toString();
+        return sqlId +
+                "  执行SQL:【" +
+                sql +
+                "】   执行时间" +
+                ":" +
+                time +
+                "ms";
     }
 
     private static String getParameterValue(Object obj) {
         String value = null;
         if (obj instanceof String) {
-            value = "'" + obj.toString() + "'";
+            value = "'" + obj + "'";
         } else if (obj instanceof Date) {
             DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.CHINA);
-            if (obj != null) {
-                value = "'" + formatter.format(((Date) obj)) + "'";
-            }
+            value = "'" + formatter.format(((Date) obj)) + "'";
         } else {
             if (obj != null) {
                 value = obj.toString();

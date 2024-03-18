@@ -23,11 +23,8 @@ import java.util.Properties;
     @Signature(type=StatementHandler.class,method="update",args={Statement.class})
 })
 public class RoutingInterceptor implements Interceptor {
-
     private final static Logger logger = LoggerFactory.getLogger(RoutingInterceptor.class);
-
     private static final String DELEGATE_BOUND_SQL_SQL = "delegate.boundSql.sql";
-
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
         StatementHandler statementHandler = (StatementHandler) realTarget(invocation.getTarget());

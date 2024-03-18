@@ -12,7 +12,7 @@ public class DbContextHolder {
     /**
      * 初始化db1
      */
-    private static  ThreadLocal<String> contextHolder = ThreadLocal.withInitial(() -> DbTypeEnum.DB1.getValue());
+    private static final ThreadLocal<String> contextHolder = ThreadLocal.withInitial(DbTypeEnum.DB1::getValue);
 
     public static String getDefaultDbType() {
         return DbTypeEnum.DB1.getValue();

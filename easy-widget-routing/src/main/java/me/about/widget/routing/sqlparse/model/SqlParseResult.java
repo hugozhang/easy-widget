@@ -1,6 +1,7 @@
 package me.about.widget.routing.sqlparse.model;
 
 import lombok.Data;
+import lombok.Getter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,6 +12,7 @@ import java.util.Set;
  * @author: hugo.zxh
  * @date: 2023/10/26 10:39
  */
+@Getter
 @Data
 public class SqlParseResult {
 
@@ -26,11 +28,4 @@ public class SqlParseResult {
         conditionFields.add(new ConditionField(field,value));
     }
 
-    public Set<TableOperator> getTableOperators() {
-        return tableOperators;
-    }
-
-    public Set<ConditionField> getConditionFields() {
-        return conditionFields;
-    }
 }

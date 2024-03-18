@@ -11,5 +11,5 @@ public @interface ExcelResponseBody {
 
     String fileName();
 
-    Class outputClass();
+    Class<?> inputClass();
 }

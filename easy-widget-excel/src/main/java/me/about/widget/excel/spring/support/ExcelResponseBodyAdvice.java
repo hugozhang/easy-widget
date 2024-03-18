@@ -21,7 +21,6 @@ public class ExcelResponseBodyAdvice implements ResponseBodyAdvice<List> {
 
 
     public ExcelResponseBodyAdvice() {
-        System.out.println("ExcelResponseBodyAdvice");
     }
 
     @Override
@@ -41,12 +40,10 @@ public class ExcelResponseBodyAdvice implements ResponseBodyAdvice<List> {
         ExcelResponseBody excelResponseBody = methodParameter.getMethodAnnotation(ExcelResponseBody.class);
 
         try {
-
             HttpHeaders headers = response.getHeaders();
             headers.add("Content-Type", "application/octet-stream");
             headers.add("Content-Disposition","attachment;filename*=UTF-8''" + URLEncoder.encode(excelResponseBody.fileName() + ".xlsx","UTF-8"));
-
-            XlsxWriter.build(excelResponseBody.outputClass()).toOutputStream(body,response.getBody());
+            XlsxWriter.build(excelResponseBody.inputClass()).toOutputStream(body,response.getBody());
         } catch (Exception e) {
             log.error("ExcelResponseBodyAdvice error",e);
             throw new RuntimeException("ExcelResponseBodyAdvice error",e);

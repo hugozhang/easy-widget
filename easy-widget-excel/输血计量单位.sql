@@ -1,0 +1,3 @@
+INSERT INTO `s_sys_zd_tbl`(`ZD_LX`, `ZD_LX_MC`, `ZD_SX`, `ZD_MC`, `ZD_Z`, `YS_Z`, `YS_BS`, `FL_BS`, `BZ`, `CR_SJ`, `CR_ID`, `XG_SJ`, `XG_ID`, `SC_BS`, `pid`)
+VALUES ('BLD_UNT', '输血计量单位', '0', 'u', 'u', NULL, '0', '0', NULL, '2022-04-29 10:19:52', 'admin', '2022-05-02 13:47:32', 'admin', '0', 2491),
+       ('BLD_UNT', '输血计量单位', '1', 'm/l', 'm/l', NULL, '0', '0', NULL, '2022-04-29 10:19:52', 'admin', '2022-05-02 13:47:32', 'admin', '0', 2491);

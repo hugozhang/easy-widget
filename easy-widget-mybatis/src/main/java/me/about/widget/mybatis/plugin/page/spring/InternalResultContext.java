@@ -1,5 +1,8 @@
 package me.about.widget.mybatis.plugin.page.spring;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 内部使用 分页结果上下文
  *
@@ -8,14 +11,14 @@ package me.about.widget.mybatis.plugin.page.spring;
  */
 public class InternalResultContext {
 
-    private static final ThreadLocal<InternalResult<?>> INTERNAL_RESULT = new ThreadLocal<>();
+    private static final ThreadLocal<Map<String,InternalResult<?>>> INTERNAL_RESULT = ThreadLocal.withInitial(HashMap::new);
 
-    public static void setResult(InternalResult<?> internalResult) {
-        INTERNAL_RESULT.set(internalResult);
+    public static void setResult(String method,InternalResult<?> internalResult) {
+        INTERNAL_RESULT.get().put(method,internalResult);
     }
 
-    public static InternalResult<?> getResult() {
-        return INTERNAL_RESULT.get();
+    public static InternalResult<?> getResult(String method) {
+        return INTERNAL_RESULT.get().get(method);
     }
 
     public static void clear() {

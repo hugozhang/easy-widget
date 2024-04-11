@@ -49,7 +49,7 @@ public class PageMapperProxy <T> implements InvocationHandler, Serializable {
                 return result;
             }
 
-            InternalResult internalResult = InternalResultContext.getResult();
+            InternalResult internalResult = InternalResultContext.getResult(method.toGenericString());
             PageResult pageResult = new PageResult();
             pageResult.setTotal(internalResult.getTotal());
             pageResult.setTotalPage(internalResult.getTotalPage());

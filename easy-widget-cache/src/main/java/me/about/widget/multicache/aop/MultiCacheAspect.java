@@ -214,9 +214,9 @@ public class MultiCacheAspect {
     private Object do1ToNCache(ProceedingJoinPoint joinPoint, String key,
                                long expire, TimeUnit timeUnit,
                                long emptyExpire, TimeUnit emptyTimeUnit) throws Throwable {
-        List<Object> cacheList = cacheManager.get(key);
-        if (cacheList != null) {
-            return cacheList;
+        Object cacheObject = cacheManager.get(key);
+        if (cacheObject != null) {
+            return cacheObject;
         }
         Object proceed = joinPoint.proceed();
         if (proceed instanceof List) {

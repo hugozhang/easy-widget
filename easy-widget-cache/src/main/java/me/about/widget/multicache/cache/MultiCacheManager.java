@@ -24,13 +24,13 @@ public class MultiCacheManager implements CacheManager {
 
     private final Logger logger = LoggerFactory.getLogger(MultiCacheManager.class);
 
-    private String name;
+    private final String name;
 
-    private RedisTemplate<String,Object> redisTemplate;
+    private final RedisTemplate<String,Object> redisTemplate;
 
-    private Cache<String,Object> caffeineCache;
+    private final Cache<String,Object> caffeineCache;
 
-    public MultiCacheManager(String name, RedisTemplate redisTemplate, Cache caffeineCache) {
+    public MultiCacheManager(String name, RedisTemplate<String,Object> redisTemplate, Cache<String,Object> caffeineCache) {
         this.name = name;
         this.redisTemplate = redisTemplate;
         this.caffeineCache = caffeineCache;
@@ -56,16 +56,16 @@ public class MultiCacheManager implements CacheManager {
 
 
     @Override
-    public <T> T get(Object key) {
+    public Object get(Object key) {
         Object value = lookup(key);
         if (value != null) {
-            return (T) value;
+            return value;
         }
         ReentrantLock lock = new ReentrantLock();
         lock.lock();
         try {
             value = lookup(key);
-            return (T) value;
+            return value;
         } catch (Exception e) {
             logger.error(e.getMessage(),e);
             throw new IllegalStateException(e);

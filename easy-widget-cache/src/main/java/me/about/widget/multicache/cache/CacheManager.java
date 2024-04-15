@@ -14,10 +14,9 @@ public interface CacheManager {
     /**
      * 从缓存读取  返回值可能是一个Object 也可能是一个List<Object>
      * @param key
-     * @param <V>
      * @return
      */
-    <V> V get(Object key);
+    Object get(Object key);
 
     /**
      * 设置缓存

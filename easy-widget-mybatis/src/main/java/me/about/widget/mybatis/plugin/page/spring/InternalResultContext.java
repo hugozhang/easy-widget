@@ -21,8 +21,8 @@ public class InternalResultContext {
         return INTERNAL_RESULT.get().get(method);
     }
 
-    public static void clear() {
-        INTERNAL_RESULT.remove();
+    public static void remove(String method) {
+        INTERNAL_RESULT.get().remove(method);
     }
 
 }

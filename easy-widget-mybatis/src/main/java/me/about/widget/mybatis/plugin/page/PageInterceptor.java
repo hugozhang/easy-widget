@@ -139,7 +139,8 @@ public class PageInterceptor implements Interceptor {
         internalResult.setTotal(total);
         internalResult.setTotalPage(totalPage);
         internalResult.setRows((List)proceed);
-        InternalResultContext.setResult(method.toGenericString(),internalResult);
+        // ms.getId()  类名+ "." + 方法名
+        InternalResultContext.setResult(ms.getId(),internalResult);
 
         return internalResult;
     }

@@ -1,6 +1,7 @@
 package me.about.widget.mybatis.plugin.page.spring;
 
 import me.about.widget.mybatis.plugin.page.model.PageResult;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.scope.ScopedObject;
@@ -32,8 +33,18 @@ public class PageMapperProxy <T> implements InvocationHandler, Serializable {
                 && method.getParameterTypes().length == 0;
     }
 
+    public String getMethodIdentifier(Method method) {
+        if (method == null) {
+            throw new IllegalArgumentException("Method cannot be null.");
+        }
+        return StringUtils.joinWith(".", method.getDeclaringClass().getName(), method.getName());
+    }
+
+
+
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        String methodIdentifier = getMethodIdentifier(method);
         try {
             if (AopUtils.isEqualsMethod(method) || AopUtils.isToStringMethod(method)
                     || AopUtils.isHashCodeMethod(method)
@@ -49,14 +60,14 @@ public class PageMapperProxy <T> implements InvocationHandler, Serializable {
                 return result;
             }
 
-            InternalResult internalResult = InternalResultContext.getResult(method.toGenericString());
+            InternalResult internalResult = InternalResultContext.getResult(methodIdentifier);
             PageResult pageResult = new PageResult();
             pageResult.setTotal(internalResult.getTotal());
             pageResult.setTotalPage(internalResult.getTotalPage());
             pageResult.setRows(internalResult.getRows());
             return pageResult;
         } finally {
-            InternalResultContext.clear();
+            InternalResultContext.remove(methodIdentifier);
         }
     }
 }

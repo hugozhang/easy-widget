@@ -2,7 +2,6 @@ package me.about.widget.spring.mvc.config;
 
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -23,6 +22,7 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.util.Arrays;
 /**
  * 访问地址 http://ip:端口/swagger-ui/index.html
@@ -67,7 +67,7 @@ public class SwaggerConfig implements ApplicationListener<ContextRefreshedEvent>
     }
 
 
-    @Autowired
+    @Resource
     private DefaultListableBeanFactory beanFactory;
 
     @PostConstruct

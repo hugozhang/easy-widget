@@ -52,10 +52,12 @@ public class PageInterceptor implements Interceptor {
     private Method getMethod(MappedStatement mappedStatement) throws ClassNotFoundException {
         String id = mappedStatement.getId();
         String className = id.substring(0, id.lastIndexOf("."));
-//        String methodName = id.substring(id.lastIndexOf(".") + 1);
+        String methodName = id.substring(id.lastIndexOf(".") + 1);
+
         final Method[] methods = Class.forName(className).getMethods();
         for (Method method : methods) {
-            if (PageResult.class.isAssignableFrom(method.getReturnType())) {
+            if (method.getName().equals(methodName) &&
+                    PageResult.class.isAssignableFrom(method.getReturnType())) {
                 return method;
             }
         }

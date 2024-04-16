@@ -45,7 +45,7 @@ public class ResponseBodyHandler implements ResponseBodyAdvice<Object> {
             return JSON.toJSONString(Result.success(body));
         }
 
-        Result result = new Result<>();
+        Result<Object> result = new Result<>();
         result.setCode(0);
         result.setType("success");
         result.setMessage("成功");

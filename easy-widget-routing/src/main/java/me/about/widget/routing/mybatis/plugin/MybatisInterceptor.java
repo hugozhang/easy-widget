@@ -94,14 +94,15 @@ public class MybatisInterceptor implements Interceptor {
                     if ("Select".equalsIgnoreCase(broadcasts.get(0).getOperate())) {
                         RoutingContext.setRoutingDatabase(RoutingContext.getDatabaseIds().get(0));
                     } else {
+                        // 广播表逻辑  发往多个数据源去执行
                         List<CompletableFuture<Void>> futures = Lists.newArrayList();
                         List<Object> results = Lists.newArrayList();
                         for (String databaseId : RoutingContext.getDatabaseIds()) {
-                            String finalSql1 = sql;
+                            String finalSql = sql;
                             CompletableFuture<Void> future =  CompletableFuture.runAsync(() -> {
                                 try {
                                     RoutingContext.setRoutingDatabase(databaseId);
-                                    Object rst = invoke(invocation,sqlId, finalSql1);
+                                    Object rst = invoke(invocation,sqlId, finalSql);
                                     results.add(rst);
                                 } catch (InvocationTargetException | IllegalAccessException e) {
                                     logger.error(e.getMessage(),e);

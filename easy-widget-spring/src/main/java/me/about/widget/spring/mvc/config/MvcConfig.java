@@ -22,10 +22,14 @@ import java.util.List;
 public class MvcConfig implements WebMvcConfigurer {
 
     @Value("#{'${session.path.patterns:/v2/**}'.split(',')}")
-    private String[] pathPatterns;
+    private List<String> pathPatterns;
 
     @Value("#{'${session.exclude.path.patterns:/v2/**/login,/v2/**/logout,/v2/license/**}'.split(',')}")
-    private String[] excludePathPatterns;
+    private List<String> excludePathPatterns;
+
+    @Value("#{'${whitelist.path.patterns:/v2/**/login,/v2/**/logout,/v2/license/**}'.split(',')}")
+    private List<String> whitelistPathPatterns;
+
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
@@ -42,11 +46,22 @@ public class MvcConfig implements WebMvcConfigurer {
     public SessionInterceptor getSessionInterceptor(){
         return new SessionInterceptor();
     }
+
+    private List<String> mergePathPatterns() {
+        if (whitelistPathPatterns == null) {
+            return excludePathPatterns;
+        }
+        if (excludePathPatterns == null) {
+            return whitelistPathPatterns;
+        }
+        whitelistPathPatterns.addAll(excludePathPatterns);
+        return whitelistPathPatterns;
+    }
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(getSessionInterceptor())
                 .addPathPatterns(pathPatterns) //拦截所有接口
-                .excludePathPatterns(excludePathPatterns); //排除这些接口
+                .excludePathPatterns(mergePathPatterns()); //排除这些接口
     }
 
 }

@@ -150,7 +150,7 @@ public class ShowSqlInterceptor implements Interceptor {
     private static String getParameterValue(Object obj) {
         String value;
         if (obj instanceof String) {
-            value = "'" + obj.toString() + "'";
+            value = "'" + obj + "'";
         } else if (obj instanceof Date) {
             DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.DEFAULT,DateFormat.DEFAULT, Locale.CHINA);
             value = "'" + formatter.format(obj) + "'";

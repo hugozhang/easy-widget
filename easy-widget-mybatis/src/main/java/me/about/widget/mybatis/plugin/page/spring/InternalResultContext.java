@@ -22,7 +22,10 @@ public class InternalResultContext {
     }
 
     public static void remove(String method) {
-        INTERNAL_RESULT.get().remove(method);
+        Map<String, InternalResult<?>> currentInternalResultMap = INTERNAL_RESULT.get();
+        currentInternalResultMap.remove(method);
+        if (currentInternalResultMap.isEmpty()) {
+            INTERNAL_RESULT.remove();
+        }
     }
-
 }

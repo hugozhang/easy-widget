@@ -1,6 +1,5 @@
 package me.about.widget.mybatis.plugin.page;
 
-import org.apache.ibatis.builder.annotation.ProviderSqlSource;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ResultMap;
@@ -13,9 +12,7 @@ import java.util.Map;
 
 public class ExecutorHelper {
 
-    private static Field additionalParametersField;
-
-    private static Field providerMethodArgumentNamesField;
+    private static final Field additionalParametersField;
 
     private static final List<ResultMapping> EMPTY_RESULTMAPPING = new ArrayList<ResultMapping>(0);
 
@@ -26,12 +23,6 @@ public class ExecutorHelper {
             additionalParametersField.setAccessible(true);
         } catch (NoSuchFieldException e) {
             throw new PageException("获取 BoundSql 属性 additionalParameters 失败: " + e, e);
-        }
-        try {
-            //兼容低版本
-            providerMethodArgumentNamesField = ProviderSqlSource.class.getDeclaredField("providerMethodArgumentNames");
-            providerMethodArgumentNamesField.setAccessible(true);
-        } catch (NoSuchFieldException ignore) {
         }
     }
 

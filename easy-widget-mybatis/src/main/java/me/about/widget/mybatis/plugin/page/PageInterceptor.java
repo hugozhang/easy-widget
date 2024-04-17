@@ -7,32 +7,21 @@ import me.about.widget.mybatis.plugin.page.spring.InternalResult;
 import me.about.widget.mybatis.plugin.page.spring.InternalResultContext;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
-import org.apache.ibatis.executor.parameter.ParameterHandler;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.mapping.ParameterMapping;
 import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.plugin.*;
-import org.apache.ibatis.reflection.MetaObject;
-import org.apache.ibatis.scripting.defaults.DefaultParameterHandler;
-import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
-import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ResolvableType;
-import org.springframework.jdbc.datasource.DataSourceUtils;
 
-import javax.sql.DataSource;
 import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.util.*;
-import java.util.regex.Matcher;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * 插件分页
@@ -48,6 +37,10 @@ import java.util.regex.Matcher;
 public class PageInterceptor implements Interceptor {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    private final String countSuffix = "_COUNT";
+
+    private CountSqlParser countSqlParser = new CountSqlParser();
 
     private Method getMethod(MappedStatement mappedStatement) throws ClassNotFoundException {
         String id = mappedStatement.getId();
@@ -98,12 +91,7 @@ public class PageInterceptor implements Interceptor {
         int currentPage = pageParam.getCurrentPage() <= 0 ? 1 : pageParam.getCurrentPage();
         pageParam.setCurrentPage(currentPage);
 
-        // 生成分页sql
-//        String sql = boundSql.getSql();
-
-        String sql = showSql(ms.getConfiguration(), boundSql);
-
-        String pageSql = buildPageSql(sql, pageParam);
+        String pageSql = buildPageSql(boundSql, pageParam);
 
         // 用方法返回类型里的泛型参数构建新的ResultMap
         ResolvableType resolvableType = ResolvableType.forMethodReturnType(method);
@@ -116,16 +104,19 @@ public class PageInterceptor implements Interceptor {
         MappedStatement internalMs = new MappedStatement.Builder(ms.getConfiguration()
                 , ms.getId(), ms.getSqlSource(), ms.getSqlCommandType()).resultMaps(Lists.newArrayList(resultMap)).build();
 
-        //设置分页boundSql 通过反射不可行,因为没有boundSql变量
+        // 分页 BoundSql
         BoundSql pageBoundSql = new BoundSql(ms.getConfiguration(), pageSql
-                , null, boundSql.getParameterObject());
+                , boundSql.getParameterMappings(), boundSql.getParameterObject());
 
-        //        Object proceed = invocation.proceed();
+        Map<String, Object> additionalParameters = ExecutorHelper.getAdditionalParameter(boundSql);
+        for (String key : additionalParameters.keySet()) {
+            pageBoundSql.setAdditionalParameter(key, additionalParameters.get(key));
+        }
 
         Object proceed;
 
         // 重设分页参数里的总页数等
-        long total = getTotal(sql, ms, boundSql);
+        long total = getTotal(executor,ms, boundSql);
         int totalPage = (int) (total / pageSize + ((total % pageSize == 0) ? 0 : 1));
 
         if (total == 0 || pageParam.getCurrentPage() > totalPage) {
@@ -169,128 +160,40 @@ public class PageInterceptor implements Interceptor {
     }
 
 
-    public static String showSql(Configuration configuration, BoundSql boundSql) {
-        // 获取参数
-        Object parameterObject = boundSql.getParameterObject();
-        List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
-        // sql语句中多个空格都用一个空格代替
-        String sql = boundSql.getSql().replaceAll("[\\s]+", " ");
-        if (parameterMappings != null && !parameterMappings.isEmpty() && parameterObject != null) {
-            // 获取类型处理器注册器，类型处理器的功能是进行java类型和数据库类型的转换
-            TypeHandlerRegistry typeHandlerRegistry = configuration.getTypeHandlerRegistry();
-            // 如果根据parameterObject.getClass(）可以找到对应的类型，则替换
-            if (typeHandlerRegistry.hasTypeHandler(parameterObject.getClass())) {
-                sql = sql.replaceFirst("\\?", Matcher.quoteReplacement(getParameterValue(parameterObject)));
-            } else {
-                // MetaObject主要是封装了originalObject对象，提供了get和set的方法用于获取和设置originalObject的属性值,主要支持对JavaBean、Collection、Map三种类型对象的操作
-                MetaObject metaObject = configuration.newMetaObject(parameterObject);
-                for (ParameterMapping parameterMapping : parameterMappings) {
-                    String propertyName = parameterMapping.getProperty();
-                    if (metaObject.hasGetter(propertyName)) {
-                        Object obj = metaObject.getValue(propertyName);
-                        sql = sql.replaceFirst("\\?",Matcher.quoteReplacement(getParameterValue(obj)));
-                    } else if (boundSql.hasAdditionalParameter(propertyName)) {
-                        // 该分支是动态sql
-                        Object obj = boundSql.getAdditionalParameter(propertyName);
-                        sql = sql.replaceFirst("\\?",Matcher.quoteReplacement(getParameterValue(obj)));
-                    } else {
-                        // 未知参数，替换？防止错位
-                        sql = sql.replaceFirst("\\?", "unknown");
-                    }
-                }
-            }
-        }
-        return sql;
-    }
-
-    /**
-     * 如果参数是String，则添加单引号
-     * 如果参数是日期，则转换为时间格式器并加单引号； 对参数是null和不是null的情况作了处理
-     */
-    private static String getParameterValue(Object obj) {
-        String value;
-        if (obj instanceof String) {
-            value = "'" + obj.toString() + "'";
-        } else if (obj instanceof Date) {
-            DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.DEFAULT,DateFormat.DEFAULT, Locale.CHINA);
-            value = "'" + formatter.format(obj) + "'";
-        } else {
-            if (obj != null) {
-                value = obj.toString();
-            } else {
-                value = "";
-            }
-        }
-        return value;
-    }
-
-
-    public String buildPageSql(String sql, PageParam<?> pageParam) {
-        return sql + " LIMIT " + (pageParam.getCurrentPage() - 1) * pageParam.getPageSize() + "," + pageParam.getPageSize();
+    public String buildPageSql(BoundSql boundSql, PageParam<?> pageParam) {
+        return boundSql.getSql() + " LIMIT " + (pageParam.getCurrentPage() - 1) * pageParam.getPageSize() + "," + pageParam.getPageSize();
     }
 
     /**
      * 获取总记录数
      *
-     * @param sql
      * @param ms
      * @param boundSql
      */
-    private long getTotal(String sql,
-                          MappedStatement ms,
-                          BoundSql boundSql) {
+    private long getTotal(Executor executor,MappedStatement ms,
+                          BoundSql boundSql) throws SQLException {
+        String countMsId = ms.getId() + countSuffix;
         // 记录总记录数
-        String countSql = "SELECT COUNT(0) FROM (" + sql + ") auto_gen_total";
-        logger.debug("countSql:{}", countSql);
-        DataSource dataSource = null;
-        Connection connection = null;
-        PreparedStatement countStmt = null;
-        ResultSet rs = null;
-        try {
-            dataSource = ms.getConfiguration().getEnvironment().getDataSource();
-            connection = dataSource.getConnection();
-            countStmt = connection.prepareStatement(countSql);
-//            BoundSql countBoundSql = new BoundSql(ms.getConfiguration(), countSql
-//                    , boundSql.getParameterMappings()
-//                    , boundSql.getParameterObject());
-//            setParameters(countStmt, ms, countBoundSql, boundSql.getParameterObject());
-            rs = countStmt.executeQuery();
-            long total = 0;
-            if (rs.next()) {
-                total = rs.getInt(1);
-            }
-            return total;
-        } catch (SQLException e) {
-            logger.error("Ignore this exception", e);
-        } finally {
-            try {
-                rs.close();
-            } catch (SQLException e) {
-                logger.error("Ignore this exception", e);
-            }
-            try {
-                countStmt.close();
-            } catch (SQLException e) {
-                logger.error("Ignore this exception", e);
-            }
-            // *******
-            DataSourceUtils.releaseConnection(connection,dataSource);
-        }
-        return 0;
-    }
 
-    /**
-     * 代入参数值
-     *
-     * @param ps
-     * @param mappedStatement
-     * @param boundSql
-     * @param parameterObject
-     * @throws SQLException
-     */
-    private void setParameters(PreparedStatement ps, MappedStatement mappedStatement, BoundSql boundSql,
-                               Object parameterObject) throws SQLException {
-        ParameterHandler parameterHandler = new DefaultParameterHandler(mappedStatement, parameterObject, boundSql);
-        parameterHandler.setParameters(ps);
+        String countSql = countSqlParser.getSmartCountSql(boundSql.getSql());
+
+//        String countSql = "SELECT COUNT(0) FROM (" + boundSql.getSql() + ") auto_gen_total";
+        logger.debug("countSql:{}", countSql);
+
+        BoundSql countBoundSql = new BoundSql(ms.getConfiguration(), countSql
+                , boundSql.getParameterMappings()
+                , boundSql.getParameterObject());
+        Map<String, Object> additionalParameters = ExecutorHelper.getAdditionalParameter(boundSql);
+        //当使用动态 SQL 时，可能会产生临时的参数，这些参数需要手动设置到新的 BoundSql 中
+        for (String key : additionalParameters.keySet()) {
+            countBoundSql.setAdditionalParameter(key, additionalParameters.get(key));
+        }
+        MappedStatement countMs = ExecutorHelper.newCountMappedStatement(ms, countMsId);
+
+        CacheKey countKey = executor.createCacheKey(countMs, countBoundSql.getParameterObject(), RowBounds.DEFAULT, boundSql);
+
+        Object countResultList = executor.query(countMs, boundSql.getParameterObject(), RowBounds.DEFAULT, null, countKey, countBoundSql);
+        Long count = (Long) ((List) countResultList).get(0);
+        return count;
     }
 }

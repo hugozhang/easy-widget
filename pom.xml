@@ -70,6 +70,12 @@
     <dependencyManagement>
         <dependencies>
 
+            <dependency>
+                <groupId>com.github.jsqlparser</groupId>
+                <artifactId>jsqlparser</artifactId>
+                <version>3.2</version>
+            </dependency>
+
             <!-- thread local -->
             <dependency>
                 <groupId>com.alibaba</groupId>

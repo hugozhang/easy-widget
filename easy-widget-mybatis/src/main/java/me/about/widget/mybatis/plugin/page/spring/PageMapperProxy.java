@@ -44,30 +44,33 @@ public class PageMapperProxy <T> implements InvocationHandler, Serializable {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        String methodIdentifier = getMethodIdentifier(method);
-        try {
-            if (AopUtils.isEqualsMethod(method) || AopUtils.isToStringMethod(method)
-                    || AopUtils.isHashCodeMethod(method)
-                    || isScopedObjectGetTargetObject(method)
-                    || !PageResult.class.isAssignableFrom(method.getReturnType())) {
-                return method.invoke(mapper, args);
-            }
 
-            LOGGER.debug("invoke proxy={} method={} args={}", proxy, method, args);
-
-            Object result = method.invoke(mapper, args);
-            if ((method.getReturnType().equals(Void.TYPE))) {
-                return result;
-            }
-
-            InternalResult internalResult = InternalResultContext.getResult(methodIdentifier);
-            PageResult pageResult = new PageResult();
-            pageResult.setTotal(internalResult.getTotal());
-            pageResult.setTotalPage(internalResult.getTotalPage());
-            pageResult.setRows(internalResult.getRows());
-            return pageResult;
-        } finally {
-            InternalResultContext.remove(methodIdentifier);
+        if (AopUtils.isEqualsMethod(method) || AopUtils.isToStringMethod(method)
+                || AopUtils.isHashCodeMethod(method)
+                || isScopedObjectGetTargetObject(method)
+                || !PageResult.class.isAssignableFrom(method.getReturnType())) {
+            return method.invoke(mapper, args);
         }
+
+        LOGGER.debug("invoke proxy={} method={} args={}", proxy, method, args);
+
+
+        String methodIdentifier = getMethodIdentifier(method);
+
+        Object result = method.invoke(mapper, args);
+        if ((method.getReturnType().equals(Void.TYPE))) {
+            return result;
+        }
+
+        InternalResult internalResult = InternalResultContext.getResult(methodIdentifier);
+        PageResult pageResult = new PageResult();
+        pageResult.setTotal(internalResult.getTotal());
+        pageResult.setTotalPage(internalResult.getTotalPage());
+        pageResult.setRows(internalResult.getRows());
+
+        // 清理
+        InternalResultContext.remove(methodIdentifier);
+
+        return pageResult;
     }
 }

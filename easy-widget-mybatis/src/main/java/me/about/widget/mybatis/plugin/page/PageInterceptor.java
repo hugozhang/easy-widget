@@ -68,6 +68,16 @@ public class PageInterceptor implements Interceptor {
         Executor executor = (Executor) invocation.getTarget();
         CacheKey cacheKey;
         BoundSql boundSql;
+
+
+        Method method = getMethod(ms);
+
+        PageParam<?> pageParam = findPageParameter(parameter);
+
+        if (method == null || pageParam == null) {
+            return invocation.proceed();
+        }
+
         //由于逻辑关系，只会进入一次
         if (args.length == 4) {
             //4 个参数时
@@ -77,14 +87,6 @@ public class PageInterceptor implements Interceptor {
             //6 个参数时
             cacheKey = (CacheKey) args[4];
             boundSql = (BoundSql) args[5];
-        }
-
-        Method method = getMethod(ms);
-
-        PageParam<?> pageParam = findPageParameter(boundSql.getParameterObject());
-
-        if (method == null || pageParam == null) {
-            return invocation.proceed();
         }
 
         int pageSize = pageParam.getPageSize() <= 0 ? 10 : pageParam.getPageSize();

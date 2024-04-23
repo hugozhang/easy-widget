@@ -4,10 +4,12 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
 
 /**
  * spring context holder
@@ -18,6 +20,8 @@ import org.springframework.core.annotation.Order;
  */
 @Slf4j
 @Order(Ordered.HIGHEST_PRECEDENCE)
+@ConditionalOnMissingBean(SpringContextHolder.class)
+@Component
 public class SpringContextHolder implements ApplicationContextAware, DisposableBean {
 
     @Getter

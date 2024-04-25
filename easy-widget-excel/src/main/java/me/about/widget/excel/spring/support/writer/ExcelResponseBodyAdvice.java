@@ -2,7 +2,6 @@ package me.about.widget.excel.spring.support.writer;
 
 import lombok.extern.slf4j.Slf4j;
 import me.about.widget.excel.writer.XlsxWriter;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -13,6 +12,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import java.net.URLEncoder;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Slf4j
@@ -33,21 +34,26 @@ public class ExcelResponseBodyAdvice implements ResponseBodyAdvice<List> {
                                 Class<? extends HttpMessageConverter<?>> selectedConverterType,
                                 ServerHttpRequest request,
                                 ServerHttpResponse response) {
-        if(CollectionUtils.isEmpty(body)) {
-            return null;
-        }
 
         ExcelResponseBody excelResponseBody = methodParameter.getMethodAnnotation(ExcelResponseBody.class);
-
         try {
+            String fileName = URLEncoder.encode(excelResponseBody.fileName() + suffix() + ".xlsx","UTF-8");
+
             HttpHeaders headers = response.getHeaders();
             headers.add("Content-Type", "application/octet-stream");
-            headers.add("Content-Disposition","attachment;filename*=UTF-8''" + URLEncoder.encode(excelResponseBody.fileName() + ".xlsx","UTF-8"));
+            headers.add("Content-Disposition","attachment;filename*=UTF-8''" + fileName);
             XlsxWriter.build(excelResponseBody.inputClass()).toOutputStream(body,response.getBody());
         } catch (Exception e) {
             log.error("ExcelResponseBodyAdvice error",e);
             throw new RuntimeException("ExcelResponseBodyAdvice error",e);
         }
         return null;
+    }
+
+    private String suffix() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        LocalDate currentDate = LocalDate.now();
+        String formattedDate = currentDate.format(formatter);
+        return formattedDate + System.currentTimeMillis();
     }
 }

@@ -1,7 +1,7 @@
 package me.about.widget.excel.spring.boot.autoconfig;
 
 import me.about.widget.excel.spring.MvcConfig;
-import me.about.widget.excel.spring.support.ExcelResponseBodyAdvice;
+import me.about.widget.excel.spring.support.writer.ExcelResponseBodyAdvice;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
 

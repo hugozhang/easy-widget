@@ -1,15 +1,14 @@
-package me.about.widget.excel.spring.support;
+package me.about.widget.excel.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.METHOD})
+@Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ExcelResponseBody {
-
-    String fileName();
-
-    Class<?> inputClass();
+public @interface ExcelMultipart {
+    String name();
+    Class outputClass();
+    Class handler() default Void.class;
 }

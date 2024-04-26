@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ThreadLocalTrace {
 
-    private static Logger logger = LoggerFactory.getLogger(ThreadLocalTrace.class);
+    private static final Logger logger = LoggerFactory.getLogger(ThreadLocalTrace.class);
 
     protected static final TransmittableThreadLocal<TraceEntity> threadBoundEntity = TransmittableThreadLocal.withInitial(() -> new TraceEntity());
 

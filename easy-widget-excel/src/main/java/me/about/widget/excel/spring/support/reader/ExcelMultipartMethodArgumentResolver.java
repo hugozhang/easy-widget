@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 public class ExcelMultipartMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
-    private static final Map<Class,MultiPartHandler> HANDLER_CACHE = new ConcurrentHashMap<>();
+    private static final Map<Class<?>,MultiPartHandler> HANDLER_CACHE = new ConcurrentHashMap<>();
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         ExcelMultipart excelMultipart = parameter.getParameterAnnotation(ExcelMultipart.class);
@@ -40,7 +40,7 @@ public class ExcelMultipartMethodArgumentResolver implements HandlerMethodArgume
             throw new MultipartException("Content-Type is error");
         }
         MultipartRequest multipartRequest = new StandardMultipartHttpServletRequest(servletRequest);
-
+        
         List<MultipartFile> multipartFiles = multipartRequest
                 .getFiles(excelMultipart.name());
 

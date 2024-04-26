@@ -3,9 +3,9 @@ package me.about.widget.spring.mvc.exception;
 /**
  * 业务异常
  *
- * @Author: hugo.zxh
- * @Date: 2022/02/26 18:02
- * @Description:
+ * @author: hugo.zxh
+ * @date: 2022/02/26 18:02
+ * @description:
  */
 
 public class BizException extends RuntimeException {

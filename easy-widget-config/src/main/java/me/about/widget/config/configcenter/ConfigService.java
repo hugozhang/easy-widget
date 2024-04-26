@@ -36,9 +36,7 @@ public class ConfigService {
 
     private Properties oldProperties;
 
-    private String namespace = "application.properties";
-
-    private List<ConfigChangeListener> listeners = Lists.newCopyOnWriteArrayList();
+    private final List<ConfigChangeListener> listeners = Lists.newCopyOnWriteArrayList();
 
     public static Properties getPropertiesInstance() {
         return new Properties();
@@ -73,6 +71,7 @@ public class ConfigService {
 
 
 //        String name = String.format("META-INF/config/%s.properties", namespace);
+        String namespace = "application.properties";
         InputStream in = ClassLoaderUtil.getLoader().getResourceAsStream(namespace);
 
         factoryBean.setResources(new FileSystemResource("D:\\workspace\\hmap_saas\\HMAP-CONTAINER\\hmap-container\\src\\main\\resources\\application.yaml"));

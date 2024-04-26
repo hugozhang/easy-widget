@@ -40,10 +40,10 @@ public class Retrofit2AdapterFactory extends CallAdapter.Factory {
         if (Response.class.isAssignableFrom(getRawType(returnType))) {
             return null;
         }
-        return new ResponseCallAdapter<>(returnType,annotations,retrofit);
+        return new ResponseCallAdapter<>(returnType, annotations, retrofit);
     }
 
-    public class ResponseCallAdapter<R> implements CallAdapter<R,R> {
+    public static class ResponseCallAdapter<R> implements CallAdapter<R,R> {
 
         private final Type returnType;
 

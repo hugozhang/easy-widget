@@ -18,10 +18,8 @@ public class RequestTraceAdvice implements MethodInterceptor {
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
         Method method = invocation.getMethod();
-        StringBuilder sb = new StringBuilder();
-        sb.append(method.getDeclaringClass().getTypeName()).append('.');
-        sb.append(method.getName());
-        String fullMethodName = sb.toString();
+        String fullMethodName = method.getDeclaringClass().getTypeName() + '.' +
+                method.getName();
         Trace.enter(fullMethodName);
         try {
             Object proceed = invocation.proceed();

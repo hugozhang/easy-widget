@@ -1,6 +1,5 @@
 package me.about.widget.security.deserializer;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -26,8 +25,8 @@ public class AuthorizationGrantTypeDeserializer extends StdDeserializer<Authoriz
     }
 
     @Override
-    public AuthorizationGrantType deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException, JacksonException {
+    public AuthorizationGrantType deserialize(JsonParser p, DeserializationContext ctx)
+            throws IOException {
         Map<String, String> map = objectMapper.readValue(p, new TypeReference<Map<String, String>>() {
         });
         return new AuthorizationGrantType(map.values().stream().findFirst().orElse(null));

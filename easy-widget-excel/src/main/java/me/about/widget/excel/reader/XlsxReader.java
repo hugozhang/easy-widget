@@ -75,7 +75,7 @@ public class XlsxReader {
         List<T> rows = new ArrayList();
         XMLReader parser = XMLReaderFactory.createXMLReader();
         InputStream sheet = xssfReader.getSheet("rId" + (sheetIndex + 1));
-        ContentHandler handler = new SheetHandler(stylesTable, sharedStringsTable,sheetIndex + "", skipRow, rows, outputClass);
+        ContentHandler handler = new SheetHandler(stylesTable, sharedStringsTable, sheetIndex + "", skipRow, rows, outputClass);
         parser.setContentHandler(handler);
         InputSource sheetSource = new InputSource(sheet);
         parser.parse(sheetSource);
@@ -90,7 +90,7 @@ public class XlsxReader {
         XSSFReader.SheetIterator iterator = (XSSFReader.SheetIterator) xssfReader.getSheetsData();
         while (iterator.hasNext()) {
             InputStream sheet = iterator.next();
-            ContentHandler handler = new SheetHandler(stylesTable, sharedStringsTable,iterator.getSheetName(), skipRow, rows, outputClass);
+            ContentHandler handler = new SheetHandler(stylesTable, sharedStringsTable, iterator.getSheetName(), skipRow, rows, outputClass);
             parser.setContentHandler(handler);
             InputSource sheetSource = new InputSource(sheet);
             parser.parse(sheetSource);
@@ -107,7 +107,7 @@ public class XlsxReader {
         while (iterator.hasNext()) {
             InputStream sheet = iterator.next();
             List<T> rows = new ArrayList();
-            ContentHandler handler = new SheetHandler(stylesTable, sharedStringsTable,iterator.getSheetName(), skipRow, rows, outputClass);
+            ContentHandler handler = new SheetHandler(stylesTable, sharedStringsTable, iterator.getSheetName(), skipRow, rows, outputClass);
             parser.setContentHandler(handler);
             InputSource sheetSource = new InputSource(sheet);
             parser.parse(sheetSource);
@@ -131,7 +131,7 @@ public class XlsxReader {
         void ok(String sheetName,List<T> rows) throws Exception;
     }
 
-    class SheetHandler<T> extends DefaultHandler {
+    static class SheetHandler<T> extends DefaultHandler {
 
         /** Table with styles */
         private StylesTable stylesTable;
@@ -399,9 +399,7 @@ public class XlsxReader {
             if (fieldMapping == null || fieldMapping.isEmpty()) {
                 throw new RuntimeException("标签页：" + sheetName + "，没有读到需要的数据列，请检查下");
             }
-            Iterator<Map.Entry<String, Field>> it = fieldMapping.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<String, Field> entry = it.next();
+            for (Map.Entry<String, Field> entry : fieldMapping.entrySet()) {
                 if (!titleMapping.containsValue(entry.getKey())) {
                     throw new RuntimeException("标签页：" + sheetName + "，列名为'" + entry.getKey() + "'不存在，请检查下");
                 }

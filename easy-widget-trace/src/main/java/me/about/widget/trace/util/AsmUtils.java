@@ -19,7 +19,7 @@ import java.util.Map;
  */
 public class AsmUtils {
 
-    private static Logger logger = LoggerFactory.getLogger(AsmUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(AsmUtils.class);
 
     public static Map<String, MethodArg> readMethodArg(String owner) {
         try {
@@ -27,7 +27,7 @@ public class AsmUtils {
         } catch (IOException e) {
             logger.error(e.getMessage(),e);
         }
-        return new HashMap(16);
+        return new HashMap<>(16);
     }
 
     public static Map<String, ClassField> readClassField(String owner) {
@@ -36,7 +36,7 @@ public class AsmUtils {
         } catch (IOException e) {
             logger.error(e.getMessage(),e);
         }
-        return new HashMap(16);
+        return new HashMap<>(16);
     }
 
     private static Map<String, ClassField> readField(String owner) throws IOException {

@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class TreeView implements View {
 
-    private static Logger logger = LoggerFactory.getLogger(TreeView.class);
+    private static final Logger logger = LoggerFactory.getLogger(TreeView.class);
 
     private static final String STEP_FIRST_CHAR = "`---";
     private static final String STEP_NORMAL_CHAR = "+---";
@@ -94,7 +94,6 @@ public class TreeView implements View {
 
     /**
      * 查找耗时最大的节点，便于后续高亮展示
-     * @param node
      */
     private void findMaxCostNode(Node node) {
         if (!node.isRoot() && !node.parent.isRoot()) {
@@ -116,10 +115,9 @@ public class TreeView implements View {
      * 创建一个分支节点
      *
      * @param data 节点数据
-     * @return this
      */
     @Override
-    public View begin(String data) {
+    public void begin(String data) {
         Node n = current.find(data);
         if (n != null) {
             current = n;
@@ -127,43 +125,36 @@ public class TreeView implements View {
             current = new Node(current, data);
         }
         current.markBegin();
-        return this;
     }
 
     /**
      * 结束一个分支节点
-     *
-     * @return this
      */
     @Override
-    public View end() {
+    public void end() {
         if (current.isRoot()) {
             //程序结构有不合理的地方
             logger.error("current node is root.");
 //            throw new IllegalStateException("current node is root.");
-            return this;
+            return;
         }
         current.markEnd();
         current = current.parent;
-        return this;
     }
 
     /**
      * 结束一个分支节点,并带上备注
-     *
-     * @return this
      */
     @Override
-    public View end(String mark) {
+    public void end(String mark) {
         //程序结构有不合理的地方
         if (current.isRoot()) {
             logger.error("current node is root.");
 //            throw new IllegalStateException("current node is root.");
-            return this;
+            return;
         }
         current.markEnd().mark(mark);
         current = current.parent;
-        return this;
     }
 
 
@@ -185,9 +176,9 @@ public class TreeView implements View {
         /**
          * 子节点
          */
-        List<Node> children = new ArrayList();
+        List<Node> children = new ArrayList<>();
 
-        Map<String, Node> map = new HashMap();
+        Map<String, Node> map = new HashMap<>();
 
         /**
          * 开始时间戳
@@ -280,10 +271,9 @@ public class TreeView implements View {
             return this;
         }
 
-        Node mark(String mark) {
+        void mark(String mark) {
             this.mark = mark;
             marks++;
-            return this;
         }
 
         long elapsedNanos() {

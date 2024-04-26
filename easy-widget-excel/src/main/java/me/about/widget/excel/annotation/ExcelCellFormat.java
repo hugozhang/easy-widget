@@ -21,7 +21,4 @@ public @interface ExcelCellFormat {
     // 自定义格式化
     Class<? extends CellFormatter> format() default CellFormatter.class;
 
-    // 透传的后缀字符串
-    String payload() default "";
-
 }

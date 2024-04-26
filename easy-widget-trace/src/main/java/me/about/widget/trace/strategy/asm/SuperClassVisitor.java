@@ -43,7 +43,6 @@ public class SuperClassVisitor extends ClassVisitor {
          *  LocalVariablesSorter only accepts expanded frames (see ClassReader.EXPAND_FRAMES)
          *  也可以用继承来实现 责任链式调用*
          */
-        TraceMethodVisitor v1 = new TraceMethodVisitor(mv,access,owner,name, desc);
-        return v1;
+        return new TraceMethodVisitor(mv,access,owner,name, desc);
     }
 }

@@ -10,13 +10,11 @@ package me.about.widget.trace.util;
 public class ThreadUtils {
 
     public static String getThreadTitle(Thread currentThread) {
-        StringBuilder sb = new StringBuilder("thread_name=");
-        sb.append(currentThread.getName())
-                .append(";id=").append(Long.toHexString(currentThread.getId()))
-                .append(";is_daemon=").append(currentThread.isDaemon())
-                .append(";priority=").append(currentThread.getPriority())
-                .append(";TCCL=").append(getTCCL(currentThread));
-        return sb.toString();
+        return "thread_name=" + currentThread.getName() +
+                ";id=" + Long.toHexString(currentThread.getId()) +
+                ";is_daemon=" + currentThread.isDaemon() +
+                ";priority=" + currentThread.getPriority() +
+                ";TCCL=" + getTCCL(currentThread);
     }
 
     private static String getTCCL(Thread currentThread) {

@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ExcelMultipart {
     String name();
-    Class outputClass();
-    Class handler() default Void.class;
+    Class<?> outputClass();
+    Class<?> handler() default Void.class;
 }

@@ -1,5 +1,6 @@
 package me.about.widget.spring.mvc.filter;
 
+import lombok.Getter;
 import org.apache.commons.io.IOUtils;
 
 import javax.servlet.ReadListener;
@@ -9,17 +10,14 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+@Getter
 public class CustomContentCachingRequestWrapper extends HttpServletRequestWrapper {
 
-    private byte[] body;
+    private final byte[] body;
 
     public CustomContentCachingRequestWrapper(HttpServletRequest request) throws IOException {
         super(request);
         body = IOUtils.toByteArray(request.getInputStream());
-    }
-
-    public byte[] getBody() {
-        return body;
     }
 
     @Override

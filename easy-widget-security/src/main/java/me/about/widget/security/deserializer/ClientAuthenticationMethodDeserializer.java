@@ -27,7 +27,7 @@ public class ClientAuthenticationMethodDeserializer extends StdDeserializer<Clie
 
     @Override
     public ClientAuthenticationMethod deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException, JacksonException {
+            throws IOException {
         Map<String, String> map = objectMapper.readValue(p, new TypeReference<Map<String, String>>() {
         });
         return new ClientAuthenticationMethod(map.values().stream().findFirst().orElse(null));

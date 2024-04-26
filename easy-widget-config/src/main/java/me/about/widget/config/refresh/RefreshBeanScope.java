@@ -41,7 +41,7 @@ public class RefreshBeanScope implements Scope, BeanDefinitionRegistryPostProces
 
     private final Map<String, Object> cache = new ConcurrentHashMap<String, Object>();
 
-    private Map<String, ReadWriteLock> locks = new ConcurrentHashMap<>();
+    private final Map<String, ReadWriteLock> locks = new ConcurrentHashMap<>();
 
     protected ReadWriteLock getLock(String beanName) {
         return this.locks.get(beanName);

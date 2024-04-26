@@ -15,9 +15,9 @@ import java.util.Set;
 
 public class PathScanProvider {
 
-    private static AntPathMatcher antPathMatcher = new AntPathMatcher();
+    private static final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
-    private static String locationSuffix = "/**/*.class";
+    private static final String locationSuffix = "/**/*.class";
 
     public void scan(String locationPattern) {
         String rootDirPath = determineRootDir(toLocation(locationPattern));
@@ -31,8 +31,7 @@ public class PathScanProvider {
     }
 
     private String toLocation(String packagePath) {
-        String replace = packagePath.replace('.', '/');
-        return replace;
+        return packagePath.replace('.', '/');
     }
 
     private String determineRootDir(String location) {

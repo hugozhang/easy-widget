@@ -23,7 +23,7 @@ import java.util.jar.JarFile;
  */
 public class PkgUtils {
 
-    private static Logger logger = LoggerFactory.getLogger(PkgUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(PkgUtils.class);
 
     /**
      * 扫描包路径下所有的class文件
@@ -32,7 +32,7 @@ public class PkgUtils {
      * @return
      */
     public static Set<String> getClzFromPkg(String pkg) {
-        Set<String> classes = new HashSet();
+        Set<String> classes = new HashSet<>();
         String pkgDirName = pkg.replace('.', '/');
         try {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -73,7 +73,7 @@ public class PkgUtils {
         // 过滤获取目录，or class文件
         // pathname -> pathname.isDirectory() || pathname.getName().endsWith("class")
         File[] dirFiles = dir.listFiles();
-        if (dirFiles == null || dirFiles.length == 0) {
+        if (dirFiles == null) {
             return;
         }
         for (File f : dirFiles) {

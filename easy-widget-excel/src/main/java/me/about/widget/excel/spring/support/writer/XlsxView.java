@@ -1,5 +1,11 @@
 package me.about.widget.excel.spring.support.writer;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+
 /**
  * spring view support
  *
@@ -7,11 +13,6 @@ package me.about.widget.excel.spring.support.writer;
  * @date: 2020/11/01 23:46
  * @description:
  */
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface XlsxView {

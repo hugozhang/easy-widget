@@ -22,7 +22,7 @@ public class FastJsonConverterFactory extends Converter.Factory {
 
     private static final MediaType MEDIA_TYPE = MediaType.parse("application/json; charset=UTF-8");
 
-    private FastJsonConfig fastJsonConfig;
+    private final FastJsonConfig fastJsonConfig;
 
     public FastJsonConverterFactory(FastJsonConfig fastJsonConfig) {
         this.fastJsonConfig = fastJsonConfig;
@@ -56,7 +56,7 @@ public class FastJsonConverterFactory extends Converter.Factory {
 
     final class ResponseBodyConverter<T> implements Converter<ResponseBody, T> {
 
-        private Type type;
+        private final Type type;
 
         ResponseBodyConverter(Type type) {
             this.type = type;

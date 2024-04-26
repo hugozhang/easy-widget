@@ -31,7 +31,7 @@ public class LoggingInterceptor implements Interceptor {
         try {
             ResponseBody responseBody = response.peekBody(1024 * 1024);
             sb.append(responseBody.string());
-            log.info(sb.toString());
+            log.debug(sb.toString());
         } catch (Exception e) {
             log.error(e.getMessage(),e);
         }

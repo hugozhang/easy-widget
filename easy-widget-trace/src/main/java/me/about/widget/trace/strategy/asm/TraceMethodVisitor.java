@@ -16,9 +16,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class TraceMethodVisitor extends AdviceAdapter {
 
-    private String owner;
+    private final String owner;
 
-    private String methodName;
+    private final String methodName;
 
     public TraceMethodVisitor(MethodVisitor mv, int access, String owner, String methodName, String methodDesc) {
         super(Opcodes.ASM5,mv,access,methodName,methodDesc);

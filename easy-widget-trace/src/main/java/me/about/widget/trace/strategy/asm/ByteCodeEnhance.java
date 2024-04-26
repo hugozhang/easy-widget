@@ -23,7 +23,7 @@ import java.net.URL;
 
 public class ByteCodeEnhance {
 
-    private static Logger logger = LoggerFactory.getLogger(ByteCodeEnhance.class);
+    private static final Logger logger = LoggerFactory.getLogger(ByteCodeEnhance.class);
 
     private static Method findResource;
 
@@ -60,11 +60,7 @@ public class ByteCodeEnhance {
                 return;
             }
             logger.debug("Added asm enhance function for {}.", className);
-        } catch (IOException e) {
-            logger.error(className,e);
-        } catch (IllegalAccessException e) {
-            logger.error(className,e);
-        } catch (InvocationTargetException e) {
+        } catch (IOException | InvocationTargetException | IllegalAccessException e) {
             logger.error(className,e);
         }
     }

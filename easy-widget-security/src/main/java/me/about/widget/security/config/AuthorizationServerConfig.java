@@ -145,17 +145,10 @@ public class AuthorizationServerConfig {
         logger.error(exception.getMessage(),exception);
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json; charset=utf-8");
-        PrintWriter out = null;
-        try {
-            out = response.getWriter();
-
+        try (PrintWriter out = response.getWriter()) {
             out.flush();
         } catch (IOException e) {
-            logger.error(e.getMessage(),e);
-        } finally {
-            if (out != null) {
-                out.close();
-            }
+            logger.error(e.getMessage(), e);
         }
     }
 
@@ -196,8 +189,7 @@ public class AuthorizationServerConfig {
     @Bean
     public RegisteredClientRepository registeredClientRepository(JdbcTemplate jdbcTemplate) {
         JdbcRegisteredClientRepository jdbcRegisteredClientRepository = new JdbcRegisteredClientRepository(jdbcTemplate);
-        RegisteredClientRepository registeredClientRepository = new RedisRegisteredClientRepository(redisTemplateRegisteredClient,jdbcRegisteredClientRepository);
-        return registeredClientRepository;
+        return new RedisRegisteredClientRepository(redisTemplateRegisteredClient,jdbcRegisteredClientRepository);
     }
 
     @Bean

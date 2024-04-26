@@ -17,9 +17,9 @@ import java.util.List;
  */
 public class RedisIdGenerator implements IdGenerator {
 
-    private RedisScript<List<Long>> idScript;
+    private final RedisScript<List<Long>> idScript;
 
-    private StringRedisTemplate stringRedisTemplate;
+    private final StringRedisTemplate stringRedisTemplate;
 
     public RedisIdGenerator(StringRedisTemplate stringRedisTemplate) {
         this.stringRedisTemplate = stringRedisTemplate;
@@ -31,6 +31,7 @@ public class RedisIdGenerator implements IdGenerator {
         List<String> keys = new ArrayList<>();
         keys.add(tag);
         List<Long> ids = stringRedisTemplate.execute(idScript, keys);
+        assert ids != null;
         return buildId(ids.get(0),ids.get(1),ids.get(2),ids.get(3));
     }
 

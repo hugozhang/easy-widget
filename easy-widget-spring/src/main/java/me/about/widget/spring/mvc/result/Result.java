@@ -1,6 +1,8 @@
 package me.about.widget.spring.mvc.result;
 
 
+import lombok.Getter;
+
 import java.io.Serializable;
 
 /**
@@ -11,6 +13,7 @@ import java.io.Serializable;
  * @description:
  *
  */
+@Getter
 public class Result<T> implements Serializable {
 
     private int code;
@@ -36,44 +39,28 @@ public class Result<T> implements Serializable {
         this.data = data;
     }
 
-    public static Result failed(int code,String message) {
-        return new Result(code,"error",message);
+    public static <T> Result<T> failed(int code,String message) {
+        return new Result<T>(code,"error",message);
     }
 
-    public static <T> Result failed(int code,String message,T data) {
-        return new Result(code,"error",message,data);
+    public static <T> Result<T> failed(int code,String message,T data) {
+        return new Result<T>(code,"error",message,data);
     }
 
-    public static <T> Result success(T data) {
-        return new Result(200,"success","成功",data);
-    }
-
-    public int getCode() {
-        return code;
+    public static <T> Result<T> success(T data) {
+        return new Result<T>(200,"success","成功",data);
     }
 
     public void setCode(int code) {
         this.code = code;
     }
 
-    public String getMessage() {
-        return message;
-    }
-
     public void setMessage(String message) {
         this.message = message;
     }
 
-    public T getData() {
-        return data;
-    }
-
     public void setData(T data) {
         this.data = data;
-    }
-
-    public String getType() {
-        return type;
     }
 
     public void setType(String type) {

@@ -41,7 +41,7 @@ public class RetrofitHttpClientFactoryBean<T> implements FactoryBean<T>, Environ
     @Value("${retrofit.http.call-timeout:5}")
     private Integer callTimeout;
 
-    private Class<T> retrofitHttpClientClass;
+    private final Class<T> retrofitHttpClientClass;
 
     private Environment environment;
 
@@ -89,11 +89,6 @@ public class RetrofitHttpClientFactoryBean<T> implements FactoryBean<T>, Environ
     @Override
     public Class<?> getObjectType() {
         return retrofitHttpClientClass;
-    }
-
-    @Override
-    public boolean isSingleton() {
-        return true;
     }
 
     @Override

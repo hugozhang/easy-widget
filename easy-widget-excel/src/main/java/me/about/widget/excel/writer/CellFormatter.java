@@ -12,8 +12,6 @@ public interface CellFormatter {
 
     /**
      * 单元格格式化
-     * @param value
-     * @return
      */
     String format(Object value);
 

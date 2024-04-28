@@ -62,7 +62,7 @@ public final class JacksonConverterFactory extends Converter.Factory {
     }
 
 
-    final class JacksonRequestBodyConverter<T> implements Converter<T, RequestBody> {
+    static final class JacksonRequestBodyConverter<T> implements Converter<T, RequestBody> {
 
         private final ObjectWriter adapter;
 
@@ -77,7 +77,7 @@ public final class JacksonConverterFactory extends Converter.Factory {
         }
     }
 
-    final class JacksonResponseBodyConverter<T> implements Converter<ResponseBody, T> {
+    static final class JacksonResponseBodyConverter<T> implements Converter<ResponseBody, T> {
         private final ObjectReader adapter;
 
         JacksonResponseBodyConverter(ObjectReader adapter) {

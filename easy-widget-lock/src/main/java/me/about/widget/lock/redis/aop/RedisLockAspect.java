@@ -48,10 +48,10 @@ public class RedisLockAspect {
         Method targetMethod = methodSignature.getMethod();
         //锁申明
         DLock dLock = targetMethod.getAnnotation(DLock.class);
-        Object key = parseKey(dLock.key(),targetMethod,pjp.getArgs());
-        Lock lock = lockContext.getLock(key.toString());
+        String key = parseKey(dLock.key(),targetMethod,pjp.getArgs());
+        Lock lock = lockContext.getLock(key);
         if(!lock.tryLock()) {
-            throw new LockException("获取锁失败",key.toString(),Thread.currentThread().getName());
+            throw new LockException("获取锁失败",key,Thread.currentThread().getName());
         }
         try {
             return pjp.proceed();

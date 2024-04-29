@@ -87,7 +87,7 @@ public class RedisLockOperation implements LockOperation {
         keys.add(lockKey);
 
         String ret = stringRedisTemplate.execute(lockScript,keys, value,RedisLockConfig.EXPIRE_SEC + "");
-        log.info("TryLock Lock key is {},value is {},return value is {}. ",new Object[]{lockKey,value,ret});
+        log.info("TryLock Lock key is {},value is {},return value is {}. ", lockKey,value,ret);
         boolean isOk = "OK".equalsIgnoreCase(ret);
         //拿到锁，添加续期任务
         if (isOk) {

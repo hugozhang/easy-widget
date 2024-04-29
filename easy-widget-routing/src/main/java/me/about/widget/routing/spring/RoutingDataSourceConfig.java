@@ -97,7 +97,7 @@ public class RoutingDataSourceConfig {
         return shardingDataSource;
     }
 
-    private DataSource createDataSource(Map properties) {
+    private DataSource createDataSource(Map<?,?> properties) {
         DataSource dataSource = null;
         try {
             dataSource = DruidDataSourceFactory.createDataSource(properties);

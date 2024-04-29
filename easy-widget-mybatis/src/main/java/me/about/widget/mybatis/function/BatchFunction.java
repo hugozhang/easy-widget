@@ -18,6 +18,7 @@ public class BatchFunction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchFunction.class);
 
+    @SafeVarargs
     public static <T,D> void batchFunction(List<T> rows, int batchSize, Function<List<T>,D> ...functions) {
         if (rows == null || rows.isEmpty() || functions == null) {
             return;
@@ -26,9 +27,9 @@ public class BatchFunction {
         for (int i = 0,len = rows.size(); i < len; i++ ) {
             tmp.add(rows.get(i));
             if (tmp.size() == batchSize || i == rows.size() - 1) {
-                for (Function function : functions) {
+                for (Function<List<T>,D> function : functions) {
                     function.apply(tmp);
-                    LOGGER.debug("批次总量：{}，每次处理量：{}，当前处理量：{}。",new Object[]{rows.size(),batchSize,i});
+                    LOGGER.debug("批次总量：{}，每次处理量：{}，当前处理量：{}。", rows.size(),batchSize,i);
                 }
                 tmp.clear();
             }

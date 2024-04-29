@@ -79,8 +79,10 @@ public class RedisLockAspect {
         //SPEL上下文
         StandardEvaluationContext context = new StandardEvaluationContext();
         //把方法参数放入SPEL上下文中
-        for(int i=0;i<paraNameArr.length;i++){
-            context.setVariable(paraNameArr[i], args[i]);
+        if(paraNameArr != null){
+            for(int i=0;i<paraNameArr.length;i++) {
+                context.setVariable(paraNameArr[i], args[i]);
+            }
         }
         return parser.parseExpression(key).getValue(context,String.class);
     }

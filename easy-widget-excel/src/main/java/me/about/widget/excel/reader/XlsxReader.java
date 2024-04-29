@@ -162,7 +162,7 @@ public class XlsxReader {
         private String formatString;
         private DataFormatter formatter;
         // Gathers characters as they are seen.
-        private StringBuffer value;
+        private StringBuilder value;
 
         private SheetHandler(StylesTable stylesTable,
                              SharedStringsTable sharedStringsTable,
@@ -177,7 +177,7 @@ public class XlsxReader {
             this.rows = rows;
             this.headerRowIndex = headerRowIndex;
 
-            this.value = new StringBuffer();
+            this.value = new StringBuilder();
             this.nextDataType = CellDataType.NUMBER;
             this.formatter = new DataFormatter();
 
@@ -201,7 +201,7 @@ public class XlsxReader {
                 // c => cell
                 cellNumber++;
                 String r = attributes.getValue("r");
-                StringBuffer column = new StringBuffer();
+                StringBuilder column = new StringBuilder();
                 for (int c = 0, len = r.length(); c < len; ++c) {
                     if (Character.isLetter(r.charAt(c))) {
                         column.append(r.charAt(c));
@@ -386,7 +386,7 @@ public class XlsxReader {
         }
 
         private void checkValueType(String columnName, String value) {
-            if (!NumberUtils.isCreatable(value) && value != null && !"".equals(value)) {
+            if (!NumberUtils.isCreatable(value) && value != null && !value.isEmpty()) {
                 throw new RuntimeException("(标签页：" + sheetName + "，行：" + rowNumber + "，列：" + cellNumber + ")列名为'"
                         + columnName + "'，值" + value + "，不能转为数值类型");
             }

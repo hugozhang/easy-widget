@@ -63,7 +63,8 @@ public class ExcelMultipartMethodArgumentResolver implements HandlerMethodArgume
             try {
                 return XlsxReader
                         .build(excelMultipart.outputClass())
-                        .open(multipartFile.getInputStream()).sheetsParser();
+                        .open(multipartFile.getInputStream())
+                        .sheetsParser();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

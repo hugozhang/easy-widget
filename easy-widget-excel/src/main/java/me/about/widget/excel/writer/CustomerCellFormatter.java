@@ -3,6 +3,7 @@ package me.about.widget.excel.writer;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * 默认实现类
@@ -24,16 +25,16 @@ public class CustomerCellFormatter implements CellFormatter {
             BigDecimal w = new BigDecimal("10000");
             BigDecimal divide;
             if (absVal.compareTo(y10) >= 0) {
-                divide = v.divide(y, 2, 4);
+                divide = v.divide(y, 2, RoundingMode.HALF_UP);
                 return divide.toString() + "亿";
             } else if (absVal.compareTo(w10) >= 0) {
-                divide = v.divide(w, 2, 4);
+                divide = v.divide(w, 2, RoundingMode.HALF_UP);
                 return divide.toString() + "万";
             } else {
                 return absVal.compareTo(BigDecimal.ONE) >= 0 && absVal.compareTo(w10) < 0 ? v.toString() : value.toString();
             }
         } else {
-            return value.toString();
+            return value == null ? null : value.toString();
         }
     }
 }

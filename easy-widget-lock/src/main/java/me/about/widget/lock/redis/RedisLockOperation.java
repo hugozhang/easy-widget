@@ -31,13 +31,13 @@ public class RedisLockOperation implements LockOperation {
 
     private final HashedWheelTimer TIMER_TASK = new HashedWheelTimer();
 
-    private RedisScript<String> lockScript;
+    private final RedisScript<String> lockScript;
 
-    private RedisScript<Long> unlockScript;
+    private final RedisScript<Long> unlockScript;
 
-    private RedisScript<String> resetScript;
+    private final RedisScript<String> resetScript;
 
-    private StringRedisTemplate stringRedisTemplate;
+    private final StringRedisTemplate stringRedisTemplate;
 
     public RedisLockOperation(StringRedisTemplate stringRedisTemplate) {
         this.stringRedisTemplate = stringRedisTemplate;

@@ -1,5 +1,15 @@
 # Feature
 
+
+说明
+````
+对于Retrofit而言，
+如果baseUrl=http://localhost:8080/api/test/，
+方法请求路径如果是person，则该方法完整的请求路径是：http://localhost:8080/api/test/person。
+方法请求路径如果是/person，则该方法完整的请求路径是：http://localhost:8080/person
+````
+
+
 结构介绍
 ````
 1. @FormUrlEncoded表示Post方法提交的是键值对数据，对应content-type=application/x-www-form-urlencoded。参数注解为@Field、@FieldMap

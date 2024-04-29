@@ -21,7 +21,7 @@ import java.util.Map;
 
 public class ExcelDataFormatter {
 
-    private Map<String, Map<String, String>> formatter = new HashMap<String, Map<String, String>>();
+    private final Map<String, Map<String, String>> formatter = new HashMap<String, Map<String, String>>();
 
     public void set(String key, Map<String, String> map) {
         formatter.put(key, map);

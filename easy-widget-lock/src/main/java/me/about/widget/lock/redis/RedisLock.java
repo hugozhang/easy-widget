@@ -18,11 +18,11 @@ import java.util.concurrent.locks.LockSupport;
 @Slf4j
 public class RedisLock implements Lock {
 
-    private String lockKey;
+    private final String lockKey;
 
-    private String lockValue;
+    private final String lockValue;
 
-    private LockContext lockContext;
+    private final LockContext lockContext;
 
     public RedisLock(LockContext lockContext, String lockKey) {
         this.lockContext = lockContext;

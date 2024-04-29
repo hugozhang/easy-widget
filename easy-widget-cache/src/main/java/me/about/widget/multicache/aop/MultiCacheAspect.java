@@ -245,12 +245,12 @@ public class MultiCacheAspect {
         for (int i = 0; i < paramAnnotations.length; i++) {
             for (Annotation a: paramAnnotations[i]) {
                 if (a instanceof FieldName) {
-                    String fieldName = ((FieldName) a).value();
-                    String parameterName = parameters[i].getName();
-                    fieldNames.add(fieldName);
                     if (paramTypes[i] != List.class) {
                         throw new RuntimeException("@FieldName 标注的参数类型必须是List类型");
                     }
+                    String fieldName = ((FieldName) a).value();
+                    String parameterName = parameters[i].getName();
+                    fieldNames.add(fieldName);
                     inQueryMode.setFieldName(fieldName);
                     inQueryMode.setParameterName(parameterName);
                     inQueryMode.setParameterType(paramTypes[i]);
@@ -259,7 +259,7 @@ public class MultiCacheAspect {
             }
         }
         if (fieldNames.size() != 1) {
-            throw new RuntimeException("in查询模式@FieldName标注的参数只支持一个");
+            throw new RuntimeException("in查询模式 => @FieldName标注的参数只支持一个");
         }
         return inQueryMode;
     }

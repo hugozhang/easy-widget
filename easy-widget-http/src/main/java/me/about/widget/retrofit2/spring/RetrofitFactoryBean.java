@@ -73,7 +73,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware 
                 .callTimeout(callTimeout,TimeUnit.MILLISECONDS)
                 .addInterceptor(new LoggingInterceptor())
                 .addInterceptor(new RetryInterceptor())
-                .retryOnConnectionFailure(true)
+//                .retryOnConnectionFailure(true)
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()

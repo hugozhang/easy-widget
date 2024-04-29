@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-public @interface RetrofitHttpClient {
+public @interface RetrofitClient {
 
     String baseUrl();
 

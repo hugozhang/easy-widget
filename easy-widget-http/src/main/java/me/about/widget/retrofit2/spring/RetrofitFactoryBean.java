@@ -1,11 +1,12 @@
 package me.about.widget.retrofit2.spring;
 
 import lombok.extern.slf4j.Slf4j;
-import me.about.widget.retrofit2.annotation.RetrofitHttpClient;
+import me.about.widget.retrofit2.annotation.RetrofitClient;
 import me.about.widget.retrofit2.converter.FastJsonConverterFactory;
 import me.about.widget.retrofit2.converter.JacksonConverterFactory;
 import me.about.widget.retrofit2.core.Retrofit2AdapterFactory;
 import me.about.widget.retrofit2.interceptor.LoggingInterceptor;
+import me.about.widget.retrofit2.interceptor.RetryInterceptor;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,52 +25,54 @@ import java.util.concurrent.TimeUnit;
  * @date: 2023/03/28 16:06
  */
 @Slf4j
-public class RetrofitHttpClientFactoryBean<T> implements FactoryBean<T>, EnvironmentAware {
+public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware {
 
-    @Value("${retrofit.http.connect-timeout:5}")
+    @Value("${retrofit.connect-timeout-ms:5000}")
     private Integer connectTimeout;
 
-    @Value("${retrofit.http.write-timeout:5}")
+    @Value("${retrofit.write-timeout-ms:5000}")
     private Integer writeTimeout;
 
-    @Value("${retrofit.http.read-timeout:5}")
+    @Value("${retrofit.read-timeout-ms:5000}")
     private Integer readTimeout;
 
-    @Value("${retrofit.http.call-timeout:5}")
+    @Value("${retrofit.call-timeout-ms:5000}")
     private Integer callTimeout;
 
-    private final Class<T> retrofitHttpClientClass;
+    private final Class<T> retrofitClientClass;
 
     private Environment environment;
 
-    public RetrofitHttpClientFactoryBean(Class<T> retrofitHttpClientClass) {
-        this.retrofitHttpClientClass = retrofitHttpClientClass;
+    public RetrofitFactoryBean(Class<T> retrofitClientClass) {
+        this.retrofitClientClass = retrofitClientClass;
     }
 
     @Override
     public T getObject() throws Exception {
-        Assert.isTrue(retrofitHttpClientClass.isInterface(), "RetrofitHttpClient is only interface");
 
-        RetrofitHttpClient retrofitHttpClient = retrofitHttpClientClass.getAnnotation(RetrofitHttpClient.class);
+        Assert.isTrue(retrofitClientClass.isInterface(), "RetrofitHttpClient is only interface");
 
-        Class<? extends Converter.Factory> converterFactory = retrofitHttpClient.converterFactory();
+        RetrofitClient retrofitClient = retrofitClientClass.getAnnotation(RetrofitClient.class);
+
+        Class<? extends Converter.Factory> converterFactory = retrofitClient.converterFactory();
 
 
 //        ExpressionParser parser = new SpelExpressionParser();
         //SPEL上下文
 //        StandardEvaluationContext context = new StandardEvaluationContext();
 
-        String baseUrl = environment.resolveRequiredPlaceholders(retrofitHttpClient.baseUrl());
+        String baseUrl = environment.resolveRequiredPlaceholders(retrofitClient.baseUrl());
 
 //        String baseUrl = parser.parseExpression(hostUrl).getValue(context, String.class);
 
 
         OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(connectTimeout, TimeUnit.SECONDS)
-                .writeTimeout(writeTimeout, TimeUnit.SECONDS)
-                .readTimeout(readTimeout, TimeUnit.SECONDS)
-                .callTimeout(callTimeout,TimeUnit.SECONDS)
+                .connectTimeout(connectTimeout, TimeUnit.MILLISECONDS)
+                .writeTimeout(writeTimeout, TimeUnit.MILLISECONDS)
+                .readTimeout(readTimeout, TimeUnit.MILLISECONDS)
+                .callTimeout(callTimeout,TimeUnit.MILLISECONDS)
                 .addInterceptor(new LoggingInterceptor())
+                .addInterceptor(new RetryInterceptor())
                 .retryOnConnectionFailure(true)
                 .build();
 
@@ -81,12 +84,12 @@ public class RetrofitHttpClientFactoryBean<T> implements FactoryBean<T>, Environ
                         ? FastJsonConverterFactory.create() : JacksonConverterFactory.create())
                 .build();
 
-        return retrofit.create(retrofitHttpClientClass);
+        return retrofit.create(retrofitClientClass);
     }
 
     @Override
     public Class<?> getObjectType() {
-        return retrofitHttpClientClass;
+        return retrofitClientClass;
     }
 
     @Override

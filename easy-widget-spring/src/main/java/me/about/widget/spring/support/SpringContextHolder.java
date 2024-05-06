@@ -50,7 +50,6 @@ public class SpringContextHolder implements ApplicationContextAware, DisposableB
 
     /**
      * 设置spring上下文
-     * @param applicationContext
      */
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {

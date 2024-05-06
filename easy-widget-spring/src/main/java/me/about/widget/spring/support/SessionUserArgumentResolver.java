@@ -1,4 +1,4 @@
-package me.about.widget.spring.mvc.security;
+package me.about.widget.spring.support;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;

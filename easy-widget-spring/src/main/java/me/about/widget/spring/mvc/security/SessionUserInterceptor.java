@@ -2,6 +2,8 @@ package me.about.widget.spring.mvc.security;
 
 import com.alibaba.fastjson.JSON;
 import me.about.widget.spring.mvc.result.Result;
+import me.about.widget.spring.support.SessionUser;
+import me.about.widget.spring.support.SessionUserContext;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -9,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 
-public class SessionInterceptor implements HandlerInterceptor {
+public class SessionUserInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
         SessionUser sessionUser = (SessionUser) request.getSession().getAttribute("SessionUser");

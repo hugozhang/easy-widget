@@ -1,5 +1,7 @@
 package me.about.widget.spring.mvc.exception;
 
+import lombok.Getter;
+
 /**
  * 业务异常
  *
@@ -8,16 +10,14 @@ package me.about.widget.spring.mvc.exception;
  * @description:
  */
 
+@Getter
 public class BizException extends RuntimeException {
 
-    private int code;
+    private final int code;
 
     public BizException(int code, String message) {
         super(message);
         this.code = code;
     }
 
-    public int getCode() {
-        return code;
-    }
 }

@@ -38,9 +38,9 @@ public class PageInterceptor implements Interceptor {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final String countSuffix = "_COUNT";
+    private static final String countSuffix = "_COUNT";
 
-    private CountSqlParser countSqlParser = new CountSqlParser();
+    private static final CountSqlParser countSqlParser = new CountSqlParser();
 
     private Method getMethod(MappedStatement mappedStatement) throws ClassNotFoundException {
         String id = mappedStatement.getId();

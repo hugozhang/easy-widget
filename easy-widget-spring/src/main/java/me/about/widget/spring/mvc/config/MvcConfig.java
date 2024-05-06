@@ -1,7 +1,7 @@
 package me.about.widget.spring.mvc.config;
 
-import me.about.widget.spring.mvc.security.SessionInterceptor;
-import me.about.widget.spring.mvc.security.SessionUserArgumentResolver;
+import me.about.widget.spring.mvc.security.SessionUserInterceptor;
+import me.about.widget.spring.support.SessionUserArgumentResolver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,8 +43,8 @@ public class MvcConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public SessionInterceptor getSessionInterceptor(){
-        return new SessionInterceptor();
+    public SessionUserInterceptor getSessionInterceptor(){
+        return new SessionUserInterceptor();
     }
 
     private List<String> mergePathPatterns() {

@@ -1,5 +1,7 @@
 package me.about.widget.mybatis.plugin.page.spring;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +11,7 @@ import java.util.List;
  * @author: hugo.zxh
  * @date: 2023/11/07 0:15
  */
+@Getter
 public class InternalResult<T> extends ArrayList<T> {
 
     /**
@@ -26,24 +29,12 @@ public class InternalResult<T> extends ArrayList<T> {
      */
     private List<T> rows;
 
-    public long getTotal() {
-        return total;
-    }
-
     public void setTotal(long total) {
         this.total = total;
     }
 
-    public int getTotalPage() {
-        return totalPage;
-    }
-
     public void setTotalPage(int totalPage) {
         this.totalPage = totalPage;
-    }
-
-    public List<T> getRows() {
-        return rows;
     }
 
     public void setRows(List<T> rows) {

@@ -1,6 +1,7 @@
-package me.about.widget.spring.mvc.security;
+package me.about.widget.spring.support;
 
 import java.io.Serializable;
 
 public interface SessionUser extends Serializable {
+    String getIndexName();
 }

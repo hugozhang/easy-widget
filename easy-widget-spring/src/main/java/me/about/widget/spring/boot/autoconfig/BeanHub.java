@@ -2,6 +2,7 @@ package me.about.widget.spring.boot.autoconfig;
 
 import me.about.widget.spring.mvc.advice.GlobalExceptionHandler;
 import me.about.widget.spring.mvc.advice.ResponseBodyHandler;
+import me.about.widget.spring.mvc.config.BeanConfig;
 import me.about.widget.spring.mvc.config.MvcConfig;
 import me.about.widget.spring.support.SpringContextHolder;
 import me.about.widget.spring.validation.EnumStringValidator;
@@ -23,6 +24,7 @@ public class BeanHub implements ImportSelector {
                 EnumStringValidator.class.getName(),
                 PositiveNumberListValidator.class.getName(),
                 MvcConfig.class.getName(),
+                BeanConfig.class.getName(),
                 GlobalExceptionHandler.class.getName(),
                 ResponseBodyHandler.class.getName(),
                 SpringContextHolder.class.getName()

@@ -14,7 +14,7 @@ import java.io.PrintWriter;
 public class SessionUserInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
-        SessionUser sessionUser = (SessionUser) request.getSession().getAttribute("SessionUser");
+        SessionUser sessionUser = (SessionUser) request.getSession().getAttribute(SessionUserContext.SESSION_USER);
         if (sessionUser != null) {
             SessionUserContext.setSessionUser(sessionUser);
             return true;

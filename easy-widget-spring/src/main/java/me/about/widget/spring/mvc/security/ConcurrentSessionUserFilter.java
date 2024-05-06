@@ -1,6 +1,7 @@
 package me.about.widget.spring.mvc.security;
 
 import me.about.widget.spring.support.SessionUser;
+import me.about.widget.spring.support.SessionUserContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
@@ -34,7 +35,7 @@ public class ConcurrentSessionUserFilter implements Filter {
             return;
         }
 
-        SessionUser sessionUser = (SessionUser)session.getAttribute("SessionUser");
+        SessionUser sessionUser = (SessionUser)session.getAttribute(SessionUserContext.SESSION_USER);
 
         if (sessionUser == null || sessionUser.getIndexName() == null) {
             filterChain.doFilter(servletRequest, servletResponse);

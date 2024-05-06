@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface RetryOnFailure {
     int maxRetries() default 3; // 默认重试次数
-    long initialDelayMs() default 1000; // 初始延迟时间（毫秒）
+    long initialDelayMs() default 500; // 初始延迟时间（毫秒）
 }

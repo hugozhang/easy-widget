@@ -34,8 +34,6 @@ public class GlobalExceptionHandler {
 
     /**
      * 验证统一处理
-     * @param errors
-     * @return
      */
     private Result buildValidFieldError(List<FieldError> errors) {
         List<FieldValidError> results = new ArrayList<>();
@@ -50,8 +48,6 @@ public class GlobalExceptionHandler {
 
     /**
      * form表单形式的参数验证
-     * @param ex
-     * @return
      */
     @ExceptionHandler(value = {BindException.class})
     public Result validParameterWrap(BindException ex) {
@@ -62,8 +58,6 @@ public class GlobalExceptionHandler {
 
     /**
      * json body形式的参数验证
-     * @param ex
-     * @return
      */
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
     public Result validParameterWrap2(MethodArgumentNotValidException ex) {
@@ -74,8 +68,6 @@ public class GlobalExceptionHandler {
 
     /**
      * controller 转换单一属性检验失败 比如：int,string,list
-     * @param ex
-     * @return
      */
     @ExceptionHandler(value = {ConstraintViolationException.class})
     public Result validParameterWrap3(ConstraintViolationException ex) {
@@ -93,8 +85,6 @@ public class GlobalExceptionHandler {
 
     /**
      * 业务异常
-     * @param ex
-     * @return
      */
     @ExceptionHandler(BizException.class)
     public Result businessException(BizException ex) {
@@ -103,8 +93,6 @@ public class GlobalExceptionHandler {
 
     /**
      * 未知异常
-     * @param ex
-     * @return
      */
     @ExceptionHandler(Exception.class)
     public Result exception(Exception ex) {

@@ -20,7 +20,7 @@
 
 ````
 
-例子：
+例子
 ````
 @FormUrlEncoded
 @POST("user/edit")
@@ -50,10 +50,19 @@ String sendToBot(@Query ("key")String key,@Body WeChatMarkdown weChatMarkdown);
 
 ````
 
-参考：
+参考
 ````
 https://www.jianshu.com/p/0079156b7b98
 https://github.com/square/retrofit
+````
+
+引申
+````
+ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
+scanner.addIncludeFilter(new AnnotationTypeFilter(RetrofitClient.class));
+
+ImportBeanDefinitionRegistrar
+BeanDefinitionReaderUtils.registerBeanDefinition(holder, registry);
 ````
 
 TODO

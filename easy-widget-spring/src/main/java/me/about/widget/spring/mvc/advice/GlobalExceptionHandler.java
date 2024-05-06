@@ -21,7 +21,7 @@ import java.util.Set;
  * 统一异常处理
  *
  * @Valid 与 @Validated 的应用场景
- * https://langinteger.github.io/2019/09/13/java-bean-validation/
+ * <a href="https://langinteger.github.io/2019/09/13/java-bean-validation/">...</a>
  *
  * @author: hugo.zxh
  * @date: 2022/02/26 18:02

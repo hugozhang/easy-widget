@@ -12,6 +12,8 @@ public class LoginSuccessHandler {
             return;
         }
         httpSession.setAttribute("SessionUser", sessionUser);
-        httpSession.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, sessionUser.getIndexName());
+        if (sessionUser.getIndexName() != null) {
+            httpSession.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, sessionUser.getIndexName());
+        }
     }
 }

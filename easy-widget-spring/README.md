@@ -43,3 +43,11 @@ private List<Long> deptIds;
 @EnumString(value = {"F","M"}, message="性别只允许为F或M")
 private String sex;
 ```
+
+### 踢用户
+同一个用户在多个地方登录，踢掉之前登录的
+```
+org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy
+org.springframework.session.security.SpringSessionBackedSessionRegistry
+org.springframework.session.data.redis.RedisIndexedSessionRepository
+```

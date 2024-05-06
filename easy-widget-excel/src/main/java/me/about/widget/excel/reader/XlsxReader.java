@@ -72,10 +72,10 @@ public class XlsxReader {
     }
 
     public <T> List<T> sheetParser(Integer sheetIndex) throws Exception{
-        List<T> rows = new ArrayList();
+        List<T> rows = new ArrayList<>();
         XMLReader parser = XMLReaderFactory.createXMLReader();
         InputStream sheet = xssfReader.getSheet("rId" + (sheetIndex + 1));
-        ContentHandler handler = new SheetHandler(stylesTable, sharedStringsTable, sheetIndex + "", skipRow, rows, outputClass);
+        ContentHandler handler = new SheetHandler<T>(stylesTable, sharedStringsTable, sheetIndex + "", skipRow, rows, outputClass);
         parser.setContentHandler(handler);
         InputSource sheetSource = new InputSource(sheet);
         parser.parse(sheetSource);
@@ -85,12 +85,12 @@ public class XlsxReader {
     }
 
     public <T> List<T> sheetsParser() throws Exception{
-        List<T> rows = new ArrayList();
+        List<T> rows = new ArrayList<>();
         XMLReader parser = XMLReaderFactory.createXMLReader();
         XSSFReader.SheetIterator iterator = (XSSFReader.SheetIterator) xssfReader.getSheetsData();
         while (iterator.hasNext()) {
             InputStream sheet = iterator.next();
-            ContentHandler handler = new SheetHandler(stylesTable, sharedStringsTable, iterator.getSheetName(), skipRow, rows, outputClass);
+            ContentHandler handler = new SheetHandler<T>(stylesTable, sharedStringsTable, iterator.getSheetName(), skipRow, rows, outputClass);
             parser.setContentHandler(handler);
             InputSource sheetSource = new InputSource(sheet);
             parser.parse(sheetSource);
@@ -101,13 +101,13 @@ public class XlsxReader {
     }
 
 
-    public <T> void sheetParser(SheetDone sheetDone) throws Exception {
+    public <T> void sheetParser(SheetDone<T> sheetDone) throws Exception {
         XMLReader parser = XMLReaderFactory.createXMLReader();
         XSSFReader.SheetIterator iterator = (XSSFReader.SheetIterator) xssfReader.getSheetsData();
         while (iterator.hasNext()) {
             InputStream sheet = iterator.next();
-            List<T> rows = new ArrayList();
-            ContentHandler handler = new SheetHandler(stylesTable, sharedStringsTable, iterator.getSheetName(), skipRow, rows, outputClass);
+            List<T> rows = new ArrayList<>();
+            ContentHandler handler = new SheetHandler<T>(stylesTable, sharedStringsTable, iterator.getSheetName(), skipRow, rows, outputClass);
             parser.setContentHandler(handler);
             InputSource sheetSource = new InputSource(sheet);
             parser.parse(sheetSource);

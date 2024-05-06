@@ -5,9 +5,9 @@ import org.springframework.context.annotation.Import;
 /**
  * spring boot auto config
  *
- * @Author: hugo.zxh
- * @Date: 2022/02/26 21:12
- * @Description:
+ * @author: hugo.zxh
+ * @date: 2022/02/26 21:12
+ * @description:
  */
 @Import(value = BeanHub.class)
 public class BeanAutoConfiguration {

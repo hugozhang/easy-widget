@@ -1,4 +1,4 @@
-package me.about.widget.spring.support;
+package me.about.widget.spring.mvc.security;
 
 import java.io.Serializable;
 

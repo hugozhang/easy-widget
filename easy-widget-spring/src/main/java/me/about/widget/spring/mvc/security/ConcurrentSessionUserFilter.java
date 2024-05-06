@@ -1,6 +1,5 @@
 package me.about.widget.spring.mvc.security;
 
-import me.about.widget.spring.support.SessionUser;
 import me.about.widget.spring.support.SessionUserContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.session.FindByIndexNameSessionRepository;

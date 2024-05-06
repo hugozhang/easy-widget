@@ -1,5 +1,7 @@
 package me.about.widget.spring.support;
 
+import me.about.widget.spring.mvc.security.SessionUser;
+
 public class SessionUserContext {
 
 

@@ -2,7 +2,6 @@ package me.about.widget.spring.mvc.security;
 
 import com.alibaba.fastjson.JSON;
 import me.about.widget.spring.mvc.result.Result;
-import me.about.widget.spring.support.SessionUser;
 import me.about.widget.spring.support.SessionUserContext;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;

@@ -18,7 +18,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.Arrays;
 /**
- * 访问地址 http://ip:端口/swagger-ui/index.html
+ * 访问地址 <a href="http://ip:port/swagger-ui/index.html">...</a>
  */
 
 //@Configuration

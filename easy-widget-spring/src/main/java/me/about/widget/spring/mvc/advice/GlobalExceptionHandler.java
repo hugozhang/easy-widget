@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
     /**
      * 验证统一处理
      */
-    private Result buildValidFieldError(List<FieldError> errors) {
+    private Result<List<FieldValidError>> buildValidFieldError(List<FieldError> errors) {
         List<FieldValidError> results = new ArrayList<>();
         for(FieldError fieldError : errors) {
             FieldValidError fieldValidError = new FieldValidError();
@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
      * form表单形式的参数验证
      */
     @ExceptionHandler(value = {BindException.class})
-    public Result validParameterWrap(BindException ex) {
+    public Result<List<FieldValidError>> validParameterWrap(BindException ex) {
         logger.error(ex.getMessage(),ex);
         List<FieldError> errors= ex.getBindingResult().getFieldErrors();
         return buildValidFieldError(errors);
@@ -60,7 +60,7 @@ public class GlobalExceptionHandler {
      * json body形式的参数验证
      */
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
-    public Result validParameterWrap2(MethodArgumentNotValidException ex) {
+    public Result<List<FieldValidError>> validParameterWrap2(MethodArgumentNotValidException ex) {
         logger.error(ex.getMessage(),ex);
         List<FieldError> errors= ex.getBindingResult().getFieldErrors();
         return buildValidFieldError(errors);
@@ -70,11 +70,11 @@ public class GlobalExceptionHandler {
      * controller 转换单一属性检验失败 比如：int,string,list
      */
     @ExceptionHandler(value = {ConstraintViolationException.class})
-    public Result validParameterWrap3(ConstraintViolationException ex) {
+    public Result<List<FieldValidError>> validParameterWrap3(ConstraintViolationException ex) {
         logger.error(ex.getMessage(),ex);
         List<FieldValidError> results = new ArrayList<>();
         Set<ConstraintViolation<?>> constraintViolations = ex.getConstraintViolations();
-        for ( ConstraintViolation constraintViolation : constraintViolations ) {
+        for ( ConstraintViolation<?> constraintViolation : constraintViolations ) {
             FieldValidError fieldValidError = new FieldValidError();
             fieldValidError.setField(constraintViolation.getPropertyPath().toString());
             fieldValidError.setMessage(constraintViolation.getMessage());
@@ -87,7 +87,7 @@ public class GlobalExceptionHandler {
      * 业务异常
      */
     @ExceptionHandler(BizException.class)
-    public Result businessException(BizException ex) {
+    public Result<String> businessException(BizException ex) {
         return Result.failed(ex.getCode(),"【业务异常】: " + ex.getMessage());
     }
 
@@ -95,7 +95,7 @@ public class GlobalExceptionHandler {
      * 未知异常
      */
     @ExceptionHandler(Exception.class)
-    public Result exception(Exception ex) {
+    public Result<String> exception(Exception ex) {
         logger.error(ex.getMessage(),ex);
         return Result.failed(500,"【内部异常】: " + ex.getMessage());
     }

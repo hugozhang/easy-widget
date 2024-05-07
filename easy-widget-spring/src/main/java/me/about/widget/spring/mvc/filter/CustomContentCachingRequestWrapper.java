@@ -17,6 +17,7 @@ public class CustomContentCachingRequestWrapper extends HttpServletRequestWrappe
 
     public CustomContentCachingRequestWrapper(HttpServletRequest request) throws IOException {
         super(request);
+        // Read InputStream and store its content
         body = IOUtils.toByteArray(request.getInputStream());
     }
 

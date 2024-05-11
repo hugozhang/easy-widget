@@ -25,7 +25,7 @@ public class BeanConfig {
     private String password;
 
     @Bean
-    public FilterRegistrationBean<ConcurrentSessionUserFilter> registerAuthFilter() {
+    public FilterRegistrationBean<ConcurrentSessionUserFilter> concurrentSessionUserFilter() {
         FilterRegistrationBean<ConcurrentSessionUserFilter> registration = new FilterRegistrationBean<>();
         registration.setFilter(new ConcurrentSessionUserFilter());
         registration.addUrlPatterns(matchUrl + "/*");
@@ -36,14 +36,14 @@ public class BeanConfig {
 
     @Bean
     @ConditionalOnClass(value = {DruidDataSource.class,StatViewFilter.class})
-    public FilterRegistrationBean<StatViewFilter> registerDruidStatViewFilter() {
+    public FilterRegistrationBean<StatViewFilter> statViewFilter() {
         FilterRegistrationBean<StatViewFilter> registration = new FilterRegistrationBean<>();
         registration.setFilter(new StatViewFilter());
         registration.addInitParameter(ResourceServlet.PARAM_NAME_USERNAME, username);
         registration.addInitParameter(ResourceServlet.PARAM_NAME_PASSWORD, password);
         registration.addUrlPatterns("/druid/*");
         registration.setName("DruidStatViewFilter");
-        registration.setOrder(2);
+        registration.setOrder(Ordered.LOWEST_PRECEDENCE);
         return registration;
     }
 

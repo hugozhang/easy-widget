@@ -4,13 +4,14 @@ package me.about.widget.spring.mvc.config;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.support.http.ResourceServlet;
 import com.alibaba.druid.support.http.StatViewFilter;
+import com.alibaba.druid.support.http.WebStatFilter;
 import me.about.widget.spring.mvc.security.ConcurrentSessionUserFilter;
+import me.about.widget.spring.mvc.security.SessionUserContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
 
 @Configuration
 public class BeanConfig {
@@ -25,12 +26,16 @@ public class BeanConfig {
     private String password;
 
     @Bean
-    public FilterRegistrationBean<ConcurrentSessionUserFilter> concurrentSessionUserFilter() {
+    public ConcurrentSessionUserFilter concurrentSessionUserFilter() {
+        return new ConcurrentSessionUserFilter();
+    }
+
+    @Bean
+    public FilterRegistrationBean<ConcurrentSessionUserFilter> registerConcurrentSessionUserFilter() {
         FilterRegistrationBean<ConcurrentSessionUserFilter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(new ConcurrentSessionUserFilter());
+        registration.setFilter(concurrentSessionUserFilter());
         registration.addUrlPatterns(matchUrl + "/*");
         registration.setName("ConcurrentSessionUserFilter");
-        registration.setOrder(Ordered.LOWEST_PRECEDENCE);
         return registration;
     }
 
@@ -43,8 +48,18 @@ public class BeanConfig {
         registration.addInitParameter(ResourceServlet.PARAM_NAME_PASSWORD, password);
         registration.addUrlPatterns("/druid/*");
         registration.setName("DruidStatViewFilter");
-        registration.setOrder(Ordered.LOWEST_PRECEDENCE);
         return registration;
+    }
+
+    @Bean
+    @ConditionalOnClass(value = {DruidDataSource.class,WebStatFilter.class})
+    public FilterRegistrationBean<WebStatFilter> webStatFilter(){
+        FilterRegistrationBean<WebStatFilter> registration = new FilterRegistrationBean<>();
+        registration.setFilter(new WebStatFilter());
+        registration.addInitParameter(WebStatFilter.PARAM_NAME_PRINCIPAL_SESSION_NAME, SessionUserContext.SESSION_USER);
+        registration.addUrlPatterns(matchUrl + "/*");
+        registration.setName("WebStatFilter");
+        return  registration;
     }
 
 }

@@ -20,7 +20,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <calcite.version>1.26.0</calcite.version>
-        <druid.version>1.2.5</druid.version>
+        <druid.version>1.2.22</druid.version>
         <asm.version>7.2</asm.version>
         <caffeine.version>2.9.2</caffeine.version>
         <poi.version>3.17</poi.version>

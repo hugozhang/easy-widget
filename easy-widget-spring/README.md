@@ -51,3 +51,46 @@ org.springframework.security.web.authentication.session.ConcurrentSessionControl
 org.springframework.session.security.SpringSessionBackedSessionRegistry
 org.springframework.session.data.redis.RedisIndexedSessionRepository
 ```
+
+### druid 监控
+```
+ <bean id="wallConfig" class="com.alibaba.druid.wall.WallConfig">
+        <constructor-arg value="META-INF/druid/wall/mysql"/>
+        <property name="multiStatementAllow" value="true"/>
+        <property name="selectUnionCheck" value="false"/>
+        <property name="strictSyntaxCheck" value="false"/>
+    </bean>
+
+    <bean id="wallFilter" class="com.alibaba.druid.wall.WallFilter">
+        <property name="dbType" value="mysql"/>
+        <property name="config" ref="wallConfig"/>
+    </bean>
+
+    <bean id="logFilter" class="com.alibaba.druid.filter.logging.Log4jFilter">
+        <property name="statementExecutableSqlLogEnable" value="true"/>
+    </bean>
+    <bean id="statfilter" class="com.alibaba.druid.filter.stat.StatFilter">
+        <property name="mergeSql" value="true"/>
+        <property name="slowSqlMillis" value="1000"/>
+        <property name="logSlowSql" value="true"/>
+    </bean>
+
+
+    <bean id="druid-stat-interceptor"
+          class="com.alibaba.druid.support.spring.stat.DruidStatInterceptor">
+    </bean>
+
+    <bean id="druid-stat-pointcut"
+          class="org.springframework.aop.support.JdkRegexpMethodPointcut"
+          scope="prototype">
+        <property name="patterns">
+            <list>
+                <value>com.winning.hmap.*.*.service.*</value>
+            </list>
+        </property>
+    </bean>
+
+    <aop:config>
+        <aop:advisor advice-ref="druid-stat-interceptor" pointcut-ref="druid-stat-pointcut" />
+    </aop:config>
+```

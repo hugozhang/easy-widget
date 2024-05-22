@@ -108,8 +108,8 @@ public class CachedAspect {
         //解析key
         Object parseKey = (name == null || name.trim().isEmpty()) ? key : name + Constants.JOIN_ON + key;
         //是不是清缓存
-        if (cached.cacheOp() == CacheOp.EVICT) {
-            cacheManager.evict(parseKey);
+        if (cached.cacheOp() == CacheOp.REMOVE) {
+            cacheManager.remove(parseKey);
             return joinPoint.proceed(args);
         } else if (cached.cacheOp() == CacheOp.GET) {
             return do1To1Cache(joinPoint,parseKey,expire,timeUnit,emptyExpire,emptyTimeUnit);

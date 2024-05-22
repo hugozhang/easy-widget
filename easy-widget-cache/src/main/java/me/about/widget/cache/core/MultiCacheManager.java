@@ -25,14 +25,14 @@ public class MultiCacheManager implements CacheManager {
 
     private final Logger logger = LoggerFactory.getLogger(MultiCacheManager.class);
 
-    private final String cacheName;
+    private final String name;
 
     private final RedisTemplate<String,Object> redisTemplate;
 
     private final Cache<String,Object> caffeineCache;
 
-    public MultiCacheManager(String cacheName, RedisTemplate<String,Object> redisTemplate, Cache<String,Object> caffeineCache) {
-        this.cacheName = cacheName;
+    public MultiCacheManager(String name, RedisTemplate<String,Object> redisTemplate, Cache<String,Object> caffeineCache) {
+        this.name = name;
         this.redisTemplate = redisTemplate;
         this.caffeineCache = caffeineCache;
     }
@@ -83,7 +83,7 @@ public class MultiCacheManager implements CacheManager {
     }
 
     @Override
-    public void evict(Object key) {
+    public void remove(Object key) {
         String cacheKey = getKey(key);
         this.redisTemplate.delete(cacheKey);
         this.caffeineCache.invalidate(cacheKey);
@@ -91,7 +91,7 @@ public class MultiCacheManager implements CacheManager {
 
     @Override
     public void clear() {
-        Set<String> keys = Optional.ofNullable(this.redisTemplate.keys(this.cacheName.concat(Constants.JOIN_ON))).orElse(new HashSet<>());
+        Set<String> keys = Optional.ofNullable(this.redisTemplate.keys(this.name.concat(Constants.JOIN_ON))).orElse(new HashSet<>());
         for (String key : keys) {
             this.redisTemplate.delete(key);
         }
@@ -100,6 +100,6 @@ public class MultiCacheManager implements CacheManager {
 
     private String getKey(Object key) {
         String cacheKey = key.toString();
-        return this.cacheName.concat(Constants.JOIN_ON).concat(cacheKey);
+        return this.name.concat(Constants.JOIN_ON).concat(cacheKey);
     }
 }

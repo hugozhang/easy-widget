@@ -21,9 +21,9 @@ public enum CacheOp {
      */
     PUT("put"),
     /**
-     * evict
+     * remove
      */
-    EVICT("evict"),
+    REMOVE("remove"),
     /**
      * in_query
      */

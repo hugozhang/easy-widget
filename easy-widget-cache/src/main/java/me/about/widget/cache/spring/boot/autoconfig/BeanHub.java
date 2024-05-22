@@ -1,6 +1,6 @@
-package me.about.widget.multicache.spring.boot.autoconfig;
+package me.about.widget.cache.spring.boot.autoconfig;
 
-import me.about.widget.multicache.aop.MultiCacheAspect;
+import me.about.widget.cache.aop.CachedAspect;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
 
@@ -16,7 +16,7 @@ public class BeanHub implements ImportSelector {
     public String[] selectImports(AnnotationMetadata annotationMetadata) {
         return new String[] {
                 MultiCacheConfig.class.getName(),
-                MultiCacheAspect.class.getName()
+                CachedAspect.class.getName()
         };
     }
 }

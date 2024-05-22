@@ -1,4 +1,6 @@
-package me.about.widget.multicache.annotation;
+package me.about.widget.cache.core;
+
+import lombok.Getter;
 
 /**
  * 缓存操作
@@ -7,7 +9,8 @@ package me.about.widget.multicache.annotation;
  * @date: 2022/06/24 15:52
  * @description:
  */
-public enum MultiLevelTypeEnum {
+@Getter
+public enum CacheOp {
 
     /**
      * get
@@ -26,14 +29,10 @@ public enum MultiLevelTypeEnum {
      */
     IN_QUERY("in_query");
 
-    private String value;
+    private final String value;
 
-    MultiLevelTypeEnum(String value) {
+    CacheOp(String value) {
         this.value = value;
-    }
-
-    public String getValue() {
-        return value;
     }
 
 }

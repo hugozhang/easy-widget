@@ -1,4 +1,4 @@
-package me.about.widget.multicache.util;
+package me.about.widget.cache.util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class Constants {
 
-    public static final List EMPTY_LIST = new ArrayList();
+    public static final List<Object> EMPTY_LIST = new ArrayList<>();
 
     public static final long ALLOW_NULL_VALUE = -1;
 

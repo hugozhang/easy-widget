@@ -1,6 +1,7 @@
-package me.about.widget.multicache.cache;
+package me.about.widget.cache.core;
 
 import com.github.benmanes.caffeine.cache.Cache;
+import me.about.widget.cache.util.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.support.NullValue;
@@ -24,14 +25,14 @@ public class MultiCacheManager implements CacheManager {
 
     private final Logger logger = LoggerFactory.getLogger(MultiCacheManager.class);
 
-    private final String name;
+    private final String cacheName;
 
     private final RedisTemplate<String,Object> redisTemplate;
 
     private final Cache<String,Object> caffeineCache;
 
-    public MultiCacheManager(String name, RedisTemplate<String,Object> redisTemplate, Cache<String,Object> caffeineCache) {
-        this.name = name;
+    public MultiCacheManager(String cacheName, RedisTemplate<String,Object> redisTemplate, Cache<String,Object> caffeineCache) {
+        this.cacheName = cacheName;
         this.redisTemplate = redisTemplate;
         this.caffeineCache = caffeineCache;
     }
@@ -90,7 +91,7 @@ public class MultiCacheManager implements CacheManager {
 
     @Override
     public void clear() {
-        Set<String> keys = Optional.ofNullable(this.redisTemplate.keys(this.name.concat(":"))).orElse(new HashSet<>());
+        Set<String> keys = Optional.ofNullable(this.redisTemplate.keys(this.cacheName.concat(Constants.JOIN_ON))).orElse(new HashSet<>());
         for (String key : keys) {
             this.redisTemplate.delete(key);
         }
@@ -99,6 +100,6 @@ public class MultiCacheManager implements CacheManager {
 
     private String getKey(Object key) {
         String cacheKey = key.toString();
-        return this.name.concat(":").concat(cacheKey);
+        return this.cacheName.concat(Constants.JOIN_ON).concat(cacheKey);
     }
 }

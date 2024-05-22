@@ -1,4 +1,6 @@
-package me.about.widget.multicache.annotation;
+package me.about.widget.cache.annotation;
+
+import me.about.widget.cache.core.CacheOp;
 
 import java.lang.annotation.*;
 import java.util.concurrent.TimeUnit;
@@ -13,14 +15,14 @@ import java.util.concurrent.TimeUnit;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Documented
-public @interface MultiLevelCache {
+public @interface Cached {
 
     // ===== 共用 =============
-    String keyPrefix() default "";
+    String name() default "";
 
     String key();
 
-    MultiLevelTypeEnum type() default MultiLevelTypeEnum.PUT;
+    CacheOp cacheOp() default CacheOp.GET;
 
     // ====== put 相关缓存配置 =============
     long expire() default 6;

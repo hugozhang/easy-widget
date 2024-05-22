@@ -1,4 +1,4 @@
-package me.about.widget.multicache.annotation;
+package me.about.widget.cache.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

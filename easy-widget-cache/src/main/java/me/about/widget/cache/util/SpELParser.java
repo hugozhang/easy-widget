@@ -1,4 +1,4 @@
-package me.about.widget.multicache.util;
+package me.about.widget.cache.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
@@ -16,7 +16,7 @@ import java.util.Optional;
  * @date: 2022/12/02 16:33
  * @description:
  */
-public class SpelParser {
+public class SpELParser {
 
     /**
      * key 支持SPEL表达式
@@ -25,7 +25,7 @@ public class SpelParser {
      * @param args
      * @return
      */
-    public static String parseKey(String key, Method method, Object [] args) {
+    public static Object evalKey(String key, Method method, Object [] args) {
         if(StringUtils.isBlank(key)) {
             return null;
         }
@@ -42,7 +42,7 @@ public class SpelParser {
         for(int i=0;i<paraNameArr.length;i++){
             context.setVariable(paraNameArr[i], args[i]);
         }
-        return parser.parseExpression(key).getValue(context,String.class);
+        return parser.parseExpression(key).getValue(context);
     }
 
 }

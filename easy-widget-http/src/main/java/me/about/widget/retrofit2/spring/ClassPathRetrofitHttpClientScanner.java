@@ -1,7 +1,7 @@
 package me.about.widget.retrofit2.spring;
 
 import lombok.extern.slf4j.Slf4j;
-import me.about.widget.retrofit2.annotation.RetrofitClient;
+import me.about.widget.retrofit2.annotation.RetrofitHttpClient;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -31,7 +31,7 @@ public class ClassPathRetrofitHttpClientScanner extends ClassPathBeanDefinitionS
     }
 
     public void registerFilters() {
-        AnnotationTypeFilter annotationTypeFilter = new AnnotationTypeFilter(RetrofitClient.class);
+        AnnotationTypeFilter annotationTypeFilter = new AnnotationTypeFilter(RetrofitHttpClient.class);
         this.addIncludeFilter(annotationTypeFilter);
     }
 

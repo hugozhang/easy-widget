@@ -1,4 +1,4 @@
-package me.about.widget.multicache.entity;
+package me.about.widget.cache.entity;
 
 import lombok.Data;
 
@@ -23,12 +23,10 @@ public class InQueryMode {
      */
     private String parameterName;
 
-
     /**
      * 参数类型
      */
     private Class<?> parameterType;
-
 
     /**
      * 参数索引

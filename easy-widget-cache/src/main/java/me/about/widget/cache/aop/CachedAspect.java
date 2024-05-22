@@ -1,14 +1,14 @@
-package me.about.widget.multicache.aop;
+package me.about.widget.cache.aop;
 
 import lombok.extern.slf4j.Slf4j;
-import me.about.widget.multicache.annotation.FieldName;
-import me.about.widget.multicache.annotation.MultiLevelCache;
-import me.about.widget.multicache.annotation.MultiLevelTypeEnum;
-import me.about.widget.multicache.cache.CacheManager;
-import me.about.widget.multicache.util.Constants;
-import me.about.widget.multicache.entity.InQueryMode;
-import me.about.widget.multicache.entity.MethodParameter;
-import me.about.widget.multicache.util.SpelParser;
+import me.about.widget.cache.annotation.FieldName;
+import me.about.widget.cache.annotation.Cached;
+import me.about.widget.cache.core.CacheManager;
+import me.about.widget.cache.core.CacheOp;
+import me.about.widget.cache.entity.InQueryMode;
+import me.about.widget.cache.entity.MethodParameter;
+import me.about.widget.cache.util.Constants;
+import me.about.widget.cache.util.SpELParser;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -39,39 +40,59 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Aspect
 @Component
-public class MultiCacheAspect {
+public class CachedAspect {
 
     @Resource
     private CacheManager cacheManager;
 
-    @Pointcut("@annotation(me.about.widget.multicache.annotation.MultiLevelCache)")
-    public void multiLevelCache() {
+    @Pointcut("@annotation(me.about.widget.cache.annotation.Cached)")
+    public void cached() {
     }
 
-    @Around("multiLevelCache()")
+
+    private static Iterable toIterable(Object obj) {
+        if (obj.getClass().isArray()) {
+            if (obj instanceof Object[]) {
+                return Arrays.asList((Object[]) obj);
+            } else {
+                List list = new ArrayList();
+                int len = Array.getLength(obj);
+                for (int i = 0; i < len; i++) {
+                    list.add(Array.get(obj, i));
+                }
+                return list;
+            }
+        } else if (obj instanceof Iterable) {
+            return (Iterable) obj;
+        } else {
+            return null;
+        }
+    }
+
+    @Around("cached()")
     public Object doMultiLevelCache(ProceedingJoinPoint joinPoint) throws Throwable {
 
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         Method method = methodSignature.getMethod();
-        MultiLevelCache multiLevelCache = method.getAnnotation(MultiLevelCache.class);
+        Cached cached = method.getAnnotation(Cached.class);
 
         //方法注解信息
-        String keyPrefix = multiLevelCache.keyPrefix();
-        String key = multiLevelCache.key();
+        String name = cached.name();
+        String keyScript = cached.key();
 
-        //普通对象过期
-        long expire = multiLevelCache.expire();
-        TimeUnit timeUnit = multiLevelCache.timeUnit();
+        //对象过期
+        long expire = cached.expire();
+        TimeUnit timeUnit = cached.timeUnit();
         //空值缓存过期
-        long emptyExpire = multiLevelCache.emptyExpire();
-        TimeUnit emptyTimeUnit = multiLevelCache.emptyTimeUnit();
+        long emptyExpire = cached.emptyExpire();
+        TimeUnit emptyTimeUnit = cached.emptyTimeUnit();
 
         //方法签名信息
         Object[] args = joinPoint.getArgs();
         Class<?> returnType = method.getReturnType();
 
-        if (key == null || key.trim().isEmpty()) {
-            log.error("【分级缓存】cache key is null.");
+        if (keyScript == null || keyScript.trim().isEmpty()) {
+            log.error("【分级缓存】cache keyScript is null.");
             return joinPoint.proceed(args);
         }
 
@@ -79,28 +100,36 @@ public class MultiCacheAspect {
             return joinPoint.proceed(args);
         }
 
-        String spel = SpelParser.parseKey(key,method,args);
-        //解析key
-        String parseKey = (keyPrefix == null || keyPrefix.trim().isEmpty()) ? spel : keyPrefix + Constants.JOIN_ON + spel;
-        //是不是清缓存
-        if (multiLevelCache.type() == MultiLevelTypeEnum.EVICT) {
-            cacheManager.evict(parseKey);
+        Object key = SpELParser.evalKey(keyScript,method,args);
+        if (key == null) {
+            log.error("【分级缓存】cache key is null.");
             return joinPoint.proceed(args);
         }
-
-        if (multiLevelCache.type() == MultiLevelTypeEnum.GET) {
-            return cacheManager.get(parseKey);
-        }
-
-        //分两种情况
-        //1、针对db中in查询的情况 多对多关系
-        if (multiLevelCache.type() == MultiLevelTypeEnum.IN_QUERY) {
+        //解析key
+        Object parseKey = (name == null || name.trim().isEmpty()) ? key : name + Constants.JOIN_ON + key;
+        //是不是清缓存
+        if (cached.cacheOp() == CacheOp.EVICT) {
+            cacheManager.evict(parseKey);
+            return joinPoint.proceed(args);
+        } else if (cached.cacheOp() == CacheOp.GET) {
+            return do1To1Cache(joinPoint,parseKey,expire,timeUnit,emptyExpire,emptyTimeUnit);
+        } else if (cached.cacheOp() == CacheOp.IN_QUERY) {
+            //分两种情况
+            //1、多对多查询  比如in查询，返回List
             log.info("【分级缓存】in查询模式：多对多关系：" + methodSignature);
             return doManyToManyCache(joinPoint, method,expire,timeUnit, emptyExpire, emptyTimeUnit, args, parseKey);
         }
-        //2、针对db中非in查询的情况
-        // 进入一对一或一对多逻辑
-        return returnType == List.class ? do1ToNCache(joinPoint,parseKey,expire,timeUnit,emptyExpire,emptyTimeUnit) : do1To1Cache(joinPoint,parseKey,expire,timeUnit,emptyExpire,emptyTimeUnit);
+        if (returnType == List.class) {
+            //2、一对多查询  一对一查询
+            return do1ToNCache(joinPoint,parseKey,expire,timeUnit,emptyExpire,emptyTimeUnit);
+        }
+        return joinPoint.proceed(args);
+    }
+
+
+    private boolean isInQueryMode(MethodParameter methodParameter,int mutilKeysIndex) {
+        return methodParameter.getParameterValue() instanceof List
+                && methodParameter.getParameterIndex().compareTo(mutilKeysIndex) == 0;
     }
 
     /**
@@ -110,46 +139,46 @@ public class MultiCacheAspect {
      * @param emptyExpire
      * @param emptyTimeUnit
      * @param args
-     * @param parseKey
+     * @param key
      * @return
      * @throws Throwable
      */
     private Object doManyToManyCache(ProceedingJoinPoint joinPoint, Method method,
                                      long expire, TimeUnit timeUnit,
                                      long emptyExpire, TimeUnit emptyTimeUnit,
-                                     Object[] args, String parseKey) throws Throwable {
+                                     Object[] args, Object key) throws Throwable {
+
         InQueryMode inQueryMode = getFieldNames(method);
         //1、如果最后一个参数是list，说明db查询是带in条件的
         List<Object> result = new ArrayList<>();
         List<Object> needQuery = new ArrayList<>();
         MethodParameter[] methodParameters = buildMethodParameter(method, args);
-        Arrays.stream(methodParameters).forEach(e -> {
-            if (e.getParameterValue() instanceof List
-                    && e.getParameterIndex().compareTo(inQueryMode.getParameterIndex()) == 0) {
-                List paramList = (List)e.getParameterValue();
-                for (Object param : paramList) {
-                    //作为缓存key去找
-                    String cacheKey = parseKey + Constants.JOIN_ON + param.toString();
-                    Object cacheObject = cacheManager.get(cacheKey);
-                    if (cacheObject != null) {
-                        //空值不返回到结果集
-                        if (cacheObject != NullValue.INSTANCE) {
-                            result.add(cacheObject);
+        Arrays.stream(methodParameters)
+                .filter(e -> isInQueryMode(e, inQueryMode.getParameterIndex()))
+                .forEach(e -> {
+                    List paramList = (List)e.getParameterValue();
+                    for (Object param : paramList) {
+                        //作为缓存key去找
+                        String cacheKey = key + Constants.JOIN_ON + param.toString();
+                        Object cacheObject = cacheManager.get(cacheKey);
+                        if (cacheObject != null) {
+                            //空值不返回到结果集
+                            if (cacheObject != NullValue.INSTANCE) {
+                                result.add(cacheObject);
+                            }
+                        } else {
+                            //不在缓存的要查询一次db
+                            needQuery.add(param);
                         }
-                    } else {
-                        //不在缓存的要查询一次db
-                        needQuery.add(param);
                     }
-                }
-            }
-        });
+                });
 
         if (needQuery.isEmpty()) {
             return result;
         }
         //2、没有命中缓存中，需要把对应的参数组装查询db，查到的数据就放进缓存
         List existDb = new ArrayList<>();
-        // 更新原来参数所在位置的参数  确定list参数的位置 然后重新覆盖
+        //3、更新原方法参数，要先找到参数索引，用needQuery重新覆盖
         args[inQueryMode.getParameterIndex()] = needQuery;
         Object proceed = joinPoint.proceed(args);
         if (proceed instanceof List) {
@@ -158,19 +187,23 @@ public class MultiCacheAspect {
                 Object v = getFieldValue(o,inQueryMode.getFieldName());
                 existDb.add(v);
                 result.add(o);
-                String cacheKey = parseKey + Constants.JOIN_ON + v.toString();
-                cacheManager.put(cacheKey, o, expire, timeUnit);
+                String cacheKey = key + Constants.JOIN_ON + o;
+                doUpdate(cacheKey, o, expire, timeUnit);
             }
         }
-        //3、比较needQuery与existDb的差集  不在db里面的内容是否需要做空缓存
+        //4、比较needQuery与existDb的差集  不在db里面的内容是否需要做空缓存
         needQuery.removeAll(existDb);
         if (emptyExpire != Constants.ALLOW_NULL_VALUE) {
             for (Object o : needQuery) {
-                String cacheKey = parseKey + Constants.JOIN_ON + o.toString();
-                cacheManager.put(cacheKey, NullValue.INSTANCE, emptyExpire, emptyTimeUnit);
+                String cacheKey = key + Constants.JOIN_ON + o;
+                doUpdate(cacheKey, NullValue.INSTANCE, emptyExpire, emptyTimeUnit);
             }
         }
         return result;
+    }
+
+    private void doUpdate(Object cacheKey, Object value, Long expire, TimeUnit timeUnit) {
+        cacheManager.put(cacheKey, value, expire, timeUnit);
     }
 
     /**
@@ -184,7 +217,7 @@ public class MultiCacheAspect {
      * @return 缓存对象
      * @throws Throwable
      */
-    private Object do1To1Cache(ProceedingJoinPoint joinPoint,String key,
+    private Object do1To1Cache(ProceedingJoinPoint joinPoint,Object key,
                                long expire,TimeUnit timeUnit,
                                long emptyExpire,TimeUnit emptyTimeUnit) throws Throwable {
         Object cacheObject = cacheManager.get(key);
@@ -193,9 +226,9 @@ public class MultiCacheAspect {
         }
         Object proceed = joinPoint.proceed();
         if (proceed == null && emptyExpire != Constants.ALLOW_NULL_VALUE) {
-            cacheManager.put(key,NullValue.INSTANCE,emptyExpire,emptyTimeUnit);
+            doUpdate(key,NullValue.INSTANCE,emptyExpire,emptyTimeUnit);
         } else {
-            cacheManager.put(key,proceed,expire,timeUnit);
+            doUpdate(key,proceed,expire,timeUnit);
         }
         return proceed;
     }
@@ -211,7 +244,7 @@ public class MultiCacheAspect {
      * @return
      * @throws Throwable
      */
-    private Object do1ToNCache(ProceedingJoinPoint joinPoint, String key,
+    private Object do1ToNCache(ProceedingJoinPoint joinPoint, Object key,
                                long expire, TimeUnit timeUnit,
                                long emptyExpire, TimeUnit emptyTimeUnit) throws Throwable {
         Object cacheObject = cacheManager.get(key);
@@ -222,9 +255,9 @@ public class MultiCacheAspect {
         if (proceed instanceof List) {
             List<?> result = (List<?>) proceed;
             if (result.isEmpty() && emptyExpire != Constants.ALLOW_NULL_VALUE) {
-                cacheManager.put(key, Constants.EMPTY_LIST,emptyExpire,emptyTimeUnit);
+                doUpdate(key, Constants.EMPTY_LIST,emptyExpire,emptyTimeUnit);
             } else {
-                cacheManager.put(key,proceed,expire,timeUnit);
+                doUpdate(key,proceed,expire,timeUnit);
             }
         }
         return proceed;
@@ -243,23 +276,24 @@ public class MultiCacheAspect {
         Annotation[][] paramAnnotations = method.getParameterAnnotations();
         Class<?>[] paramTypes = method.getParameterTypes();
         for (int i = 0; i < paramAnnotations.length; i++) {
-            for (Annotation a: paramAnnotations[i]) {
-                if (a instanceof FieldName) {
-                    if (paramTypes[i] != List.class) {
-                        throw new RuntimeException("@FieldName 标注的参数类型必须是List类型");
-                    }
-                    String fieldName = ((FieldName) a).value();
-                    String parameterName = parameters[i].getName();
-                    fieldNames.add(fieldName);
-                    inQueryMode.setFieldName(fieldName);
-                    inQueryMode.setParameterName(parameterName);
-                    inQueryMode.setParameterType(paramTypes[i]);
-                    inQueryMode.setParameterIndex(i);
+            for (Annotation ann: paramAnnotations[i]) {
+                if(!(ann instanceof FieldName)) {
+                    continue;
                 }
+                if (paramTypes[i] != List.class) {
+                    throw new RuntimeException("@FieldName 标注的参数类型必须是List类型");
+                }
+                String fieldName = ((FieldName) ann).value();
+                String parameterName = parameters[i].getName();
+                fieldNames.add(fieldName);
+                inQueryMode.setFieldName(fieldName);
+                inQueryMode.setParameterName(parameterName);
+                inQueryMode.setParameterType(paramTypes[i]);
+                inQueryMode.setParameterIndex(i);
             }
         }
         if (fieldNames.size() != 1) {
-            throw new RuntimeException("in查询模式 => @FieldName标注的参数只支持一个");
+            throw new RuntimeException("in查询模式 => @FieldName 标注的参数只支持一个");
         }
         return inQueryMode;
     }

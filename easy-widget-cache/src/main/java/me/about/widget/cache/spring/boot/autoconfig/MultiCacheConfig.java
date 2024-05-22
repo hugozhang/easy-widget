@@ -1,10 +1,10 @@
-package me.about.widget.multicache.spring.boot.autoconfig;
+package me.about.widget.cache.spring.boot.autoconfig;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.extern.slf4j.Slf4j;
-import me.about.widget.multicache.cache.MultiCacheManager;
-import me.about.widget.multicache.util.GenericFastJsonRedisSerializerExt;
+import me.about.widget.cache.core.MultiCacheManager;
+import me.about.widget.cache.support.GenericFastJsonRedisSerializerExt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class MultiCacheConfig {
 
-    @Value("${me.about.widget.multi-cache.namespace:cache.multi}")
+    @Value("${me.about.widget.multi-cache.namespace:cache:multi}")
     private String cacheName;
 
     @Resource

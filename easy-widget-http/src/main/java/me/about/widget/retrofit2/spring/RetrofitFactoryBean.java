@@ -1,7 +1,7 @@
 package me.about.widget.retrofit2.spring;
 
 import lombok.extern.slf4j.Slf4j;
-import me.about.widget.retrofit2.annotation.RetrofitClient;
+import me.about.widget.retrofit2.annotation.RetrofitHttpClient;
 import me.about.widget.retrofit2.converter.FastJsonConverterFactory;
 import me.about.widget.retrofit2.converter.JacksonConverterFactory;
 import me.about.widget.retrofit2.core.Retrofit2AdapterFactory;
@@ -52,16 +52,16 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware 
 
         Assert.isTrue(retrofitClientClass.isInterface(), "RetrofitHttpClient is only interface");
 
-        RetrofitClient retrofitClient = retrofitClientClass.getAnnotation(RetrofitClient.class);
+        RetrofitHttpClient retrofitHttpClient = retrofitClientClass.getAnnotation(RetrofitHttpClient.class);
 
-        Class<? extends Converter.Factory> converterFactory = retrofitClient.converterFactory();
+        Class<? extends Converter.Factory> converterFactory = retrofitHttpClient.converterFactory();
 
 
 //        ExpressionParser parser = new SpelExpressionParser();
         //SPEL上下文
 //        StandardEvaluationContext context = new StandardEvaluationContext();
 
-        String baseUrl = environment.resolveRequiredPlaceholders(retrofitClient.baseUrl());
+        String baseUrl = environment.resolveRequiredPlaceholders(retrofitHttpClient.baseUrl());
 
 //        String baseUrl = parser.parseExpression(hostUrl).getValue(context, String.class);
 

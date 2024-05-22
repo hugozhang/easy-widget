@@ -1,4 +1,4 @@
-package me.about.widget.multicache.spring.boot.autoconfig;
+package me.about.widget.cache.spring.boot.autoconfig;
 
 import org.springframework.context.annotation.Import;
 

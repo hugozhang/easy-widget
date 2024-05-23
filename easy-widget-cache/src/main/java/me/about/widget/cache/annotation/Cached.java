@@ -25,6 +25,7 @@ public @interface Cached {
     CacheOp cacheOp() default CacheOp.GET;
 
     // ====== put 相关缓存配置 =============
+
     long expire() default 6;
 
     TimeUnit timeUnit() default TimeUnit.HOURS;

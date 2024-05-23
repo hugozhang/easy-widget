@@ -184,6 +184,7 @@ public class CachedAspect {
         if (proceed instanceof List) {
             List list = (List)proceed;
             for (Object o : list) {
+                //返回的是复杂对象，就需要根据字段名去取值
                 Object v = getFieldValue(o,inQueryMode.getFieldName());
                 existDb.add(v);
                 result.add(o);

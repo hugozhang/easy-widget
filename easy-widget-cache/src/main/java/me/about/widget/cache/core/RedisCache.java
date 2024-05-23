@@ -19,13 +19,13 @@ public class RedisCache extends CacheDecorator {
         if (value != null) {
             return value;
         }
-        return redisTemplate.opsForValue().get(key);
+        return this.redisTemplate.opsForValue().get(key);
     }
 
     @Override
     public void put(Object key, Object value, Long expire, TimeUnit timeUnit) {
         super.put(key,value,expire,timeUnit);
-        redisTemplate.opsForValue().set(key,value,expire,timeUnit);
+        this.redisTemplate.opsForValue().set(key,value,expire,timeUnit);
     }
 
     @Override

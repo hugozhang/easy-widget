@@ -109,7 +109,7 @@ public class SensitiveMapperProxy<T> implements InvocationHandler, Serializable 
 
     @Data
     @AllArgsConstructor
-    class MapEntry {
+    static class MapEntry {
 
         private Object key;
 
@@ -118,7 +118,7 @@ public class SensitiveMapperProxy<T> implements InvocationHandler, Serializable 
 
     @Data
     @AllArgsConstructor
-    class StringEntry {
+    static class StringEntry {
 
         private Integer vIndex;
 

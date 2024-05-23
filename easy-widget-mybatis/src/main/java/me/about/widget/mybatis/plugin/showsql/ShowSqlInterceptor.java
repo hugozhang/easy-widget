@@ -40,8 +40,6 @@ import java.util.regex.Matcher;
 public class ShowSqlInterceptor implements Interceptor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ShowSqlInterceptor.class);
-
-
     private boolean isShowSql(MappedStatement mappedStatement) throws ClassNotFoundException {
         String id = mappedStatement.getId();
         String className = id.substring(0, id.lastIndexOf("."));

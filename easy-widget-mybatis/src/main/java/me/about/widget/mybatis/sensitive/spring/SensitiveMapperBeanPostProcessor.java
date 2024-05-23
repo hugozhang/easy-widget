@@ -23,7 +23,7 @@ public class SensitiveMapperBeanPostProcessor implements BeanPostProcessor, Embe
 
     private final static Logger LOGGER = LoggerFactory.getLogger(SensitiveMapperBeanPostProcessor.class);
 
-    private Set<Class<?>> mapperClasps = new HashSet<>();
+    private final Set<Class<?>> mapperClasps = new HashSet<>();
 
     private StringValueResolver resolver;
 

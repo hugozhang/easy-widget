@@ -57,6 +57,7 @@ public class BeanConfig {
         FilterRegistrationBean<WebStatFilter> registration = new FilterRegistrationBean<>();
         registration.setFilter(new WebStatFilter());
         registration.addInitParameter(WebStatFilter.PARAM_NAME_PRINCIPAL_SESSION_NAME, SessionUserContext.SESSION_USER);
+        registration.addInitParameter(WebStatFilter.PARAM_NAME_PROFILE_ENABLE, "true");
         registration.addUrlPatterns(matchUrl + "/*");
         registration.setName("WebStatFilter");
         return  registration;

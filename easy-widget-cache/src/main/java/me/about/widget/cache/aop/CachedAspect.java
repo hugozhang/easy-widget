@@ -320,7 +320,7 @@ public class CachedAspect {
             try {
                 return clazz.getDeclaredField(fieldName);
             } catch (NoSuchFieldException e) {
-                log.debug(clazz + "，缺失字段：" + fieldName);
+                log.error(clazz + "，缺失字段：" + fieldName);
             } catch (Exception e) {
                 log.error(e.getMessage(),e);
             }

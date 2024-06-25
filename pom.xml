@@ -12,7 +12,7 @@
 
     <groupId>me.about</groupId>
     <artifactId>easy-widget</artifactId>
-    <version>1.0.7-SNAPSHOT</version>
+    <version>1.0.8-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -73,7 +73,6 @@
         <module>easy-widget-oss</module>
         <module>easy-widget-security</module>
         <module>easy-widget-routing</module>
-        <module>easy-widge-otel</module>
     </modules>
     
     <dependencyManagement>

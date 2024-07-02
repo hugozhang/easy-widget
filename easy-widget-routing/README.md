@@ -2,10 +2,13 @@
 ### 组件介绍
 ````
 1、LazyConnectionDataSourceProxy  
-   参考地址 https://blog.csdn.net/dalinsi/article/details/53788729
-
+   1）https://blog.csdn.net/dalinsi/article/details/53788729
 2、动态刷新数据源
-   参考地址 https://github.com/apolloconfig/apollo/issues/1254
+   1）https://github.com/apolloconfig/apollo/issues/1254
+3、SQL解析
+   1）https://ixyzero.com/blog/archives/4405.html
+4、读写分离中间件
+   1）https://www.jianshu.com/p/549d88222528
 ````
 
 ### saas 分库 动态路由

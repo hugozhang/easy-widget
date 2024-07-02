@@ -9,6 +9,7 @@
    https://blog.csdn.net/reee112/article/details/90442542
    https://www.wcqblog.com/article/detail/308648788896120832
    https://www.byun.com/thread-68410-1-1.html
+   https://developer.huawei.com/consumer/cn/forum/topic/0204403905699060189
 
 4. 自定义解析xml
 

@@ -1,6 +1,6 @@
 package me.about.widget.cache.annotation;
 
-import me.about.widget.cache.core.CacheOp;
+import me.about.widget.cache.enums.CacheType;
 
 import java.lang.annotation.*;
 import java.util.concurrent.TimeUnit;
@@ -18,11 +18,11 @@ import java.util.concurrent.TimeUnit;
 public @interface Cached {
 
     // ===== 共用 =============
-    String name() default "";
+    String keyPrefix() default "";
 
     String key();
 
-    CacheOp cacheOp() default CacheOp.GET;
+    CacheType type() default CacheType.GET;
 
     // ====== put 相关缓存配置 =============
 
@@ -31,7 +31,7 @@ public @interface Cached {
     TimeUnit timeUnit() default TimeUnit.HOURS;
 
     // ====== 空值缓存配置  默认存一天
-    long emptyExpire() default -1;
+    long emptyExpire() default 1;
 
     TimeUnit emptyTimeUnit() default TimeUnit.DAYS;
 

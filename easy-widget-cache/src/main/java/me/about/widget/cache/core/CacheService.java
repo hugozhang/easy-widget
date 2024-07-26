@@ -2,14 +2,17 @@ package me.about.widget.cache.core;
 
 import java.util.concurrent.TimeUnit;
 
-public interface Cache {
+public interface CacheService {
 
     /**
      * 从缓存读取 一对一  一对多
      * @param key
      * @return
      */
-    Object get(Object key);
+    Object get(String key);
+
+
+    void put(String key, Object value);
 
     /**
      * 设置缓存
@@ -18,12 +21,12 @@ public interface Cache {
      * @param expire
      * @param timeUnit
      */
-    void put(Object key, Object value, Long expire, TimeUnit timeUnit);
+    void put(String key, Object value, Long expire, TimeUnit timeUnit);
 
     /**
      * 清除缓存
      * @param key
      */
-    void remove(Object key);
+    void remove(String key);
 
 }

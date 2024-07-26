@@ -19,15 +19,15 @@ import java.util.Optional;
 public class SpELParser {
 
     /**
-     * key 支持SPEL表达式
+     * key 支持SPEL表达式  支持常量返回
      * @param key
      * @param method
      * @param args
      * @return
      */
     public static Object evalKey(String key, Method method, Object [] args) {
-        if(StringUtils.isBlank(key)) {
-            return null;
+        if(StringUtils.isBlank(key) || !isSpElExpression(key)) {
+            return key;
         }
 
         //获取被拦截方法参数名列表(使用Spring支持类库)
@@ -43,6 +43,10 @@ public class SpELParser {
             context.setVariable(paraNameArr[i], args[i]);
         }
         return parser.parseExpression(key).getValue(context);
+    }
+
+    public static boolean isSpElExpression(String key) {
+        return key.contains("#") || key.contains("$");
     }
 
 }

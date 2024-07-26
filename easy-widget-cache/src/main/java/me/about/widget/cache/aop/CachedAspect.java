@@ -1,12 +1,12 @@
 package me.about.widget.cache.aop;
 
 import lombok.extern.slf4j.Slf4j;
-import me.about.widget.cache.annotation.FieldName;
 import me.about.widget.cache.annotation.Cached;
+import me.about.widget.cache.annotation.FieldName;
 import me.about.widget.cache.core.CacheManager;
-import me.about.widget.cache.core.CacheOp;
 import me.about.widget.cache.entity.InQueryMode;
 import me.about.widget.cache.entity.MethodParameter;
+import me.about.widget.cache.enums.CacheType;
 import me.about.widget.cache.util.Constants;
 import me.about.widget.cache.util.SpELParser;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -49,26 +48,6 @@ public class CachedAspect {
     public void cached() {
     }
 
-
-    private static Iterable toIterable(Object obj) {
-        if (obj.getClass().isArray()) {
-            if (obj instanceof Object[]) {
-                return Arrays.asList((Object[]) obj);
-            } else {
-                List list = new ArrayList();
-                int len = Array.getLength(obj);
-                for (int i = 0; i < len; i++) {
-                    list.add(Array.get(obj, i));
-                }
-                return list;
-            }
-        } else if (obj instanceof Iterable) {
-            return (Iterable) obj;
-        } else {
-            return null;
-        }
-    }
-
     @Around("cached()")
     public Object doMultiLevelCache(ProceedingJoinPoint joinPoint) throws Throwable {
 
@@ -77,8 +56,8 @@ public class CachedAspect {
         Cached cached = method.getAnnotation(Cached.class);
 
         //方法注解信息
-        String name = cached.name();
-        String keyScript = cached.key();
+        String keyPrefix = cached.keyPrefix();
+        String keyExpr = cached.key();
 
         //对象过期
         long expire = cached.expire();
@@ -91,45 +70,51 @@ public class CachedAspect {
         Object[] args = joinPoint.getArgs();
         Class<?> returnType = method.getReturnType();
 
-        if (keyScript == null || keyScript.trim().isEmpty()) {
-            log.error("【分级缓存】cache keyScript is null.");
+        if (keyExpr == null || keyExpr.trim().isEmpty()) {
+            log.error("【分级缓存】cache keyExpr is null.");
             return joinPoint.proceed(args);
         }
 
-        if (args.length == 0) {
-            return joinPoint.proceed(args);
-        }
+//        if (args.length == 0) {
+//            return joinPoint.proceed(args);
+//        }
 
-        Object key = SpELParser.evalKey(keyScript,method,args);
-        if (key == null) {
-            log.error("【分级缓存】cache key is null.");
+        Object keyValue = SpELParser.evalKey(keyExpr,method,args);
+        if (keyValue == null) {
+            log.error("【分级缓存】cache keyValue is null.");
             return joinPoint.proceed(args);
         }
         //解析key
-        Object parseKey = (name == null || name.trim().isEmpty()) ? key : name + Constants.JOIN_ON + key;
+        Object cacheKey = (keyPrefix == null || keyPrefix.trim().isEmpty()) ? keyValue :
+                (keyPrefix.lastIndexOf(Constants.JOIN_ON) != -1 ? keyPrefix : keyPrefix + Constants.JOIN_ON) + keyValue;
         //是不是清缓存
-        if (cached.cacheOp() == CacheOp.REMOVE) {
-            cacheManager.remove(parseKey);
+        if (cached.type() == CacheType.REMOVE) {
+            cacheManager.remove(cacheKey);
             return joinPoint.proceed(args);
-        } else if (cached.cacheOp() == CacheOp.GET) {
-            return do1To1Cache(joinPoint,parseKey,expire,timeUnit,emptyExpire,emptyTimeUnit);
-        } else if (cached.cacheOp() == CacheOp.IN_QUERY) {
-            //分两种情况
-            //1、多对多查询  比如in查询，返回List
-            log.info("【分级缓存】in查询模式：多对多关系：" + methodSignature);
-            return doManyToManyCache(joinPoint, method,expire,timeUnit, emptyExpire, emptyTimeUnit, args, parseKey);
-        }
-        if (returnType == List.class) {
-            //2、一对多查询  一对一查询
-            return do1ToNCache(joinPoint,parseKey,expire,timeUnit,emptyExpire,emptyTimeUnit);
+        } else if (cached.type() == CacheType.GET) {
+            if (returnType == void.class) {
+                // void
+                log.error("[Cache] cache op is get,but cache returnType is void.");
+                return joinPoint.proceed(args);
+            } else if (returnType == List.class) {
+                //一对多查询
+                return do1ToNCache(joinPoint,cacheKey,expire,timeUnit,emptyExpire,emptyTimeUnit);
+            } else {
+                // 一对一
+                return do1To1Cache(joinPoint,cacheKey,expire,timeUnit,emptyExpire,emptyTimeUnit);
+            }
+        } else if (cached.type() == CacheType.IN_QUERY) {
+            //多对多查询
+            log.info("[Cache] in mode : many to many -> " + methodSignature);
+            return doManyToManyCache(joinPoint, method,expire,timeUnit, emptyExpire, emptyTimeUnit, args, cacheKey);
         }
         return joinPoint.proceed(args);
     }
 
 
-    private boolean isInQueryMode(MethodParameter methodParameter,int mutilKeysIndex) {
+    private boolean isInQueryMode(MethodParameter methodParameter,int multiKeysIndex) {
         return methodParameter.getParameterValue() instanceof List
-                && methodParameter.getParameterIndex().compareTo(mutilKeysIndex) == 0;
+                && methodParameter.getParameterIndex().compareTo(multiKeysIndex) == 0;
     }
 
     /**
@@ -162,12 +147,12 @@ public class CachedAspect {
                         String cacheKey = key + Constants.JOIN_ON + param.toString();
                         Object cacheObject = cacheManager.get(cacheKey);
                         if (cacheObject != null) {
-                            //空值不返回到结果集
+                            //缓存的空值不返回到结果集
                             if (cacheObject != NullValue.INSTANCE) {
                                 result.add(cacheObject);
                             }
                         } else {
-                            //不在缓存的要查询一次db
+                            //不在缓存的需要查询一次db
                             needQuery.add(param);
                         }
                     }
@@ -188,7 +173,7 @@ public class CachedAspect {
                 Object v = getFieldValue(o,inQueryMode.getFieldName());
                 existDb.add(v);
                 result.add(o);
-                String cacheKey = key + Constants.JOIN_ON + o;
+                String cacheKey = key + Constants.JOIN_ON + v;
                 doUpdate(cacheKey, o, expire, timeUnit);
             }
         }
@@ -255,10 +240,12 @@ public class CachedAspect {
         Object proceed = joinPoint.proceed();
         if (proceed instanceof List) {
             List<?> result = (List<?>) proceed;
-            if (result.isEmpty() && emptyExpire != Constants.ALLOW_NULL_VALUE) {
-                doUpdate(key, Constants.EMPTY_LIST,emptyExpire,emptyTimeUnit);
-            } else {
-                doUpdate(key,proceed,expire,timeUnit);
+            if (emptyExpire != Constants.ALLOW_NULL_VALUE) {
+                if (result.isEmpty()) {
+                    doUpdate(key, Constants.EMPTY_LIST,emptyExpire,emptyTimeUnit);
+                } else {
+                    doUpdate(key,proceed,expire,timeUnit);
+                }
             }
         }
         return proceed;

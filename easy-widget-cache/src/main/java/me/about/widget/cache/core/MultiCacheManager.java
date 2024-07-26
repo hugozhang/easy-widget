@@ -1,16 +1,9 @@
 package me.about.widget.cache.core;
 
-import com.github.benmanes.caffeine.cache.Cache;
 import me.about.widget.cache.util.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.support.NullValue;
-import org.springframework.data.redis.core.RedisTemplate;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -27,30 +20,27 @@ public class MultiCacheManager implements CacheManager {
 
     private final String name;
 
-    private final RedisTemplate<String,Object> redisTemplate;
+    private final CacheService localCacheService;
 
-    private final Cache<String,Object> caffeineCache;
+    private final CacheService remoteCacheService;
 
-    public MultiCacheManager(String name, RedisTemplate<String,Object> redisTemplate, Cache<String,Object> caffeineCache) {
+    public MultiCacheManager(String name, CacheService localCacheService, CacheService remoteCacheService) {
         this.name = name;
-        this.redisTemplate = redisTemplate;
-        this.caffeineCache = caffeineCache;
+        this.localCacheService = localCacheService;
+        this.remoteCacheService = remoteCacheService;
     }
 
     private Object lookup(Object key) {
         String cacheKey = getKey(key);
-        Object value = caffeineCache.getIfPresent(cacheKey);
+        Object value = localCacheService.get(cacheKey);
         if (value != null) {
-            if (Objects.equals(value,NullValue.INSTANCE)) {
-                return null;
-            }
             logger.info("From local cache(caffeine),key:{},value:{}." ,cacheKey,value);
             return value;
         }
-        value = redisTemplate.opsForValue().get(cacheKey);
+        value = remoteCacheService.get(cacheKey);
         if (value != null) {
             logger.info("From remote cache(redis),key:{},value:{}." ,cacheKey,value);
-            caffeineCache.put(cacheKey,value);
+            localCacheService.put(cacheKey,value);
         }
         return value;
     }
@@ -78,24 +68,24 @@ public class MultiCacheManager implements CacheManager {
     @Override
     public void put(Object key, Object value, Long expire, TimeUnit timeUnit) {
         String cacheKey = getKey(key);
-        this.redisTemplate.opsForValue().set(cacheKey,value,expire,timeUnit);
-        this.caffeineCache.put(cacheKey,value);
+        this.remoteCacheService.put(cacheKey,value,expire,timeUnit);
+        this.localCacheService.put(cacheKey,value);
     }
 
     @Override
     public void remove(Object key) {
         String cacheKey = getKey(key);
-        this.redisTemplate.delete(cacheKey);
-        this.caffeineCache.invalidate(cacheKey);
+        this.remoteCacheService.remove(cacheKey);
+        this.localCacheService.remove(cacheKey);
     }
 
     @Override
     public void clear() {
-        Set<String> keys = Optional.ofNullable(this.redisTemplate.keys(this.name.concat(Constants.JOIN_ON))).orElse(new HashSet<>());
-        for (String key : keys) {
-            this.redisTemplate.delete(key);
-        }
-        this.caffeineCache.invalidateAll();
+//        Set<String> keys = Optional.ofNullable(this.redisTemplate.keys(this.name.concat(Constants.JOIN_ON))).orElse(new HashSet<>());
+//        for (String key : keys) {
+//            this.redisTemplate.delete(key);
+//        }
+//        this.caffeineCache.invalidateAll();
     };
 
     private String getKey(Object key) {

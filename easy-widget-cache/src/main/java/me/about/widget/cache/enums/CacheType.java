@@ -1,9 +1,9 @@
-package me.about.widget.cache.core;
+package me.about.widget.cache.enums;
 
 import lombok.Getter;
 
 /**
- * 缓存类型
+ * 缓存操作
  *
  * @author: hugo.zxh
  * @date: 2022/06/24 15:52
@@ -13,17 +13,21 @@ import lombok.Getter;
 public enum CacheType {
 
     /**
-     * local
+     * get
      */
-    LOCAL("local"),
+    GET("get"),
     /**
-     * remote
+     * put
      */
-    REMOTE("remote"),
+    PUT("put"),
     /**
-     * both
+     * remove
      */
-    BOTH("both");
+    REMOVE("remove"),
+    /**
+     * in_query
+     */
+    IN_QUERY("in_query");
 
     private final String value;
 

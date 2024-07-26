@@ -12,15 +12,15 @@ spring cache不支持不同key不同的过期时间，所以才有这个，也�
 @GetMapping("/cache2")
 @MyCacheable(group = "cn.hsa.mds",key = "#p0",expire = 10,timeUnit = TimeUnit.MINUTES)
 public String testCache2(String test) {
-    System.out.print("cache put:" + test );
+    System.out.print("cacheService put:" + test );
     return test;
 }
 ```
 
 ### API式
 ```java
-@GetMapping("/cache")
-public Object cache() {
+@GetMapping("/cacheService")
+public Object cacheService() {
     Hash hash = cacheService.hash("cn.hsa.mds");
     hash.put("hello", "world",3,TimeUnit.HOURS);
     Object ret = hash.get("hello");

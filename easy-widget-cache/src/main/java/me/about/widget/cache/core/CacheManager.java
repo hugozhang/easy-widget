@@ -38,4 +38,11 @@ public interface CacheManager {
      */
     void clear();
 
+
+    /**
+     * 缓存统计
+     * @return
+     */
+    String getStats();
+
 }

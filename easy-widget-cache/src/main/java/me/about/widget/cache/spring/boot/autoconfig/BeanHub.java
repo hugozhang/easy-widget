@@ -1,6 +1,6 @@
 package me.about.widget.cache.spring.boot.autoconfig;
 
-import me.about.widget.cache.aop.CachedAspect;
+import me.about.widget.cache.core.aop.CachedAspect;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
 

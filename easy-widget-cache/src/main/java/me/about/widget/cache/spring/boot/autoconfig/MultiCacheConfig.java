@@ -21,6 +21,7 @@ import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import javax.annotation.Resource;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 缓存配置
@@ -52,17 +53,21 @@ public class MultiCacheConfig {
         return redisTemplate;
     }
 
+    private void eventHandle(CacheService localCacheService, Message message) {
+        String channel = new String(message.getChannel(), StandardCharsets.UTF_8);
+        String body = new String(message.getBody(), StandardCharsets.UTF_8);
+        log.info("[Remote Cache] cache key event: " + channel + "," + body);
+        //删除本地缓存
+        localCacheService.remove(body);
+    }
+
     @Bean
     public RedisMessageListenerContainer redisMessageListenerContainer(@Autowired CacheService localCacheService) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         KeyspaceEventMessageListener listener = new KeyspaceEventMessageListener(container) {
             @Override
             protected void doHandleMessage(Message message) {
-                String channel = new String(message.getChannel());
-                String body = new String(message.getBody());
-                log.info("cache key event: " + channel + "," + body);
-                //删除本地缓存
-                localCacheService.remove(body);
+                eventHandle(localCacheService,message);
             }
         };
 
@@ -79,12 +84,12 @@ public class MultiCacheConfig {
     @Bean
     public Cache<String,Object> caffeineCache() {
         return Caffeine.newBuilder().recordStats()
-                .initialCapacity(1000)
-                .maximumSize(100_000)
+//                .initialCapacity(100)
+                .maximumSize(50_000)
 //                .weakKeys()
 //                .weakValues()
                 .removalListener((key, value, cause) ->
-                        System.out.println("key:" + key + ",value:" + value + ",删除原因:" + cause))
+                        log.info("[Local Cache] key:" + key + ",value:" + value + ",cause:" + cause))
 //                .expireAfterWrite(10, TimeUnit.MINUTES)
                 .build();
     }

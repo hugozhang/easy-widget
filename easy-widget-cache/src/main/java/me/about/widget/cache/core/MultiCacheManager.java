@@ -1,5 +1,6 @@
 package me.about.widget.cache.core;
 
+import me.about.widget.cache.stats.CacheStatistics;
 import me.about.widget.cache.util.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,28 +19,37 @@ public class MultiCacheManager implements CacheManager {
 
     private final Logger logger = LoggerFactory.getLogger(MultiCacheManager.class);
 
-    private final String name;
+    private String name;
 
-    private final CacheService localCacheService;
+    private CacheService localCacheService;
 
-    private final CacheService remoteCacheService;
+    private CacheService remoteCacheService;
+
+    private CacheStatistics stats;
+
+
+    private MultiCacheManager() {
+
+    }
+
 
     public MultiCacheManager(String name, CacheService localCacheService, CacheService remoteCacheService) {
         this.name = name;
         this.localCacheService = localCacheService;
         this.remoteCacheService = remoteCacheService;
+        this.stats = new CacheStatistics();
     }
 
     private Object lookup(Object key) {
         String cacheKey = getKey(key);
         Object value = localCacheService.get(cacheKey);
         if (value != null) {
-            logger.info("[local cache] key:{},value:{}." ,cacheKey,value);
+            logger.info("[Local Cache] key:{},value:{}." ,cacheKey,value);
             return value;
         }
         value = remoteCacheService.get(cacheKey);
         if (value != null) {
-            logger.info("[remote cache] key:{},value:{}." ,cacheKey,value);
+            logger.info("[Remote Cache] key:{},value:{}." ,cacheKey,value);
             localCacheService.put(cacheKey,value);
         }
         return value;
@@ -48,8 +58,10 @@ public class MultiCacheManager implements CacheManager {
 
     @Override
     public Object get(Object key) {
+        stats.requestMade();
         Object value = lookup(key);
         if (value != null) {
+            stats.cacheHit();
             return value;
         }
         ReentrantLock lock = new ReentrantLock();
@@ -70,6 +82,7 @@ public class MultiCacheManager implements CacheManager {
         String cacheKey = getKey(key);
         this.remoteCacheService.put(cacheKey,value,expire,timeUnit);
         this.localCacheService.put(cacheKey,value);
+        stats.cacheIncreaseSize();
     }
 
     @Override
@@ -77,6 +90,7 @@ public class MultiCacheManager implements CacheManager {
         String cacheKey = getKey(key);
         this.remoteCacheService.remove(cacheKey);
         this.localCacheService.remove(cacheKey);
+        stats.cacheEviction();
     }
 
     @Override
@@ -86,7 +100,14 @@ public class MultiCacheManager implements CacheManager {
 //            this.redisTemplate.delete(key);
 //        }
 //        this.caffeineCache.invalidateAll();
-    };
+    }
+
+    @Override
+    public String getStats() {
+        return stats.displayStatistics();
+    }
+
+    ;
 
     private String getKey(Object key) {
         String cacheKey = key.toString();

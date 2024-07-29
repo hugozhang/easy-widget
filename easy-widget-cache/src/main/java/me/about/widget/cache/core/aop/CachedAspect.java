@@ -1,4 +1,4 @@
-package me.about.widget.cache.aop;
+package me.about.widget.cache.core.aop;
 
 import lombok.extern.slf4j.Slf4j;
 import me.about.widget.cache.annotation.Cached;

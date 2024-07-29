@@ -13,7 +13,7 @@ public class CacheStatistics {
         totalRequests.incrementAndGet();
     }
 
-    public void cacheIncreaseSize() {
+    public void cacheSizeIncrease() {
         cacheSize.incrementAndGet();
     }
 
@@ -42,7 +42,7 @@ public class CacheStatistics {
                         "  Total Requests: %d\n" +
                         "  Total Hits: %d\n" +
                         "  Total Evictions: %d\n" +
-                        "  Cache Size: %d\n" +
+                        "  Current Cache Size: %d\n" +
                         "  Hit Rate: %s%%\n" +
                         "  Eviction Rate: %s%%",
                 totalRequests.get(),

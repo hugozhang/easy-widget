@@ -9,6 +9,7 @@ import me.about.widget.cache.support.GenericFastJsonRedisSerializerExt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.Message;
@@ -22,6 +23,8 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * 缓存配置
@@ -79,6 +82,20 @@ public class MultiCacheConfig {
                 new PatternTopic("__keyevent@0__:del")
                 ,new PatternTopic("__keyevent@0__:expired")));
         return container;
+    }
+
+
+    @ConditionalOnProperty(name = "me.about.widget.multi-cache.stats.enable",havingValue = "true")
+    @Bean
+    public Timer cacheStatsTime(CacheManager cacheManager) {
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                log.info("[Cache Stats] : " + cacheManager.getStats());
+            }
+        }, 0, 300 * 1000);
+        return timer;
     }
 
     @Bean

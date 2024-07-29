@@ -305,10 +305,14 @@ public class CachedAspect {
    }
 
     public Object getFieldValue(Object object, String fieldName) {
+
         Field field = ReflectionUtils.findField(object.getClass(), fieldName);
         if (field == null) {
             return new NoSuchFieldException(object.getClass() + "没有字段" + fieldName);
         }
+
+        field.setAccessible(true);
+
         return ReflectionUtils.getField(field,object);
     }
 }

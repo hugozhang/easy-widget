@@ -51,6 +51,7 @@ public class MultiCacheManager implements CacheManager {
         if (value != null) {
             logger.info("[Remote Cache] key:{},value:{}." ,cacheKey,value);
             localCacheService.put(cacheKey,value);
+            stats.cacheSizeIncrease();
         }
         return value;
     }
@@ -82,7 +83,7 @@ public class MultiCacheManager implements CacheManager {
         String cacheKey = getKey(key);
         this.remoteCacheService.put(cacheKey,value,expire,timeUnit);
         this.localCacheService.put(cacheKey,value);
-        stats.cacheIncreaseSize();
+        stats.cacheSizeIncrease();
     }
 
     @Override

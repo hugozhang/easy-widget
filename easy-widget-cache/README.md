@@ -5,6 +5,8 @@
 
 2. 多级缓存实现（解决业务上查询一对一、一对多的情况）
   1) 空值缓存（有时效控制，取决业务上）
+3. redis 缓存删除key的时候通知删除本地的key
+  需要在redis.conf 中配置 notify-keyspace-events
 
 ````
 

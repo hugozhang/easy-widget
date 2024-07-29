@@ -17,6 +17,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.cache.support.NullValue;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ReflectionUtils;
 
 import javax.annotation.Resource;
 import java.lang.annotation.Annotation;
@@ -71,7 +72,7 @@ public class CachedAspect {
         Class<?> returnType = method.getReturnType();
 
         if (keyExpr == null || keyExpr.trim().isEmpty()) {
-            log.error("【分级缓存】cache keyExpr is null.");
+            log.error("cache key is null.");
             return joinPoint.proceed(args);
         }
 
@@ -81,7 +82,7 @@ public class CachedAspect {
 
         Object keyValue = SpELParser.evalKey(keyExpr,method,args);
         if (keyValue == null) {
-            log.error("【分级缓存】cache keyValue is null.");
+            log.error("cache key is null.");
             return joinPoint.proceed(args);
         }
         //解析key
@@ -98,9 +99,11 @@ public class CachedAspect {
                 return joinPoint.proceed(args);
             } else if (returnType == List.class) {
                 //一对多查询
+                log.info("[Cache] in mode : one to many -> " + methodSignature);
                 return do1ToNCache(joinPoint,cacheKey,expire,timeUnit,emptyExpire,emptyTimeUnit);
             } else {
                 // 一对一
+                log.info("[Cache] in mode : one to one -> " + methodSignature);
                 return do1To1Cache(joinPoint,cacheKey,expire,timeUnit,emptyExpire,emptyTimeUnit);
             }
         } else if (cached.type() == CacheType.IN_QUERY) {
@@ -141,7 +144,7 @@ public class CachedAspect {
         Arrays.stream(methodParameters)
                 .filter(e -> isInQueryMode(e, inQueryMode.getParameterIndex()))
                 .forEach(e -> {
-                    List paramList = (List)e.getParameterValue();
+                    List<?> paramList = (List<?>)e.getParameterValue();
                     for (Object param : paramList) {
                         //作为缓存key去找
                         String cacheKey = key + Constants.JOIN_ON + param.toString();
@@ -162,12 +165,12 @@ public class CachedAspect {
             return result;
         }
         //2、没有命中缓存中，需要把对应的参数组装查询db，查到的数据就放进缓存
-        List existDb = new ArrayList<>();
+        List<Object> existDb = new ArrayList<>();
         //3、更新原方法参数，要先找到参数索引，用needQuery重新覆盖
         args[inQueryMode.getParameterIndex()] = needQuery;
         Object proceed = joinPoint.proceed(args);
         if (proceed instanceof List) {
-            List list = (List)proceed;
+            List<?> list = (List<?>)proceed;
             for (Object o : list) {
                 //返回的是复杂对象，就需要根据字段名去取值
                 Object v = getFieldValue(o,inQueryMode.getFieldName());
@@ -301,28 +304,11 @@ public class CachedAspect {
        return methodParameters;
    }
 
-    public Field getDeclaredField(Object object, String fieldName) {
-        Class<?> clazz = object.getClass();
-        for(; clazz != Object.class; clazz = clazz.getSuperclass()) {
-            try {
-                return clazz.getDeclaredField(fieldName);
-            } catch (NoSuchFieldException e) {
-                log.error(clazz + "，缺失字段：" + fieldName);
-            } catch (Exception e) {
-                log.error(e.getMessage(),e);
-            }
-        }
-        return null;
-    }
-
     public Object getFieldValue(Object object, String fieldName) {
-        Field field = getDeclaredField(object, fieldName);
-        field.setAccessible(true);
-        try {
-            return field.get(object);
-        } catch(Exception e) {
-            log.error(e.getMessage(),e);
+        Field field = ReflectionUtils.findField(object.getClass(), fieldName);
+        if (field == null) {
+            return new NoSuchFieldException(object.getClass() + "没有字段" + fieldName);
         }
-        return null;
+        return ReflectionUtils.getField(field,object);
     }
 }

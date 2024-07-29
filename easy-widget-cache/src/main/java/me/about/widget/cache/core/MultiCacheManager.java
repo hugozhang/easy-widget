@@ -34,12 +34,12 @@ public class MultiCacheManager implements CacheManager {
         String cacheKey = getKey(key);
         Object value = localCacheService.get(cacheKey);
         if (value != null) {
-            logger.info("From local cache(caffeine),key:{},value:{}." ,cacheKey,value);
+            logger.info("[local cache] key:{},value:{}." ,cacheKey,value);
             return value;
         }
         value = remoteCacheService.get(cacheKey);
         if (value != null) {
-            logger.info("From remote cache(redis),key:{},value:{}." ,cacheKey,value);
+            logger.info("[remote cache] key:{},value:{}." ,cacheKey,value);
             localCacheService.put(cacheKey,value);
         }
         return value;

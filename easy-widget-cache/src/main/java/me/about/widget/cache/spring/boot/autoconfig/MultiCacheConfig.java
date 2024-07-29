@@ -4,10 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.ImmutableList;
 import lombok.extern.slf4j.Slf4j;
-import me.about.widget.cache.core.CacheManager;
-import me.about.widget.cache.core.LocalCacheService;
-import me.about.widget.cache.core.MultiCacheManager;
-import me.about.widget.cache.core.RemoteCacheService;
+import me.about.widget.cache.core.*;
 import me.about.widget.cache.support.GenericFastJsonRedisSerializerExt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +21,6 @@ import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import javax.annotation.Resource;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 缓存配置
@@ -57,14 +53,16 @@ public class MultiCacheConfig {
     }
 
     @Bean
-    public RedisMessageListenerContainer redisMessageListenerContainer(@Autowired CacheManager cacheManager) {
+    public RedisMessageListenerContainer redisMessageListenerContainer(@Autowired CacheService localCacheService) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         KeyspaceEventMessageListener listener = new KeyspaceEventMessageListener(container) {
             @Override
             protected void doHandleMessage(Message message) {
+                String channel = new String(message.getChannel());
                 String body = new String(message.getBody());
-                System.out.println(body);
-                cacheManager.remove(body);
+                log.info("cache key event: " + channel + "," + body);
+                //删除本地缓存
+                localCacheService.remove(body);
             }
         };
 
@@ -87,13 +85,23 @@ public class MultiCacheConfig {
 //                .weakValues()
                 .removalListener((key, value, cause) ->
                         System.out.println("key:" + key + ",value:" + value + ",删除原因:" + cause))
-                .expireAfterWrite(10, TimeUnit.MINUTES)
+//                .expireAfterWrite(10, TimeUnit.MINUTES)
                 .build();
     }
 
     @Bean
-    public CacheManager cacheManager(@Autowired RedisTemplate<String,Object> fastJsonRedisTemplate, @Autowired Cache<String,Object> caffeineCache) {
-        return new MultiCacheManager(cacheName,new LocalCacheService(caffeineCache),new RemoteCacheService(fastJsonRedisTemplate));
+    public CacheManager cacheManager(@Autowired CacheService localCacheService,CacheService remoteCacheService) {
+        return new MultiCacheManager(cacheName,localCacheService,remoteCacheService);
+    }
+
+    @Bean
+    public CacheService localCacheService(@Autowired Cache<String,Object> caffeineCache) {
+        return new LocalCacheService(caffeineCache);
+    }
+
+    @Bean
+    public CacheService remoteCacheService(@Autowired RedisTemplate<String,Object> fastJsonRedisTemplate) {
+        return new RemoteCacheService(fastJsonRedisTemplate);
     }
 
 }

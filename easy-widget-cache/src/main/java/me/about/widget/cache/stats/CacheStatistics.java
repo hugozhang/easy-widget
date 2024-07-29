@@ -17,6 +17,12 @@ public class CacheStatistics {
         cacheSize.incrementAndGet();
     }
 
+    public void cacheSizeDecrease() {
+        long l = cacheSize.get();
+        if (l == 0) return;
+        cacheSize.decrementAndGet();
+    }
+
     public void cacheHit() {
         hitCount.incrementAndGet();
     }

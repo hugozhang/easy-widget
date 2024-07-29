@@ -92,6 +92,7 @@ public class MultiCacheManager implements CacheManager {
         this.remoteCacheService.remove(cacheKey);
         this.localCacheService.remove(cacheKey);
         stats.cacheEviction();
+        stats.cacheSizeDecrease();
     }
 
     @Override
@@ -101,6 +102,13 @@ public class MultiCacheManager implements CacheManager {
 //            this.redisTemplate.delete(key);
 //        }
 //        this.caffeineCache.invalidateAll();
+    }
+
+    @Override
+    public void eventHandle(Object key) {
+        this.localCacheService.remove(key.toString());
+        stats.cacheEviction();
+        stats.cacheSizeDecrease();
     }
 
     @Override

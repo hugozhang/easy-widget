@@ -41,6 +41,9 @@ public class MultiCacheConfig {
     @Value("${me.about.widget.multi-cache.namespace:cache}")
     private String cacheName;
 
+    @Value("${me.about.widget.multi-cache.stats.period:20000}")
+    private long statsPeriod;
+
     @Resource
     private RedisConnectionFactory redisConnectionFactory;
 
@@ -56,21 +59,21 @@ public class MultiCacheConfig {
         return redisTemplate;
     }
 
-    private void eventHandle(CacheService localCacheService, Message message) {
+    private void eventHandle(CacheManager cacheManager, Message message) {
         String channel = new String(message.getChannel(), StandardCharsets.UTF_8);
         String body = new String(message.getBody(), StandardCharsets.UTF_8);
         log.info("[Remote Cache] cache key event: " + channel + "," + body);
         //删除本地缓存
-        localCacheService.remove(body);
+        cacheManager.eventHandle(body);
     }
 
     @Bean
-    public RedisMessageListenerContainer redisMessageListenerContainer(@Autowired CacheService localCacheService) {
+    public RedisMessageListenerContainer redisMessageListenerContainer(CacheManager cacheManager) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         KeyspaceEventMessageListener listener = new KeyspaceEventMessageListener(container) {
             @Override
             protected void doHandleMessage(Message message) {
-                eventHandle(localCacheService,message);
+                eventHandle(cacheManager,message);
             }
         };
 
@@ -94,7 +97,7 @@ public class MultiCacheConfig {
             public void run() {
                 log.info("[Cache Stats] : " + cacheManager.getStats());
             }
-        }, 0, 300 * 1000);
+        }, 0, statsPeriod);
         return timer;
     }
 

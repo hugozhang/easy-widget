@@ -38,6 +38,8 @@ public interface CacheManager {
      */
     void clear();
 
+    void eventHandle(Object key);
+
 
     /**
      * 缓存统计

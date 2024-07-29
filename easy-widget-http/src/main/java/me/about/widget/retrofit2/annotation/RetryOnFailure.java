@@ -1,4 +1,4 @@
-package me.about.widget.retrofit2.interceptor;
+package me.about.widget.retrofit2.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

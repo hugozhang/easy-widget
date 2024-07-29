@@ -17,4 +17,6 @@ public class Constants {
     public static final long ALLOW_NULL_VALUE = -1;
 
     public static final String JOIN_ON = ":";
+
+    public static final String COMPLETABLE_FUTURE_RESULT = "ok";
 }

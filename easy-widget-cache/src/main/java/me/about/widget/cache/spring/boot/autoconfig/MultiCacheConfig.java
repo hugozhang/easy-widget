@@ -83,6 +83,7 @@ public class MultiCacheConfig {
         // 订阅删除事件、过期事件
         container.addMessageListener(adapter, ImmutableList.of(
                 new PatternTopic("__keyevent@0__:del")
+                ,new PatternTopic("__keyevent@0__:set")
                 ,new PatternTopic("__keyevent@0__:expired")));
         return container;
     }

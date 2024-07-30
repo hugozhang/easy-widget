@@ -47,8 +47,8 @@ public class MultiCacheManager implements CacheManager {
             , new LinkedBlockingQueue<>(200)
             , new ThreadFactoryBuilder().setNameFormat("PUT Cache Thread").build()
             , (r, executor) -> {
-                r.run();
                 logger.error("[PUT Cache Thread] rejectedExecution:{}", r);
+                r.run();
             });
     }
 

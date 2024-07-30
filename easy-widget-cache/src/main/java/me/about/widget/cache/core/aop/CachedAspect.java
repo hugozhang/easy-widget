@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import me.about.widget.cache.annotation.Cached;
 import me.about.widget.cache.annotation.FieldName;
 import me.about.widget.cache.core.CacheManager;
+import me.about.widget.cache.entity.CacheInvokeConfig;
+import me.about.widget.cache.entity.CacheInvokeContext;
 import me.about.widget.cache.entity.InQueryMode;
 import me.about.widget.cache.entity.MethodParameter;
 import me.about.widget.cache.enums.CacheType;
@@ -52,66 +54,87 @@ public class CachedAspect {
     @Around("cached()")
     public Object doMultiLevelCache(ProceedingJoinPoint joinPoint) throws Throwable {
 
+        // 调用方信息
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         Method method = methodSignature.getMethod();
-        Cached cached = method.getAnnotation(Cached.class);
-
-        //方法注解信息
-        String keyPrefix = cached.keyPrefix();
-        String keyExpr = cached.key();
-
-        //对象过期
-        long expire = cached.expire();
-        TimeUnit timeUnit = cached.timeUnit();
-        //空值缓存过期
-        long emptyExpire = cached.emptyExpire();
-        TimeUnit emptyTimeUnit = cached.emptyTimeUnit();
-
-        //方法签名信息
         Object[] args = joinPoint.getArgs();
         Class<?> returnType = method.getReturnType();
 
+        CacheInvokeContext invokeContext = new CacheInvokeContext();
+        invokeContext.setInvoker(joinPoint::proceed);
+        invokeContext.setMethod(method);
+        invokeContext.setArgs(args);
+        invokeContext.setReturnType(returnType);
+
+        // 注解信息
+        Cached cached = method.getAnnotation(Cached.class);
+
+        // 方法注解信息
+        String keyPrefix = cached.keyPrefix();
+        String keyExpr = cached.key();
+
+        // 对象过期
+        long expire = cached.expire();
+        TimeUnit timeUnit = cached.timeUnit();
+        // 空值缓存过期
+        long emptyExpire = cached.emptyExpire();
+        TimeUnit emptyTimeUnit = cached.emptyTimeUnit();
+
         if (keyExpr == null || keyExpr.trim().isEmpty()) {
-            log.error("cache key is null.");
-            return joinPoint.proceed(args);
+            log.error("cache key is null or empty.");
+            return invokeOrigin(invokeContext);
         }
 
 //        if (args.length == 0) {
-//            return joinPoint.proceed(args);
+//            return invokeOrigin(invokeContext);
 //        }
 
         Object keyValue = SpELParser.evalKey(keyExpr,method,args);
         if (keyValue == null) {
             log.error("cache key is null.");
-            return joinPoint.proceed(args);
+            return invokeOrigin(invokeContext);
         }
         //解析key
-        Object cacheKey = (keyPrefix == null || keyPrefix.trim().isEmpty()) ? keyValue :
+        String cacheKey = (keyPrefix == null || keyPrefix.trim().isEmpty()) ? (String)keyValue :
                 (keyPrefix.lastIndexOf(Constants.JOIN_ON) != -1 ? keyPrefix : keyPrefix + Constants.JOIN_ON) + keyValue;
+
+        CacheInvokeConfig cacheInvokeConfig = new CacheInvokeConfig();
+        cacheInvokeConfig.setCacheKey(cacheKey);
+        cacheInvokeConfig.setExpire(expire);
+        cacheInvokeConfig.setTimeUnit(timeUnit);
+        cacheInvokeConfig.setEmptyExpire(emptyExpire);
+        cacheInvokeConfig.setEmptyTimeUnit(emptyTimeUnit);
+        invokeContext.setCacheInvokeConfig(cacheInvokeConfig);
+
         //是不是清缓存
         if (cached.type() == CacheType.REMOVE) {
             cacheManager.remove(cacheKey);
-            return joinPoint.proceed(args);
+            return invokeOrigin(invokeContext);
         } else if (cached.type() == CacheType.GET) {
             if (returnType == void.class) {
                 // void
                 log.error("[Cache] cache op is get,but cache returnType is void.");
-                return joinPoint.proceed(args);
+                return invokeOrigin(invokeContext);
             } else if (returnType == List.class) {
                 //一对多查询
                 log.info("[Cache] in mode : one to many -> " + methodSignature);
-                return do1ToNCache(joinPoint,cacheKey,expire,timeUnit,emptyExpire,emptyTimeUnit);
+                return do1ToNCache(invokeContext);
             } else {
                 // 一对一
                 log.info("[Cache] in mode : one to one -> " + methodSignature);
-                return do1To1Cache(joinPoint,cacheKey,expire,timeUnit,emptyExpire,emptyTimeUnit);
+                return do1To1Cache(invokeContext);
             }
         } else if (cached.type() == CacheType.IN_QUERY) {
             //多对多查询
             log.info("[Cache] in mode : many to many -> " + methodSignature);
-            return doManyToManyCache(joinPoint, method,expire,timeUnit, emptyExpire, emptyTimeUnit, args, cacheKey);
+            return doManyToManyCache(invokeContext);
         }
-        return joinPoint.proceed(args);
+        return invokeOrigin(invokeContext);
+    }
+
+
+    private static Object invokeOrigin(CacheInvokeContext context) throws Throwable {
+        return context.getInvoker().invoke(context.getArgs());
     }
 
 
@@ -122,32 +145,23 @@ public class CachedAspect {
 
     /**
      * 多对多关系
-     * @param joinPoint
-     * @param method
-     * @param emptyExpire
-     * @param emptyTimeUnit
-     * @param args
-     * @param key
-     * @return
-     * @throws Throwable
      */
-    private Object doManyToManyCache(ProceedingJoinPoint joinPoint, Method method,
-                                     long expire, TimeUnit timeUnit,
-                                     long emptyExpire, TimeUnit emptyTimeUnit,
-                                     Object[] args, Object key) throws Throwable {
+    private Object doManyToManyCache(CacheInvokeContext invokeContext) throws Throwable {
 
-        InQueryMode inQueryMode = getFieldNames(method);
+        CacheInvokeConfig invokeConfig = invokeContext.getCacheInvokeConfig();
+
+        InQueryMode inQueryMode = getFieldNames(invokeContext.getMethod());
         //1、如果最后一个参数是list，说明db查询是带in条件的
         List<Object> result = new ArrayList<>();
         List<Object> needQuery = new ArrayList<>();
-        MethodParameter[] methodParameters = buildMethodParameter(method, args);
+        MethodParameter[] methodParameters = buildMethodParameter(invokeContext.getMethod(), invokeContext.getArgs());
         Arrays.stream(methodParameters)
                 .filter(e -> isInQueryMode(e, inQueryMode.getParameterIndex()))
                 .forEach(e -> {
                     List<?> paramList = (List<?>)e.getParameterValue();
                     for (Object param : paramList) {
                         //作为缓存key去找
-                        String cacheKey = key + Constants.JOIN_ON + param.toString();
+                        String cacheKey = invokeConfig.getCacheKey() + Constants.JOIN_ON + param.toString();
                         Object cacheObject = cacheManager.get(cacheKey);
                         if (cacheObject != null) {
                             //缓存的空值不返回到结果集
@@ -167,8 +181,8 @@ public class CachedAspect {
         //2、没有命中缓存中，需要把对应的参数组装查询db，查到的数据就放进缓存
         List<Object> existDb = new ArrayList<>();
         //3、更新原方法参数，要先找到参数索引，用needQuery重新覆盖
-        args[inQueryMode.getParameterIndex()] = needQuery;
-        Object proceed = joinPoint.proceed(args);
+        invokeContext.getArgs()[inQueryMode.getParameterIndex()] = needQuery;
+        Object proceed = invokeOrigin(invokeContext);
         if (proceed instanceof List) {
             List<?> list = (List<?>)proceed;
             for (Object o : list) {
@@ -176,16 +190,16 @@ public class CachedAspect {
                 Object v = getFieldValue(o,inQueryMode.getFieldName());
                 existDb.add(v);
                 result.add(o);
-                String cacheKey = key + Constants.JOIN_ON + v;
-                doUpdate(cacheKey, o, expire, timeUnit);
+                String cacheKey = invokeConfig.getCacheKey() + Constants.JOIN_ON + v;
+                doUpdate(cacheKey, o, invokeConfig.getExpire(), invokeConfig.getTimeUnit());
             }
         }
         //4、比较needQuery与existDb的差集  不在db里面的内容是否需要做空缓存
         needQuery.removeAll(existDb);
-        if (emptyExpire != Constants.ALLOW_NULL_VALUE) {
+        if (invokeConfig.getEmptyExpire() != Constants.ALLOW_NULL_VALUE) {
             for (Object o : needQuery) {
-                String cacheKey = key + Constants.JOIN_ON + o;
-                doUpdate(cacheKey, NullValue.INSTANCE, emptyExpire, emptyTimeUnit);
+                String cacheKey = invokeConfig.getCacheKey() + Constants.JOIN_ON + o;
+                doUpdate(cacheKey, NullValue.INSTANCE, invokeConfig.getEmptyExpire(), invokeConfig.getEmptyTimeUnit());
             }
         }
         return result;
@@ -197,57 +211,39 @@ public class CachedAspect {
 
     /**
      * 一对一关系
-     * @param joinPoint
-     * @param key
-     * @param expire
-     * @param timeUnit
-     * @param emptyExpire
-     * @param emptyTimeUnit
-     * @return 缓存对象
-     * @throws Throwable
      */
-    private Object do1To1Cache(ProceedingJoinPoint joinPoint,Object key,
-                               long expire,TimeUnit timeUnit,
-                               long emptyExpire,TimeUnit emptyTimeUnit) throws Throwable {
-        Object cacheObject = cacheManager.get(key);
+    private Object do1To1Cache(CacheInvokeContext invokeContext) throws Throwable {
+        CacheInvokeConfig invokeConfig = invokeContext.getCacheInvokeConfig();
+        Object cacheObject = cacheManager.get(invokeConfig.getCacheKey());
         if (cacheObject != null) {
             return cacheObject == NullValue.INSTANCE ? null : cacheObject;
         }
-        Object proceed = joinPoint.proceed();
-        if (proceed == null && emptyExpire != Constants.ALLOW_NULL_VALUE) {
-            doUpdate(key,NullValue.INSTANCE,emptyExpire,emptyTimeUnit);
+        Object proceed = invokeOrigin(invokeContext);
+        if (proceed == null && invokeConfig.getEmptyExpire() != Constants.ALLOW_NULL_VALUE) {
+            doUpdate(invokeConfig.getCacheKey(),NullValue.INSTANCE,invokeConfig.getEmptyExpire(),invokeConfig.getEmptyTimeUnit());
         } else {
-            doUpdate(key,proceed,expire,timeUnit);
+            doUpdate(invokeConfig.getCacheKey(),proceed,invokeConfig.getExpire(),invokeConfig.getTimeUnit());
         }
         return proceed;
     }
 
     /**
      * 一对多关系
-     * @param joinPoint
-     * @param key
-     * @param expire
-     * @param timeUnit
-     * @param emptyExpire
-     * @param emptyTimeUnit
-     * @return
-     * @throws Throwable
      */
-    private Object do1ToNCache(ProceedingJoinPoint joinPoint, Object key,
-                               long expire, TimeUnit timeUnit,
-                               long emptyExpire, TimeUnit emptyTimeUnit) throws Throwable {
-        Object cacheObject = cacheManager.get(key);
+    private Object do1ToNCache(CacheInvokeContext invokeContext) throws Throwable {
+        CacheInvokeConfig invokeConfig = invokeContext.getCacheInvokeConfig();
+        Object cacheObject = cacheManager.get(invokeConfig.getCacheKey());
         if (cacheObject != null) {
             return cacheObject;
         }
-        Object proceed = joinPoint.proceed();
+        Object proceed = invokeOrigin(invokeContext);
         if (proceed instanceof List) {
             List<?> result = (List<?>) proceed;
-            if (emptyExpire != Constants.ALLOW_NULL_VALUE) {
+            if (invokeConfig.getEmptyExpire() != Constants.ALLOW_NULL_VALUE) {
                 if (result.isEmpty()) {
-                    doUpdate(key, Constants.EMPTY_LIST,emptyExpire,emptyTimeUnit);
+                    doUpdate(invokeConfig.getCacheKey(), Constants.EMPTY_LIST,invokeConfig.getEmptyExpire(),invokeConfig.getTimeUnit());
                 } else {
-                    doUpdate(key,proceed,expire,timeUnit);
+                    doUpdate(invokeConfig.getCacheKey(),proceed,invokeConfig.getExpire(),invokeConfig.getTimeUnit());
                 }
             }
         }

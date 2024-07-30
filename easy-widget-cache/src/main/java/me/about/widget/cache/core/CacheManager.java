@@ -1,5 +1,9 @@
 package me.about.widget.cache.core;
 
+import me.about.widget.cache.entity.CacheInvokeConfig;
+
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -19,6 +23,13 @@ public interface CacheManager {
     Object get(Object key);
 
     /**
+     * 从缓存读取 多对多
+     * @param keys
+     * @return
+     */
+    List<Object> getAll(List<String> keys, CacheInvokeConfig invokeConfig);
+
+    /**
      * 设置缓存
      * @param key
      * @param value
@@ -26,6 +37,9 @@ public interface CacheManager {
      * @param timeUnit
      */
     void put(Object key, Object value, Long expire, TimeUnit timeUnit);
+
+
+    void putAll(Map<String,Object> dataMap, CacheInvokeConfig invokeConfig);
 
     /**
      * 清除缓存

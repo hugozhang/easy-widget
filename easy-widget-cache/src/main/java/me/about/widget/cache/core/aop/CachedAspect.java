@@ -26,10 +26,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -152,6 +149,7 @@ public class CachedAspect {
 
         InQueryMode inQueryMode = getFieldNames(invokeContext.getMethod());
         //1、如果最后一个参数是list，说明db查询是带in条件的
+        List<String> keys = new ArrayList<>();
         List<Object> result = new ArrayList<>();
         List<Object> needQuery = new ArrayList<>();
         MethodParameter[] methodParameters = buildMethodParameter(invokeContext.getMethod(), invokeContext.getArgs());
@@ -161,19 +159,38 @@ public class CachedAspect {
                     List<?> paramList = (List<?>)e.getParameterValue();
                     for (Object param : paramList) {
                         //作为缓存key去找
-                        String cacheKey = invokeConfig.getCacheKey() + Constants.JOIN_ON + param.toString();
-                        Object cacheObject = cacheManager.get(cacheKey);
-                        if (cacheObject != null) {
-                            //缓存的空值不返回到结果集
-                            if (cacheObject != NullValue.INSTANCE) {
-                                result.add(cacheObject);
-                            }
-                        } else {
-                            //不在缓存的需要查询一次db
-                            needQuery.add(param);
-                        }
+//                        String cacheKey = invokeConfig.getCacheKey() + Constants.JOIN_ON + param.toString();
+//
+//                        Object cacheObject = cacheManager.get(cacheKey);
+//                        if (cacheObject != null) {
+//                            //缓存的空值不返回到结果集
+//                            if (cacheObject != NullValue.INSTANCE) {
+//                                result.add(cacheObject);
+//                            }
+//                        } else {
+//                            //不在缓存的需要查询一次db
+//                            needQuery.add(param);
+//                        }
+
+                        keys.add(param.toString());
                     }
                 });
+
+        //所有查询key
+
+        List<Object> all = cacheManager.getAll(keys,invokeConfig);
+        for (int i = 0,len = all.size() ; i < len ; i++) {
+            Object value = all.get(i);
+            if (value != null) {
+                //缓存的空值不返回到结果集
+                if (value != NullValue.INSTANCE) {
+                    result.add(value);
+                }
+            } else {
+                //不在缓存的需要查询一次db
+                needQuery.add(keys.get(i));
+            }
+        }
 
         if (needQuery.isEmpty()) {
             return result;
@@ -184,6 +201,7 @@ public class CachedAspect {
         invokeContext.getArgs()[inQueryMode.getParameterIndex()] = needQuery;
         Object proceed = invokeOrigin(invokeContext);
         if (proceed instanceof List) {
+            Map<String,Object> dataMap = new HashMap<>();
             List<?> list = (List<?>)proceed;
             for (Object o : list) {
                 //返回的是复杂对象，就需要根据字段名去取值
@@ -191,15 +209,24 @@ public class CachedAspect {
                 existDb.add(v);
                 result.add(o);
                 String cacheKey = invokeConfig.getCacheKey() + Constants.JOIN_ON + v;
-                doUpdate(cacheKey, o, invokeConfig.getExpire(), invokeConfig.getTimeUnit());
+//                doUpdate(cacheKey, o, invokeConfig.getExpire(), invokeConfig.getTimeUnit());
+                dataMap.put(cacheKey,o);
+            }
+            if (!dataMap.isEmpty()) {
+                cacheManager.putAll(dataMap,invokeConfig);
             }
         }
         //4、比较needQuery与existDb的差集  不在db里面的内容是否需要做空缓存
         needQuery.removeAll(existDb);
         if (invokeConfig.getEmptyExpire() != Constants.ALLOW_NULL_VALUE) {
+            Map<String,Object> dataMap = new HashMap<>();
             for (Object o : needQuery) {
                 String cacheKey = invokeConfig.getCacheKey() + Constants.JOIN_ON + o;
-                doUpdate(cacheKey, NullValue.INSTANCE, invokeConfig.getEmptyExpire(), invokeConfig.getEmptyTimeUnit());
+                dataMap.put(cacheKey,NullValue.INSTANCE);
+//                doUpdate(cacheKey, NullValue.INSTANCE, invokeConfig.getEmptyExpire(), invokeConfig.getEmptyTimeUnit());
+            }
+            if (!dataMap.isEmpty()) {
+                cacheManager.putAll(dataMap,invokeConfig);
             }
         }
         return result;

@@ -2,6 +2,9 @@ package me.about.widget.cache.core;
 
 import com.github.benmanes.caffeine.cache.Cache;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class LocalCacheService implements CacheService {
@@ -18,8 +21,19 @@ public class LocalCacheService implements CacheService {
     }
 
     @Override
+    public List<Object> getAll(List<String> keyList) {
+
+       return new ArrayList<>(caffeineCache.getAllPresent(keyList).values());
+    }
+
+    @Override
     public void put(String key, Object value) {
         this.caffeineCache.put(key,value);
+    }
+
+    @Override
+    public void putAll(Map<String, Object> map,Long expire, TimeUnit timeUnit) {
+        caffeineCache.putAll(map);
     }
 
     @Override

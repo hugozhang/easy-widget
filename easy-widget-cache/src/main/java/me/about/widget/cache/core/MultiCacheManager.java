@@ -1,14 +1,17 @@
 package me.about.widget.cache.core;
 
+import com.google.common.base.Joiner;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import me.about.widget.cache.entity.CacheInvokeConfig;
 import me.about.widget.cache.stats.CacheStatistics;
 import me.about.widget.cache.util.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 /**
  * 多级缓存组合
@@ -68,6 +71,35 @@ public class MultiCacheManager implements CacheManager {
         return value;
     }
 
+
+    private List<Object> lookupAll(List<String> keys,CacheInvokeConfig invokeConfig) {
+        // 有可能本地缓存只有部分
+        List<Object> valueList = localCacheService.getAll(keys);
+        if (valueList.size() == keys.size()) {
+            logger.info("[GET ALL Cache - Local] key:{}." ,keys);
+            return valueList;
+        }
+
+        List<Object> resultFromRemote = remoteCacheService.getAll(keys);
+
+        Map<String,Object> nonNullKeyValues = new HashMap<>();
+
+        for (int i = 0; i < resultFromRemote.size(); i++) {
+            Object value = resultFromRemote.get(i);
+            if (value != null) {
+                nonNullKeyValues.put(keys.get(i),value);
+            }
+        }
+
+        if (!nonNullKeyValues.isEmpty()) {
+            logger.info("[GET ALL Cache - Remote] key:{}." ,keys);
+            localCacheService.putAll(nonNullKeyValues,invokeConfig.getExpire(),invokeConfig.getTimeUnit());
+            stats.cacheSizeIncrease();
+        }
+        return valueList;
+    }
+
+
     private ReentrantLock getLockForKey(Object key) {
         return locks.computeIfAbsent(key, k -> new ReentrantLock());
     }
@@ -91,6 +123,35 @@ public class MultiCacheManager implements CacheManager {
         } finally {
             lock.unlock();
             locks.remove(key);
+        }
+    }
+
+    @Override
+    public List<Object> getAll(List<String> keys, CacheInvokeConfig invokeConfig) {
+        stats.requestMade();
+
+        List<String> cacheKeys = keys
+                .stream()
+                .map(e -> getKey(invokeConfig.getCacheKey() + Constants.JOIN_ON + e))
+                .collect(Collectors.toList());
+
+        List<Object> valueList = lookupAll(cacheKeys,invokeConfig);
+
+        if (!valueList.isEmpty()) {
+            stats.cacheHit();
+            return valueList;
+        }
+        String lockKey = getLockKey(keys);
+        ReentrantLock lock = getLockForKey(lockKey);
+        lock.lock();
+        try {
+            return lookupAll(cacheKeys,invokeConfig);
+        } catch (Exception e) {
+            logger.error(e.getMessage(),e);
+            throw new IllegalStateException(e);
+        } finally {
+            lock.unlock();
+            locks.remove(lockKey);
         }
     }
 
@@ -119,6 +180,41 @@ public class MultiCacheManager implements CacheManager {
             logger.info("[PUT Cache] finish,key:{},value:{},elapse:{} ms.", key, value,end - start);
         });
     }
+
+    private String getLockKey(Collection<String> keys) {
+        return Joiner.on("#").join(keys);
+    }
+
+    @Override
+    public void putAll(Map<String, Object> dataMap, CacheInvokeConfig invokeConfig) {
+        long start = System.currentTimeMillis();
+
+
+        Map<String, Object> keyValues = new HashMap<>(dataMap.size());
+        dataMap.forEach((k, v) -> {
+            String cacheKey = getKey(k);
+            keyValues.put(cacheKey, v);
+        });
+
+        CompletableFuture.runAsync(() -> {
+            String lockKey = getLockKey(keyValues.keySet());
+            ReentrantLock lock = getLockForKey(lockKey);
+            lock.lock();
+            try {
+                this.localCacheService.putAll(keyValues,invokeConfig.getExpire(),invokeConfig.getTimeUnit());
+                this.remoteCacheService.putAll(keyValues,invokeConfig.getExpire(),invokeConfig.getTimeUnit());
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            } finally {
+                lock.unlock();
+                locks.remove(lockKey);
+            }
+        }, executor).whenComplete((s, throwable) -> {
+            long end = System.currentTimeMillis();
+            logger.info("[PUT ALL Cache] finish,elapse:{} ms.",end - start);
+        });
+    }
+
 
     @Override
     public void remove(Object key) {

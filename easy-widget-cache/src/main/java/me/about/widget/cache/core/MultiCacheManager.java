@@ -73,19 +73,20 @@ public class MultiCacheManager implements CacheManager {
 
 
     private List<Object> lookupAll(List<String> keys,CacheInvokeConfig invokeConfig) {
-        // 有可能本地缓存只有部分
-        List<Object> valueList = localCacheService.getAll(keys);
-        if (valueList.size() == keys.size()) {
+        // 有可能本地缓存只有部分 有可能一部分在本地，一部分在远程，所以只要和key数量不一致都走远程查再查更新
+        List<Object> valueListFromLocal = localCacheService.getAll(keys);
+        if (valueListFromLocal.size() == keys.size()) {
             logger.info("[GET ALL Cache - Local] key:{}." ,keys);
-            return valueList;
+            return valueListFromLocal;
         }
 
-        List<Object> resultFromRemote = remoteCacheService.getAll(keys);
+        // 找到redis中存在的key有值,支持赋值给本地缓存
+        List<Object> valueListFromRemote = remoteCacheService.getAll(keys);
 
         Map<String,Object> nonNullKeyValues = new HashMap<>();
 
-        for (int i = 0; i < resultFromRemote.size(); i++) {
-            Object value = resultFromRemote.get(i);
+        for (int i = 0; i < valueListFromRemote.size(); i++) {
+            Object value = valueListFromRemote.get(i);
             if (value != null) {
                 nonNullKeyValues.put(keys.get(i),value);
             }
@@ -96,7 +97,8 @@ public class MultiCacheManager implements CacheManager {
             localCacheService.putAll(nonNullKeyValues,invokeConfig.getExpire(),invokeConfig.getTimeUnit());
             stats.cacheSizeIncrease();
         }
-        return valueList;
+        // 返回的时候要返回原始的，因为要检查key不在缓存的情况，redis返回的时候key不在对应的为null
+        return valueListFromRemote;
     }
 
 
@@ -188,7 +190,6 @@ public class MultiCacheManager implements CacheManager {
     @Override
     public void putAll(Map<String, Object> dataMap, CacheInvokeConfig invokeConfig) {
         long start = System.currentTimeMillis();
-
 
         Map<String, Object> keyValues = new HashMap<>(dataMap.size());
         dataMap.forEach((k, v) -> {

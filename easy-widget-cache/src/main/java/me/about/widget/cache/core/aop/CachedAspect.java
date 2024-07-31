@@ -115,16 +115,16 @@ public class CachedAspect {
                 return invokeOrigin(invokeContext);
             } else if (returnType == List.class) {
                 //一对多查询
-                log.info("[Cache] in mode : one to many -> " + methodSignature);
+                log.debug("[Cache] in mode : one to many -> " + methodSignature);
                 return do1ToNCache(invokeContext);
             } else {
                 // 一对一
-                log.info("[Cache] in mode : one to one -> " + methodSignature);
+                log.debug("[Cache] in mode : one to one -> " + methodSignature);
                 return do1To1Cache(invokeContext);
             }
         } else if (cached.type() == CacheType.IN_QUERY) {
             //多对多查询
-            log.info("[Cache] in mode : many to many -> " + methodSignature);
+            log.debug("[Cache] in mode : many to many -> " + methodSignature);
             return doManyToManyCache(invokeContext);
         }
         return invokeOrigin(invokeContext);

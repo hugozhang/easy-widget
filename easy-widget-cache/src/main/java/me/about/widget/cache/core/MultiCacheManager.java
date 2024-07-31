@@ -59,12 +59,12 @@ public class MultiCacheManager implements CacheManager {
         String cacheKey = getKey(key);
         Object value = localCacheService.get(cacheKey);
         if (value != null) {
-            logger.info("[GET Cache - Local] key:{}." ,cacheKey);
+            logger.debug("[GET Cache - Local] key:{}." ,cacheKey);
             return value;
         }
         value = remoteCacheService.get(cacheKey);
         if (value != null) {
-            logger.info("[GET Cache - Remote] key:{}." ,cacheKey);
+            logger.debug("[GET Cache - Remote] key:{}." ,cacheKey);
             localCacheService.put(cacheKey,value);
             stats.cacheSizeIncrease();
         }
@@ -76,7 +76,7 @@ public class MultiCacheManager implements CacheManager {
         // 有可能本地缓存只有部分 有可能一部分在本地，一部分在远程，所以只要和key数量不一致都走远程查再查更新
         List<Object> valueListFromLocal = localCacheService.getAll(keys);
         if (valueListFromLocal.size() == keys.size()) {
-            logger.info("[GET ALL Cache - Local] key:{}." ,keys);
+            logger.debug("[GET ALL Cache - Local] key:{}." ,keys);
             return valueListFromLocal;
         }
 
@@ -93,7 +93,7 @@ public class MultiCacheManager implements CacheManager {
         }
 
         if (!nonNullKeyValues.isEmpty()) {
-            logger.info("[GET ALL Cache - Remote] key:{}." ,keys);
+            logger.debug("[GET ALL Cache - Remote] key:{}." ,keys);
             localCacheService.putAll(nonNullKeyValues,invokeConfig.getExpire(),invokeConfig.getTimeUnit());
             stats.cacheSizeIncrease();
         }
@@ -182,7 +182,7 @@ public class MultiCacheManager implements CacheManager {
             }
         }, executor).whenComplete((s, throwable) -> {
             long end = System.currentTimeMillis();
-            logger.info("[PUT Cache] finish,key:{},value:{},elapse:{} ms.", key, value,end - start);
+            logger.debug("[PUT Cache] finish,key:{},value:{},elapse:{} ms.", key, value,end - start);
         });
     }
 
@@ -215,7 +215,7 @@ public class MultiCacheManager implements CacheManager {
             }
         }, executor).whenComplete((s, throwable) -> {
             long end = System.currentTimeMillis();
-            logger.info("[PUT ALL Cache] finish,elapse:{} ms.",end - start);
+            logger.debug("[PUT ALL Cache] finish,elapse:{} ms.",end - start);
         });
     }
 

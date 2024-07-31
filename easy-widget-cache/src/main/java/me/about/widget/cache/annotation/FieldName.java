@@ -16,5 +16,5 @@ import java.lang.annotation.Target;
 @Retention(value = RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.FIELD,ElementType.PARAMETER} )
 public @interface FieldName {
-    String value();
+    String value() ;
 }

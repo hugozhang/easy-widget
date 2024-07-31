@@ -18,5 +18,6 @@ public class Constants {
 
     public static final String JOIN_ON = ":";
 
-    public static final String COMPLETABLE_FUTURE_RESULT = "ok";
+    public static final String JOIN_LINK = "-";
+
 }

@@ -4,10 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.about.widget.cache.annotation.Cached;
 import me.about.widget.cache.annotation.FieldName;
 import me.about.widget.cache.core.CacheManager;
-import me.about.widget.cache.entity.CacheInvokeConfig;
-import me.about.widget.cache.entity.CacheInvokeContext;
-import me.about.widget.cache.entity.InQueryMode;
-import me.about.widget.cache.entity.MethodParameter;
+import me.about.widget.cache.entity.*;
 import me.about.widget.cache.enums.CacheType;
 import me.about.widget.cache.util.Constants;
 import me.about.widget.cache.util.SpELParser;
@@ -19,6 +16,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.cache.support.NullValue;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
@@ -151,11 +149,21 @@ public class CachedAspect {
      */
     private Object doManyToManyCache(CacheInvokeContext invokeContext) throws Throwable {
         CacheInvokeConfig invokeConfig = invokeContext.getCacheInvokeConfig();
-        InQueryMode inQueryMode = getFieldNames(invokeContext.getMethod());
         //1、如果最后一个参数是list，说明db查询是带in条件的
         List<Object> result = new ArrayList<>();
         List<Object> needQuery = new ArrayList<>();
+
+        InQueryMode inQueryMode = getFieldNames(invokeContext.getMethod());
+
         MethodParameter[] methodParameters = buildMethodParameter(invokeContext.getMethod(), invokeContext.getArgs());
+
+//        ManyToManyParam manyToManyParam = buildManyToManyParam(invokeContext.getMethod(), invokeContext.getArgs());
+//
+//        List<String> keys = manyToManyParam.getArg()
+//                .stream()
+//                .filter(Objects::nonNull)
+//                .map(String::valueOf)
+//                .collect(Collectors.toList());
 
         // 找到@FieldName注解字段的值
         List<String> keys = Arrays.stream(methodParameters)
@@ -218,7 +226,19 @@ public class CachedAspect {
             for (Object o : list) {
                 //多对多  比如in查询返回list 怎么缓存
                 //key是什么 value 是什么
+                //找到对象中哪个列的值和它匹配的 以它生成key
+//                Arrays.stream(manyToManyParam.getFieldNames()).forEach(e -> {
+//                    Object fieldValue = getFieldValue(o, e);
+//                    if (manyToManyParam.getArg().contains(fieldValue)) {
+//                        existDb.add(fieldValue);
+//                        result.add(o);
+//                        String cacheKey = invokeConfig.getCacheKey() + Constants.JOIN_ON + e + Constants.JOIN_LINK + fieldValue;
+//                        keyValues.put(cacheKey,o);
+//                    }
+//                });
+                
                 Object v = getFieldValue(o,inQueryMode.getFieldName());
+
                 existDb.add(v);
                 result.add(o);
                 String cacheKey = invokeConfig.getCacheKey() + Constants.JOIN_ON + v;
@@ -287,11 +307,30 @@ public class CachedAspect {
         return proceed;
     }
 
+
+    private ManyToManyParam buildManyToManyParam(Method method,Object [] args)  {
+
+        ManyToManyParam manyToManyParam = new ManyToManyParam();
+        Parameter[] parameters = method.getParameters();
+        for (int i = 0; i < parameters.length; i++) {
+            FieldName mergedAnnotation = AnnotatedElementUtils.findMergedAnnotation(parameters[i], FieldName.class);
+            if (mergedAnnotation != null) {
+//                manyToManyParam.setFieldNames(mergedAnnotation.or());
+                manyToManyParam.setArgIndex(i);
+                if (args[i] instanceof List) {
+                    manyToManyParam.setArg((List<Object>)args[i]);
+                }
+            }
+//            boolean hasAnnotation = AnnotatedElementUtils.hasAnnotation(parameters[i], FieldName.class);
+//            if (hasAnnotation) {
+//                args[i];
+//            }
+        }
+        return manyToManyParam;
+    }
+
     /**
      * in查询数值对应的参数名称
-     *
-     * @param method
-     * @return
      */
     private InQueryMode getFieldNames(Method method) {
         InQueryMode inQueryMode = new InQueryMode();

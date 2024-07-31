@@ -162,6 +162,7 @@ public class CachedAspect {
                 .filter(e -> isInQueryMode(e, inQueryMode.getParameterIndex()))
                 .map(MethodParameter::getParameterValue)
                 .flatMap(e -> ((List<?>) e).stream())
+                .filter(Objects::nonNull)
                 .map(String::valueOf)
                 .collect(Collectors.toList());
 

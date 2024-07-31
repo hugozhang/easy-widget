@@ -130,6 +130,9 @@ public class MultiCacheManager implements CacheManager {
 
     @Override
     public List<Object> getAll(List<String> keys, CacheInvokeConfig invokeConfig) {
+        if (keys.isEmpty()) {
+            return Collections.emptyList();
+        }
         stats.requestMade();
 
         List<String> cacheKeys = keys

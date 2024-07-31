@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -25,7 +26,27 @@ public class RemoteCacheService implements CacheService {
 
     @Override
     public List<Object> getAll(List<String> keyList) {
-        return redisTemplate.opsForValue().multiGet(keyList);
+//        redisTemplate.opsForValue().multiGet(keyList);
+        // 执行流水线操作
+//        redisTemplate.executePipelined((RedisCallback<List<Object>>) connection ->
+//            keyList.stream()
+//             .map(key -> connection.get(key.getBytes()))
+//             .collect(Collectors.toList()));
+
+        // 定义每批处理的key数量
+        int batchSize = 10;
+        List<Object> results = new ArrayList<>();
+        for (int i = 0; i < keyList.size(); i += batchSize) {
+            // 获取一批key
+            List<String> batchKeys = keyList.subList(i, Math.min(i + batchSize, keyList.size()));
+            // 执行批量查询
+            List<Object> batchValues = redisTemplate.opsForValue().multiGet(batchKeys);
+            if (batchValues != null) {
+                results.addAll(batchValues);
+            }
+        }
+        return results;
+
     }
 
     @Override
@@ -37,7 +58,6 @@ public class RemoteCacheService implements CacheService {
     public void putAll(Map<String, Object> keyValues,Long expire, TimeUnit timeUnit) {
         // 使用multiSet批量设置键值对
 //        redisTemplate.opsForValue().multiSet(keyValues);
-
         // 使用executePipelined批量设置过期时间
         redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
             StringRedisSerializer serializer = new StringRedisSerializer();

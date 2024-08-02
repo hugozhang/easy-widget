@@ -28,7 +28,7 @@ public @interface Cached {
 
     long expire() default 6;
 
-    TimeUnit timeUnit() default TimeUnit.HOURS;
+    TimeUnit timeUnit() default TimeUnit.DAYS;
 
     // ====== 空值缓存配置  默认存一天
     long emptyExpire() default 1;

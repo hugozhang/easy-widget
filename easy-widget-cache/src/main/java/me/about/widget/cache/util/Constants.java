@@ -18,6 +18,6 @@ public class Constants {
 
     public static final String JOIN_ON = ":";
 
-    public static final String JOIN_LINK = "-";
+    public static final int REDIS_BATCH_SIZE = 10;
 
 }

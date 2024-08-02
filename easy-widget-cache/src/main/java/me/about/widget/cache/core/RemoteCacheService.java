@@ -2,6 +2,7 @@ package me.about.widget.cache.core;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import me.about.widget.cache.util.Constants;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -26,38 +27,52 @@ public class RemoteCacheService implements CacheService {
 
     @Override
     public List<Object> getAll(List<String> keyList) {
-//        redisTemplate.opsForValue().multiGet(keyList);
-        // 执行流水线操作
-//        redisTemplate.executePipelined((RedisCallback<List<Object>>) connection ->
-//            keyList.stream()
-//             .map(key -> connection.get(key.getBytes()))
-//             .collect(Collectors.toList()));
-
-        // 定义每批处理的key数量
-        int batchSize = 10;
+        if (keyList.isEmpty()) {
+            return Constants.EMPTY_LIST;
+        }
+        // 分批
         List<Object> results = new ArrayList<>();
-        for (int i = 0; i < keyList.size(); i += batchSize) {
-            // 获取一批key
-            List<String> batchKeys = keyList.subList(i, Math.min(i + batchSize, keyList.size()));
-            // 执行批量查询
+        for (int i = 0; i < keyList.size(); i += Constants.REDIS_BATCH_SIZE) {
+            List<String> batchKeys = keyList.subList(i, Math.min(i + Constants.REDIS_BATCH_SIZE, keyList.size()));
             List<Object> batchValues = redisTemplate.opsForValue().multiGet(batchKeys);
             if (batchValues != null) {
                 results.addAll(batchValues);
             }
         }
+
+
+//        redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+//            StringRedisSerializer keySerializer = new StringRedisSerializer();
+//            RedisSerializer<Object> valueSerializer = new GenericJackson2JsonRedisSerializer();
+//            List<byte[]> bytes = connection.mGet(keyList.stream()
+//                    .map(keySerializer::serialize)
+//                    .toArray(byte[][]::new));
+//            if (bytes == null) {
+//                return null;
+//            }
+//            return bytes
+//                    .stream()
+//                    .map(valueSerializer::deserialize)
+//                    .collect(Collectors.toList());
+//        });
+
         return results;
 
     }
 
     @Override
     public void put(String key, Object value) {
-        throw new UnsupportedOperationException();
+        this.redisTemplate.opsForValue().set(key,value);
     }
 
     @Override
     public void putAll(Map<String, Object> keyValues,Long expire, TimeUnit timeUnit) {
         // 使用multiSet批量设置键值对
 //        redisTemplate.opsForValue().multiSet(keyValues);
+        batchPut(keyValues, expire, timeUnit);
+    }
+
+    private void batchPut(Map<String, Object> keyValues, Long expire, TimeUnit timeUnit) {
         redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
             StringRedisSerializer serializer = new StringRedisSerializer();
             keyValues.forEach((key, value) -> {
@@ -68,7 +83,7 @@ public class RemoteCacheService implements CacheService {
                     connection.expire(keyBytes, timeUnit.toSeconds(expire));
                 }
             });
-            return null; // 流水线要求返回null
+            return null;
         });
     }
 

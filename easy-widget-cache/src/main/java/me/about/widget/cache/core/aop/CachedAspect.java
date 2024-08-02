@@ -201,7 +201,7 @@ public class CachedAspect {
                     if (needQuery.contains(fieldValue)) {
                         existDb.add(fieldValue);
                         result.add(o);
-                        String cacheKey = invokeConfig.getCacheKey() + Constants.JOIN_ON + fieldValue;
+                        String cacheKey = fieldValue.toString();
                         keyValues.computeIfAbsent(cacheKey, k -> Sets.newHashSet()).add(o);
                     }
                 });
@@ -211,7 +211,7 @@ public class CachedAspect {
         needQuery.removeAll(existDb);
         if (invokeConfig.getEmptyExpire() != Constants.ALLOW_NULL_VALUE) {
             for (Object o : needQuery) {
-                String cacheKey = invokeConfig.getCacheKey() + Constants.JOIN_ON + o;
+                String cacheKey =  o.toString();
                 keyValues.computeIfAbsent(cacheKey, k -> Sets.newHashSet()).add(NullValue.INSTANCE);
             }
         }

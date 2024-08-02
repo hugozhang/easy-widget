@@ -183,7 +183,7 @@ public class CachedAspect {
         if (needQuery.isEmpty()) {
             return result;
         }
-        Map<String,List<Object>> keyValues = new HashMap<>();
+        Map<String,Set<Object>> keyValues = new HashMap<>();
         //2、没有命中缓存中，需要把对应的参数组装查询db，查到的数据就放进缓存
         List<Object> existDb = new ArrayList<>();
         //3、更新原方法参数，要先找到参数索引，用needQuery重新覆盖
@@ -201,7 +201,7 @@ public class CachedAspect {
                         existDb.add(fieldValue);
                         result.add(o);
                         String cacheKey = invokeConfig.getCacheKey() + Constants.JOIN_ON + fieldValue;
-                        keyValues.computeIfAbsent(cacheKey, k -> new ArrayList<>()).add(o);
+                        keyValues.computeIfAbsent(cacheKey, k -> new HashSet<>()).add(o);
                     }
                 });
             }
@@ -211,12 +211,18 @@ public class CachedAspect {
         if (invokeConfig.getEmptyExpire() != Constants.ALLOW_NULL_VALUE) {
             for (Object o : needQuery) {
                 String cacheKey = invokeConfig.getCacheKey() + Constants.JOIN_ON + o;
-                keyValues.computeIfAbsent(cacheKey, k -> new ArrayList<>()).add(NullValue.INSTANCE);
+                keyValues.computeIfAbsent(cacheKey, k -> new HashSet<>()).add(NullValue.INSTANCE);
             }
         }
         //5、批量更新进缓存
         if (!keyValues.isEmpty()) {
-            cacheManager.putAll(keyValues,invokeConfig);
+            Map<String, Object> convertedMap = new HashMap<>();
+            for (Map.Entry<String, Set<Object>> entry : keyValues.entrySet()) {
+                // 如果只有一个值，则是一对一关系,否则一对多
+                List<Object> arrayList = new ArrayList<>(entry.getValue());
+                convertedMap.put(entry.getKey(), arrayList.size() == 1 ? arrayList.get(0) : arrayList);
+            }
+            cacheManager.putAll(convertedMap,invokeConfig);
         }
         return result;
     }

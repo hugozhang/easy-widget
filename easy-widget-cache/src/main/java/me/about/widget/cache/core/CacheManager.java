@@ -39,7 +39,7 @@ public interface CacheManager {
     void put(Object key, Object value, Long expire, TimeUnit timeUnit);
 
 
-    void putAll(Map<String,List<Object>> dataMap, CacheInvokeConfig invokeConfig);
+    void putAll(Map<String,Object> keyValues, CacheInvokeConfig invokeConfig);
 
     /**
      * 清除缓存

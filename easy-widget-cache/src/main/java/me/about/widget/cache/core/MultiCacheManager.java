@@ -199,22 +199,22 @@ public class MultiCacheManager implements CacheManager {
     }
 
     @Override
-    public void putAll(Map<String, List<Object>> dataMap, CacheInvokeConfig invokeConfig) {
+    public void putAll(Map<String, Object> keyValues, CacheInvokeConfig invokeConfig) {
         long start = System.currentTimeMillis();
         CompletableFuture.runAsync(() -> {
-            Map<String, Object> keyValues = new HashMap<>(dataMap.size());
-            dataMap.forEach((k, v) -> {
-                String cacheKey = getKey(k);
-                // 如果只有一个值，则是一对一关系,否则一对多
-                keyValues.put(cacheKey, v.size() == 1 ? v.get(0) : v);
-            });
+            // 创建一个新的Map来存放更新后的键值对
+            Map<String, Object> updatedKeyValues = new HashMap<>();
+            for (Map.Entry<String, Object> entry : keyValues.entrySet()) {
+                String newKey = getKey(invokeConfig.getCacheKey() + Constants.JOIN_ON + entry.getKey());
+                updatedKeyValues.put(newKey, entry.getValue());
+            }
 
             String lockKey = getLockKey(keyValues.keySet());
             ReentrantLock lock = getLockForKey(lockKey);
             lock.lock();
             try {
-                this.localCacheService.putAll(keyValues,invokeConfig.getExpire(),invokeConfig.getTimeUnit());
-                this.remoteCacheService.putAll(keyValues,invokeConfig.getExpire(),invokeConfig.getTimeUnit());
+                this.localCacheService.putAll(updatedKeyValues,invokeConfig.getExpire(),invokeConfig.getTimeUnit());
+                this.remoteCacheService.putAll(updatedKeyValues,invokeConfig.getExpire(),invokeConfig.getTimeUnit());
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             } finally {

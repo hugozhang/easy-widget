@@ -1,5 +1,6 @@
 package me.about.widget.cache.core.aop;
 
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import me.about.widget.cache.annotation.Cached;
 import me.about.widget.cache.annotation.FieldName;
@@ -201,7 +202,7 @@ public class CachedAspect {
                         existDb.add(fieldValue);
                         result.add(o);
                         String cacheKey = invokeConfig.getCacheKey() + Constants.JOIN_ON + fieldValue;
-                        keyValues.computeIfAbsent(cacheKey, k -> new HashSet<>()).add(o);
+                        keyValues.computeIfAbsent(cacheKey, k -> Sets.newHashSet()).add(o);
                     }
                 });
             }
@@ -211,7 +212,7 @@ public class CachedAspect {
         if (invokeConfig.getEmptyExpire() != Constants.ALLOW_NULL_VALUE) {
             for (Object o : needQuery) {
                 String cacheKey = invokeConfig.getCacheKey() + Constants.JOIN_ON + o;
-                keyValues.computeIfAbsent(cacheKey, k -> new HashSet<>()).add(NullValue.INSTANCE);
+                keyValues.computeIfAbsent(cacheKey, k -> Sets.newHashSet()).add(NullValue.INSTANCE);
             }
         }
         //5、批量更新进缓存

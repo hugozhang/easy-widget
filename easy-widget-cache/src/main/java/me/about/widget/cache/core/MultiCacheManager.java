@@ -73,22 +73,30 @@ public class MultiCacheManager implements CacheManager {
 
 
     private List<Object> lookupAll(List<String> keys,CacheInvokeConfig invokeConfig) {
+        // 考虑 a in('a1','a2') or b in('a1','a2')情况
+        // 以确定这条记录是哪个字段查询出来的记录,然后以它为key
+        // 所以查询的时候 key要是(前缀+列值)的组合 存在一对多
+
+        List<String> newKeys = keys.stream()
+                .map(e -> getKey(invokeConfig.getCacheKey() + Constants.JOIN_ON + e))
+                .collect(Collectors.toList());
+
         // 有可能本地缓存只有部分 有可能一部分在本地，一部分在远程，所以只要和key数量不一致都走远程查再查更新
-        List<Object> valueListFromLocal = localCacheService.getAll(keys);
-        if (valueListFromLocal.size() == keys.size()) {
-            logger.debug("[GET ALL Cache - Local] key:{}." ,keys);
-            return valueListFromLocal;
+        List<Object> valueList = localCacheService.getAll(newKeys);
+
+        if (valueList.size() == keys.size()) {
+            logger.debug("[GET ALL Cache - Local] key:{}." ,newKeys);
+            return flatValueList(valueList);
         }
 
         // 找到redis中存在的key有值,支持赋值给本地缓存
-        List<Object> valueListFromRemote = remoteCacheService.getAll(keys);
+        valueList = remoteCacheService.getAll(newKeys);
 
         Map<String,Object> nonNullKeyValues = new HashMap<>();
-
-        for (int i = 0; i < valueListFromRemote.size(); i++) {
-            Object value = valueListFromRemote.get(i);
+        for (int i = 0; i < valueList.size(); i++) {
+            Object value = valueList.get(i);
             if (value != null) {
-                nonNullKeyValues.put(keys.get(i),value);
+                nonNullKeyValues.put(newKeys.get(i),value);
             }
         }
 
@@ -97,8 +105,20 @@ public class MultiCacheManager implements CacheManager {
             localCacheService.putAll(nonNullKeyValues,invokeConfig.getExpire(),invokeConfig.getTimeUnit());
             stats.cacheSizeIncrease();
         }
-        // 返回的时候要返回原始的，因为要检查key不在缓存的情况，redis返回的时候key不在对应的为null
-        return valueListFromRemote;
+
+        return flatValueList(valueList);
+    }
+
+    private static List<Object> flatValueList(List<Object> valueList) {
+        List<Object> flatValueList = new ArrayList<>();
+        for (Object element : valueList) {
+            if (element instanceof List) {
+                flatValueList.addAll((List<?>) element);
+            } else {
+                flatValueList.add(element);
+            }
+        }
+        return flatValueList;
     }
 
 
@@ -134,23 +154,11 @@ public class MultiCacheManager implements CacheManager {
             return Collections.emptyList();
         }
         stats.requestMade();
-
-        List<String> cacheKeys = keys
-                .stream()
-                .map(e -> getKey(invokeConfig.getCacheKey() + Constants.JOIN_ON + e))
-                .collect(Collectors.toList());
-
-        List<Object> valueList = lookupAll(cacheKeys,invokeConfig);
-
-        if (!valueList.isEmpty()) {
-            stats.cacheHit();
-            return valueList;
-        }
         String lockKey = getLockKey(keys);
         ReentrantLock lock = getLockForKey(lockKey);
         lock.lock();
         try {
-            return lookupAll(cacheKeys,invokeConfig);
+            return lookupAll(keys,invokeConfig);
         } catch (Exception e) {
             logger.error(e.getMessage(),e);
             throw new IllegalStateException(e);
@@ -191,16 +199,16 @@ public class MultiCacheManager implements CacheManager {
     }
 
     @Override
-    public void putAll(Map<String, Object> dataMap, CacheInvokeConfig invokeConfig) {
+    public void putAll(Map<String, List<Object>> dataMap, CacheInvokeConfig invokeConfig) {
         long start = System.currentTimeMillis();
-
-        Map<String, Object> keyValues = new HashMap<>(dataMap.size());
-        dataMap.forEach((k, v) -> {
-            String cacheKey = getKey(k);
-            keyValues.put(cacheKey, v);
-        });
-
         CompletableFuture.runAsync(() -> {
+            Map<String, Object> keyValues = new HashMap<>(dataMap.size());
+            dataMap.forEach((k, v) -> {
+                String cacheKey = getKey(k);
+                // 如果只有一个值，则是一对一关系,否则一对多
+                keyValues.put(cacheKey, v.size() == 1 ? v.get(0) : v);
+            });
+
             String lockKey = getLockKey(keyValues.keySet());
             ReentrantLock lock = getLockForKey(lockKey);
             lock.lock();
@@ -250,7 +258,6 @@ public class MultiCacheManager implements CacheManager {
         return stats.displayStatistics();
     }
 
-    ;
 
     private String getKey(Object key) {
         String cacheKey = key.toString();

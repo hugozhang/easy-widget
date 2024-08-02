@@ -32,8 +32,8 @@ public class LocalCacheService implements CacheService {
     }
 
     @Override
-    public void putAll(Map<String, Object> map,Long expire, TimeUnit timeUnit) {
-        caffeineCache.putAll(map);
+    public void putAll(Map<String, Object> keyValues, Long expire, TimeUnit timeUnit) {
+        caffeineCache.putAll(keyValues);
     }
 
     @Override

@@ -25,7 +25,7 @@ public interface CacheService {
     void put(String key, Object value);
 
 
-    void putAll(Map<String,Object> map,Long expire, TimeUnit timeUnit);
+    void putAll(Map<String,Object> keyValues,Long expire, TimeUnit timeUnit);
 
     /**
      * 设置缓存

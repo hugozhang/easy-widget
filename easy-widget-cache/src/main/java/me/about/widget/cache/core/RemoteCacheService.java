@@ -58,7 +58,6 @@ public class RemoteCacheService implements CacheService {
     public void putAll(Map<String, Object> keyValues,Long expire, TimeUnit timeUnit) {
         // 使用multiSet批量设置键值对
 //        redisTemplate.opsForValue().multiSet(keyValues);
-        // 使用executePipelined批量设置过期时间
         redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
             StringRedisSerializer serializer = new StringRedisSerializer();
             keyValues.forEach((key, value) -> {

@@ -21,4 +21,6 @@ public class CacheInvokeConfig {
 
     private TimeUnit emptyTimeUnit;
 
+    private ManyToManyParam manyToManyParam;
+
 }

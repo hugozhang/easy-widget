@@ -39,6 +39,17 @@ public class FieldNameAnnotationProcessor extends AbstractProcessor {
                         elem
                 );
             }
+
+//            FieldName fieldNameAnnotation = elem.getAnnotation(FieldName.class);
+//            // 检查value属性是否为数组
+//            String[] values = fieldNameAnnotation.value();
+//            if (values.length == 1 && !values[0].isEmpty()) {
+//                processingEnv.getMessager().printMessage(
+//                        Diagnostic.Kind.ERROR,
+//                        "@FieldName annotation value must be an array, but found single string: " + values[0],
+//                        elem
+//                );
+//            }
         }
         return true;
     }

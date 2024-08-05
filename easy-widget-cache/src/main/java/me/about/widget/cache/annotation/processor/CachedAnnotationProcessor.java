@@ -18,6 +18,10 @@ import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic;
 import java.util.Set;
 
+
+/**
+ * 注解处理器  编译的时候
+ */
 @AutoService(Processor.class)
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class CachedAnnotationProcessor extends AbstractProcessor {

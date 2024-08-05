@@ -17,24 +17,16 @@ public interface CacheManager {
 
     /**
      * 从缓存读取 一对一  一对多
-     * @param key
-     * @return
      */
     Object get(Object key);
 
     /**
      * 从缓存读取 多对多
-     * @param keys
-     * @return
      */
     List<Object> getAll(List<String> keys, CacheInvokeConfig invokeConfig);
 
     /**
      * 设置缓存
-     * @param key
-     * @param value
-     * @param expire
-     * @param timeUnit
      */
     void put(Object key, Object value, Long expire, TimeUnit timeUnit);
 
@@ -43,7 +35,6 @@ public interface CacheManager {
 
     /**
      * 清除缓存
-     * @param key
      */
     void remove(Object key);
 
@@ -52,12 +43,14 @@ public interface CacheManager {
      */
     void clear();
 
+    /**
+     * 事件处理
+     */
     void eventHandle(Object key);
 
 
     /**
      * 缓存统计
-     * @return
      */
     String getStats();
 

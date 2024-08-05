@@ -7,6 +7,7 @@
   1) 空值缓存（有时效控制，取决业务上）
 3. redis 缓存删除key的时候通知删除本地的key
   需要在redis.conf 中配置 notify-keyspace-events
+4. in 查询多对多的情况
 
 ````
 

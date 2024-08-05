@@ -140,11 +140,6 @@ public class CachedAspect {
     }
 
 
-    private boolean isInQueryMode(MethodParameter methodParameter,int multiKeysIndex) {
-        return methodParameter.getParameterValue() instanceof List
-                && methodParameter.getParameterIndex().compareTo(multiKeysIndex) == 0;
-    }
-
     /**
      * 多对多关系
      */
@@ -288,6 +283,23 @@ public class CachedAspect {
         return manyToManyParam;
     }
 
+    public Object getFieldValue(Object object, String fieldName) {
+        Field field = ReflectionUtils.findField(object.getClass(), fieldName);
+        if (field == null) {
+            return new NoSuchFieldException(object.getClass() + "没有字段" + fieldName);
+        }
+        field.setAccessible(true);
+        return ReflectionUtils.getField(field,object);
+    }
+
+
+
+
+    private boolean isInQueryMode(MethodParameter methodParameter,int multiKeysIndex) {
+        return methodParameter.getParameterValue() instanceof List
+                && methodParameter.getParameterIndex().compareTo(multiKeysIndex) == 0;
+    }
+
     /**
      * in查询数值对应的参数名称
      */
@@ -334,13 +346,4 @@ public class CachedAspect {
        }
        return methodParameters;
    }
-
-    public Object getFieldValue(Object object, String fieldName) {
-        Field field = ReflectionUtils.findField(object.getClass(), fieldName);
-        if (field == null) {
-            return new NoSuchFieldException(object.getClass() + "没有字段" + fieldName);
-        }
-        field.setAccessible(true);
-        return ReflectionUtils.getField(field,object);
-    }
 }

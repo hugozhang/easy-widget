@@ -26,7 +26,7 @@ public @interface Cached {
 
     // ====== put 相关缓存配置 =============
 
-    long expire() default 6;
+    long expire() default 7;
 
     TimeUnit timeUnit() default TimeUnit.DAYS;
 

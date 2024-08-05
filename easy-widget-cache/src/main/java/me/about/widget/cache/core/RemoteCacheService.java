@@ -43,7 +43,7 @@ public class RemoteCacheService implements CacheService {
 
 //        redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
 //            StringRedisSerializer keySerializer = new StringRedisSerializer();
-//            RedisSerializer<Object> valueSerializer = new GenericJackson2JsonRedisSerializer();
+//            RedisSerializer<Object> valueSerializer = new GenericFastJsonRedisSerializerExt();
 //            List<byte[]> bytes = connection.mGet(keyList.stream()
 //                    .map(keySerializer::serialize)
 //                    .toArray(byte[][]::new));

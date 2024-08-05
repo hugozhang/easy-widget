@@ -215,7 +215,7 @@ public class CachedAspect {
                 keyValues.computeIfAbsent(cacheKey, k -> Sets.newHashSet()).add(NullValue.INSTANCE);
             }
         }
-        //5、批量更新进缓存
+        //5、批量更新进缓存 [[]] 二维结构转一维结构
         if (!keyValues.isEmpty()) {
             Map<String, Object> convertedMap = new HashMap<>();
             for (Map.Entry<String, Set<Object>> entry : keyValues.entrySet()) {

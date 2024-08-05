@@ -1,4 +1,4 @@
-package me.about.widget.cache.entity;
+package me.about.widget.cache.core;
 
 public interface Invoker {
     Object invoke(Object[] args) throws Throwable;

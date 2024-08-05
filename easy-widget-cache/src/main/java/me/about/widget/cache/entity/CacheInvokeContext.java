@@ -1,6 +1,7 @@
 package me.about.widget.cache.entity;
 
 import lombok.Data;
+import me.about.widget.cache.core.Invoker;
 
 import java.lang.reflect.Method;
 

@@ -10,6 +10,7 @@ import lombok.Data;
  * @description:
  */
 @Data
+@Deprecated
 public class MethodParameter {
 
     /**

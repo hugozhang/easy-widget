@@ -31,7 +31,7 @@ public @interface Cached {
     TimeUnit timeUnit() default TimeUnit.DAYS;
 
     // ====== 空值缓存配置  默认存一天
-    long emptyExpire() default 1;
+    long emptyExpire() default 7;
 
     TimeUnit emptyTimeUnit() default TimeUnit.DAYS;
 

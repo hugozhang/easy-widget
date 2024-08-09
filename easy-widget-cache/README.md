@@ -11,6 +11,15 @@
 
 ````
 
+学习
+````
+https://github.com/alibaba/jetcache/blob/master/jetcache-core/src/main
+https://github.com/yudiandemingzi/springboot-redis-caffeine-cache/tree/main
+https://github.com/ck-jesse/l2cache
+````
+
+
+
 例子：
 ````
 @Configuration

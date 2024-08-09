@@ -101,7 +101,7 @@ public class MultiCacheManager implements CacheManager {
         }
 
         if (!nonNullKeyValues.isEmpty()) {
-            logger.debug("[GET ALL Cache - Remote] key:{}." ,keys);
+            logger.debug("[PUT ALL Cache - Remote] key:{}." ,nonNullKeyValues.keySet());
             localCacheService.putAll(nonNullKeyValues,invokeConfig.getExpire(),invokeConfig.getTimeUnit());
             stats.cacheSizeIncrease();
         }
@@ -209,7 +209,7 @@ public class MultiCacheManager implements CacheManager {
                 updatedKeyValues.put(newKey, entry.getValue());
             }
 
-            String lockKey = getLockKey(keyValues.keySet());
+            String lockKey = getLockKey(updatedKeyValues.keySet());
             ReentrantLock lock = getLockForKey(lockKey);
             lock.lock();
             try {

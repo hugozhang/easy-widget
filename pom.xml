@@ -73,7 +73,7 @@
         <module>easy-widget-oss</module>
         <module>easy-widget-security</module>
         <module>easy-widget-routing</module>
-        <module>easy-widget-taskflow</module>
+        <module>easy-widget-jobflow</module>
     </modules>
     
     <dependencyManagement>

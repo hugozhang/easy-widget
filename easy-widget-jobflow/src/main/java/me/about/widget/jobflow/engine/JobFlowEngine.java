@@ -16,8 +16,13 @@ public class JobFlowEngine {
     private JobFlowExecutor jobFlowExecutor;
 
 
-    public void registerJobFlow(JobFlowDef jobFlowDef) {
+    private void registerJobFlow(JobFlowDef jobFlowDef) {
         jobFlowRegistrar.registerJobFlow(jobFlowDef);
+    }
+
+    public void executeJobFlow(JobFlowDef jobFlowDef) {
+        registerJobFlow(jobFlowDef);
+        executeJobFlow(jobFlowDef.getJobFlowId());
     }
 
     public void executeJobFlow(String jobFlowId) {

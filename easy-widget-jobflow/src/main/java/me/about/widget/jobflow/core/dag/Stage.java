@@ -2,7 +2,6 @@ package me.about.widget.jobflow.core.dag;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.about.widget.jobflow.enums.NodeStatus;
 import me.about.widget.jobflow.enums.StageStatus;
 
 import java.util.ArrayList;
@@ -20,6 +19,9 @@ public class Stage {
 
     @Setter
     private StageStatus status;
+
+    @Setter
+    private long elapsed;
 
     public Stage() {
         setStatus(StageStatus.PENDING);
@@ -39,6 +41,7 @@ public class Stage {
 
 
     public void executeStage(Executor executor) {
+        long startedAt = System.currentTimeMillis();
         setStatus(StageStatus.RUNNING);
         if (!hasNode()) {
             setStatus(StageStatus.COMPLETED);
@@ -48,7 +51,7 @@ public class Stage {
             CompletableFuture<Void> allFutures = CompletableFuture.allOf(
                     nodes.stream()
                             .map(node -> CompletableFuture
-                                    .runAsync(() -> executeNode(node), executor)
+                                    .runAsync(node::executeNode, executor)
                             )
                             .toArray(CompletableFuture[]::new)
             );
@@ -60,14 +63,10 @@ public class Stage {
                 }
             }
         } else {
-            nodes.forEach(Stage::executeNode);
+            nodes.forEach(Node::executeNode);
         }
         setStatus(StageStatus.COMPLETED);
-    }
-
-    private static void executeNode(Node node) {
-        node.setStatus(NodeStatus.RUNNING);
-        node.getTask().execute();
-        node.setStatus(NodeStatus.COMPLETED);
+        long elapsed = System.currentTimeMillis() - startedAt;
+        setElapsed(elapsed);
     }
 }

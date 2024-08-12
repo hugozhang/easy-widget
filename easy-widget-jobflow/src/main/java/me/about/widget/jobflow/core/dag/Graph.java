@@ -19,6 +19,10 @@ public class Graph {
     int nextIndex = 0;
 
 
+    @Setter
+    @Getter
+    private long elapsed;
+
     @Getter
     @Setter
     private GraphStatus status;
@@ -45,11 +49,14 @@ public class Graph {
     }
 
     public void executeGraph(Executor executor) {
+        long startedAt = System.currentTimeMillis();
         setStatus(GraphStatus.RUNNING);
         for (Stage stage : stages) {
             stage.executeStage(executor);
         }
         setStatus(GraphStatus.COMPLETED);
+        long elapsed = System.currentTimeMillis() - startedAt;
+        setElapsed(elapsed);
     }
 
     private void addVertex(Node node) {
@@ -141,18 +148,22 @@ public class Graph {
             StringBuilder sb = new StringBuilder();
             sb.append("Stage {status:")
                     .append(stage.getStatus())
+                    .append(", elapsed:")
+                    .append(stage.getElapsed() / 1000).append("s")
                     .append(", nodes: [");
             stage.getNodes().forEach(node -> {
                 sb.append("{id:")
                         .append(node.getNodeId())
                         .append(", status:")
                         .append(node.getStatus())
+                        .append(", elapsed:")
+                        .append(node.getElapsed() / 1000).append("s")
                         .append("}, ");
                 sb.deleteCharAt(sb.length() - 1);
             });
             return sb.deleteCharAt(sb.length() - 1).append("]}").toString();
         }).collect(Collectors.toList());
-        return "Graph : \n{\n" + Joiner.on(",\n").join(print) + "\n}";
+        return "Graph : \n{\n" + Joiner.on(",\n").join(print) + "\n},\nelapsed:" + getElapsed() / 1000 +"s" + "\n";
     }
 
     public static Graph of(Graph src) {

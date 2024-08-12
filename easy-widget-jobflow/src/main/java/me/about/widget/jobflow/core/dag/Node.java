@@ -20,12 +20,24 @@ public class Node {
     private NodeStatus status;
 
     @Setter
+    private long elapsed;
+
+    @Setter
     private List<Task> dependencies;
 
     public Node(String nodeId,Task task) {
         this.nodeId = nodeId;
         this.task = task;
         setStatus(NodeStatus.PENDING);
+    }
+
+    public void executeNode() {
+        long startedAt = System.currentTimeMillis();
+        setStatus(NodeStatus.RUNNING);
+        getTask().execute();
+        setStatus(NodeStatus.COMPLETED);
+        long elapsed = System.currentTimeMillis() - startedAt;
+        setElapsed(elapsed);
     }
 
     public void addDependency(Task task) {

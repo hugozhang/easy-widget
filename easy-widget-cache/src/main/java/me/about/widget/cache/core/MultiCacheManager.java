@@ -195,7 +195,8 @@ public class MultiCacheManager implements CacheManager {
     }
 
     private String getLockKey(Collection<String> keys) {
-        return Joiner.on("#").join(keys);
+        List<String> sortedKeys = keys.stream().sorted().collect(Collectors.toList());
+        return Joiner.on("#").join(sortedKeys);
     }
 
     @Override

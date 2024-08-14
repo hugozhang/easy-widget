@@ -22,12 +22,12 @@ public class SqlVisitor extends JobFlowDSLBaseVisitor<List<String>> {
     private final List<String> last = new ArrayList<>();
 
     @Getter
-    private final JobFlowDef jobFlowDef = new JobFlowDef();
+    private final List<JobFlowDef> jobFlowDefs = new ArrayList<>();
 
     private final Map<String, TaskNode> taskNodeMap = new HashMap<>();
 
     public SqlVisitor() {
-        jobFlowDef.setTasks(new ArrayList<>());
+
     }
 
     @Override
@@ -35,9 +35,19 @@ public class SqlVisitor extends JobFlowDSLBaseVisitor<List<String>> {
         List<String> allTasks = new ArrayList<>();
 //        String jobFlowId = context.jobFlowId().getText();
 //        jobFlowDef.setJobFlowId(jobFlowId);
-        jobFlowDef.setJobFlowId("FROM_DSL");
+
         for (JobFlowDSLParser.TaskSequenceContext taskSequence : context.jobBlock().taskSequences().taskSequence()) {
+            last.clear();
+            JobFlowDef jobFlowDef = new JobFlowDef();
+            jobFlowDef.setJobFlowId("FROM_DSL");
             List<String> tasks = visitTaskSequence(taskSequence);
+
+            List<TaskNode> taskNodes = new ArrayList<>(taskNodeMap.values());
+            jobFlowDef.setTasks(taskNodes);
+
+            jobFlowDefs.add(jobFlowDef);
+            taskNodeMap.clear();
+
             allTasks.addAll(tasks);
         }
         return allTasks;
@@ -84,7 +94,6 @@ public class SqlVisitor extends JobFlowDSLBaseVisitor<List<String>> {
         String taskName = context.getText();
         TaskNode taskNode = new TaskNode(taskName);
         taskNodeMap.put(taskName, taskNode);
-        jobFlowDef.getTasks().add(taskNode);
         allTasks.add(taskName);
         return allTasks;
     }

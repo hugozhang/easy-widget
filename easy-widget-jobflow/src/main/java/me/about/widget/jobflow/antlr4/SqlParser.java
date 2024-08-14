@@ -2,10 +2,11 @@ package me.about.widget.jobflow.antlr4;
 
 import me.about.widget.jobflow.entity.JobFlowDef;
 import me.about.widget.jobflow.exception.MalformedSyntaxException;
-
 import me.about.widget.jobflow.sql.antlr.JobFlowDSLLexer;
 import me.about.widget.jobflow.sql.antlr.JobFlowDSLParser;
 import org.antlr.v4.runtime.*;
+
+import java.util.List;
 
 
 public class SqlParser {
@@ -23,14 +24,14 @@ public class SqlParser {
 		return parser;
 	}
 
-	public JobFlowDef parse(String input) throws MalformedSyntaxException {
+	public List<JobFlowDef> parse(String input) throws MalformedSyntaxException {
 		CharStream cs = CharStreams.fromString(input);
 		JobFlowDSLLexer lexer = createLexer(cs);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		JobFlowDSLParser parser = createParser(tokens);
 		SqlVisitor visitor = new SqlVisitor();
 		visitor.visit(parser.jobFlow());
-		return visitor.getJobFlowDef();
+		return visitor.getJobFlowDefs();
 	}
 
 	public static SqlParser builder() {

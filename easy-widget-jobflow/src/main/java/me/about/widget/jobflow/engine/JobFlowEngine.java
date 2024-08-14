@@ -6,6 +6,8 @@ import me.about.widget.jobflow.entity.JobFlowDef;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
+
 
 @Configuration
 public class JobFlowEngine {
@@ -26,7 +28,7 @@ public class JobFlowEngine {
         executeJobFlow(jobFlowDef.getJobFlowId());
     }
 
-    public JobFlowDef parseJobFlow(String expression) {
+    public List<JobFlowDef> parseJobFlow(String expression) {
         return SqlParser.builder().parse(expression);
     }
 

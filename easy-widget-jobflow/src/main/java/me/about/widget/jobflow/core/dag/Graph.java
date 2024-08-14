@@ -126,10 +126,10 @@ public class Graph {
         for(List<Integer> sublist: result) {
             totalElements += sublist.size();
             Stage stage = new Stage();
-            for(Integer i: sublist){
+            for(Integer i: sublist) {
                 stage.addNode(indexNodeMap.get(i));
             }
-            if(stage.hasNode()){
+            if(stage.hasNode()) {
                 addStage(stage);
             }
         }

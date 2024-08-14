@@ -37,7 +37,10 @@ COMMA: ',';
 LPAREN: '(';
 RPAREN: ')';
 SEMICOLON: ';';
-IDENTIFIER: [a-zA-Z0-9]+; // 标识符定义
+// 标识符定义，允许字母、数字、下划线和$
+IDENTIFIER: LETTER (LETTER | [0-9] | '$')*;
+
+fragment LETTER : [a-zA-Z_];
 
 
 // 忽略空白字符，如空格、制表符、换行符

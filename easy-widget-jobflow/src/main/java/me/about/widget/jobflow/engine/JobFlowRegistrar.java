@@ -24,7 +24,7 @@ public class JobFlowRegistrar {
         return jobFlowContext.getGraph(jobFlowId);
     }
 
-    public void registerJobFlow(JobFlowDef jobFlowDef) {
+    public Graph registerJobFlow(JobFlowDef jobFlowDef) {
         if (jobFlowDef == null
                 || jobFlowDef.getTasks() == null
                 || jobFlowDef.getTasks().isEmpty()
@@ -66,15 +66,24 @@ public class JobFlowRegistrar {
 
         for (TaskNode taskNode : taskNodes) {
             Task task = jobFlowContext.beansOfTask.get(taskNode.getTaskId());
-            for (String dependsOn : taskNode.getDependsOn()) {
-                Task dependTask = jobFlowContext.beansOfTask.get(dependsOn);
-                graph.addEdge(new Node(dependsOn,dependTask), new Node(taskNode.getTaskId(),task)); // A -> B
+            if (taskNode.getDependsOn() != null && !taskNode.getDependsOn().isEmpty()) {
+                for (String dependsOn : taskNode.getDependsOn()) {
+                    Task dependTask = jobFlowContext.beansOfTask.get(dependsOn);
+                    Node parentNode = new Node(taskNode.getTaskId(), task);
+                    Node dependNode = new Node(dependsOn, dependTask);
+                    graph.addVertex(parentNode);
+                    graph.addVertex(dependNode);
+                    graph.addEdge(dependNode, parentNode); // A -> B
+                }
+            } else {
+                graph.addVertex(new Node(taskNode.getTaskId(),task)); // A -> B
             }
+
         }
 
         // 检查环
         graph.topologicalSort();
 
-        jobFlowContext.graphs.put(jobFlowDef.getJobFlowId(), graph);
+        return graph;
     }
 }

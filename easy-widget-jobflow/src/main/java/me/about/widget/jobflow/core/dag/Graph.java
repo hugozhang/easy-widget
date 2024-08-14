@@ -59,7 +59,7 @@ public class Graph {
         setElapsed(elapsed);
     }
 
-    private void addVertex(Node node) {
+    public void addVertex(Node node) {
         if(node != null) {
             nodeIndexMap.computeIfAbsent(node, k -> {
                 indexNodeMap.put(nextIndex, node);
@@ -72,9 +72,6 @@ public class Graph {
         if(src == null) {
             throw new IllegalArgumentException("src is null");
         }
-        // 为src和dest分配索引，如果它们还没有索引的话
-        addVertex(src);
-        addVertex(dest);
 
         // 使用映射中存储的索引来添加边
         if(dest != null) {

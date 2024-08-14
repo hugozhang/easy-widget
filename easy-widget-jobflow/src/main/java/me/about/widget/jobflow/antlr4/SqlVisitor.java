@@ -33,8 +33,9 @@ public class SqlVisitor extends JobFlowDSLBaseVisitor<List<String>> {
     @Override
     public List<String> visitJobFlow(JobFlowDSLParser.JobFlowContext context) {
         List<String> allTasks = new ArrayList<>();
-        String jobFlowId = context.jobFlowId().getText();
-        jobFlowDef.setJobFlowId(jobFlowId);
+//        String jobFlowId = context.jobFlowId().getText();
+//        jobFlowDef.setJobFlowId(jobFlowId);
+        jobFlowDef.setJobFlowId("FROM_DSL");
         for (JobFlowDSLParser.TaskSequenceContext taskSequence : context.jobBlock().taskSequences().taskSequence()) {
             List<String> tasks = visitTaskSequence(taskSequence);
             allTasks.addAll(tasks);

@@ -15,9 +15,14 @@ public class TaskNode {
     //put taskId
     private List<String> dependsOn;
 
-    public TaskNode(String taskId) {
-        this.taskId = taskId;
+    public TaskNode() {
         this.dependsOn = new ArrayList<>();
+    }
+
+    public TaskNode(String taskId) {
+        this();
+        this.taskId = taskId;
+
     }
 
 }

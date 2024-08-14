@@ -5,7 +5,7 @@ grammar JobFlowDSL;
 //taskFlow: (jobFlowId ':=')?  taskSequences* EOF;
 
 
-jobFlow: jobFlowId ':=' jobBlock EOF;
+jobFlow: (jobFlowId ':=')? jobBlock EOF;
 
 jobFlowId: VARIABLE;
 

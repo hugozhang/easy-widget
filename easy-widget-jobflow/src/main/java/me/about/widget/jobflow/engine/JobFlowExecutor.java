@@ -32,6 +32,14 @@ public class JobFlowExecutor {
         });
     }
 
+
+    public void executeJobFlow(Graph graph) {
+        log.info("[JobFlowExecutor Start]");
+        Graph copyGraph = Graph.of(graph);
+        copyGraph.executeGraph(executor);
+        log.info("[JobFlowExecutor End] graph : {}",copyGraph);
+    }
+
     public void executeJobFlow(String jobFlowId) {
         Graph graph = jobFlowRegistrar.getGraph(jobFlowId);
         if (graph == null) {

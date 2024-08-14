@@ -57,6 +57,9 @@
 
         <springfox.version>3.0.0</springfox.version>
 
+        <antlr4.version>4.7.2</antlr4.version>
+
+
     </properties>
 
     <modules>
@@ -78,6 +81,12 @@
     
     <dependencyManagement>
         <dependencies>
+
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-runtime</artifactId>
+                <version>${antlr4.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>io.opentelemetry.instrumentation</groupId>

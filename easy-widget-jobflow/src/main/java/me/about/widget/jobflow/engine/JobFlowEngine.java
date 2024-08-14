@@ -1,5 +1,6 @@
 package me.about.widget.jobflow.engine;
 
+import me.about.widget.jobflow.antlr4.SqlParser;
 import me.about.widget.jobflow.entity.JobFlowDef;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -16,13 +17,16 @@ public class JobFlowEngine {
     private JobFlowExecutor jobFlowExecutor;
 
 
-    private void registerJobFlow(JobFlowDef jobFlowDef) {
+    public void registerJobFlow(JobFlowDef jobFlowDef) {
         jobFlowRegistrar.registerJobFlow(jobFlowDef);
     }
 
     public void executeJobFlow(JobFlowDef jobFlowDef) {
-        registerJobFlow(jobFlowDef);
         executeJobFlow(jobFlowDef.getJobFlowId());
+    }
+
+    public JobFlowDef parseJobFlow(String expression) {
+        return SqlParser.builder().parse(expression);
     }
 
     public void executeJobFlow(String jobFlowId) {

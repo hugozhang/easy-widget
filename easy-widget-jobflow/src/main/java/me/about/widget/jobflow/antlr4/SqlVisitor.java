@@ -6,7 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import me.about.widget.jobflow.entity.JobFlowDef;
 import me.about.widget.jobflow.entity.TaskNode;
 import me.about.widget.jobflow.sql.antlr.JobFlowDSLBaseVisitor;
+import me.about.widget.jobflow.sql.antlr.JobFlowDSLLexer;
 import me.about.widget.jobflow.sql.antlr.JobFlowDSLParser;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,13 +37,17 @@ public class SqlVisitor extends JobFlowDSLBaseVisitor<List<String>> {
     @Override
     public List<String> visitJobFlow(JobFlowDSLParser.JobFlowContext context) {
         List<String> allTasks = new ArrayList<>();
-//        String jobFlowId = context.jobFlowId().getText();
-//        jobFlowDef.setJobFlowId(jobFlowId);
+
+        String jobFlowId = null;
+
+        if(context.jobFlowId() != null) {
+            jobFlowId = context.jobFlowId().getText();
+        }
 
         for (JobFlowDSLParser.TaskSequenceContext taskSequence : context.jobBlock().taskSequences().taskSequence()) {
             last.clear();
             JobFlowDef jobFlowDef = new JobFlowDef();
-            jobFlowDef.setJobFlowId("FROM_DSL");
+            jobFlowDef.setJobFlowId(jobFlowId == null ? "FROM_DSL": jobFlowId);
             List<String> tasks = visitTaskSequence(taskSequence);
 
             List<TaskNode> taskNodes = new ArrayList<>(taskNodeMap.values());
@@ -112,13 +120,13 @@ public class SqlVisitor extends JobFlowDSLBaseVisitor<List<String>> {
     // 主方法，用于演示
     public static void main(String[] args) {
 
-//        String input = "abc:={(1,2)->b->c->(e,f)}";
-//        CharStream cs = CharStreams.fromString(input);
-//        JobFlowDSLLexer lexer = new JobFlowDSLLexer(cs);
-//        CommonTokenStream tokens = new CommonTokenStream(lexer);
-//        JobFlowDSLParser parser = new JobFlowDSLParser(tokens);
-//        SqlVisitor visitor = new SqlVisitor();
-//        visitor.visit(parser.jobFlow());// 开始访问并获取任务列表
+        String input = "abc:={(a1,b2)->b->c->(e,f)}";
+        CharStream cs = CharStreams.fromString(input);
+        JobFlowDSLLexer lexer = new JobFlowDSLLexer(cs);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        JobFlowDSLParser parser = new JobFlowDSLParser(tokens);
+        SqlVisitor visitor = new SqlVisitor();
+        visitor.visit(parser.jobFlow());// 开始访问并获取任务列表
 //        System.out.println(visitor.getJobFlowDef());
 
     }

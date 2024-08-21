@@ -78,7 +78,6 @@ public class JobFlowRegistrar {
             } else {
                 graph.addVertex(new Node(taskNode.getTaskId(),task)); // A -> B
             }
-
         }
 
         // 检查环

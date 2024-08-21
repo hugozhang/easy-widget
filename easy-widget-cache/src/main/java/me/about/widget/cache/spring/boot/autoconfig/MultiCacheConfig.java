@@ -62,7 +62,7 @@ public class MultiCacheConfig {
     private void eventHandle(CacheManager cacheManager, Message message) {
         String channel = new String(message.getChannel(), StandardCharsets.UTF_8);
         String body = new String(message.getBody(), StandardCharsets.UTF_8);
-        log.info("[Cache Event] cache key event: " + channel + "," + body);
+        log.debug("[Cache Event] cache key event: " + channel + "," + body);
         //删除本地缓存
         cacheManager.eventHandle(body);
     }
@@ -110,7 +110,7 @@ public class MultiCacheConfig {
 //                .weakKeys()
 //                .weakValues()
                 .removalListener((key, value, cause) ->
-                        log.info("[Remove Cache - Local] key:" + key + ",value:" + value + ",cause:" + cause))
+                        log.debug("[Remove Cache - Local] key:" + key + ",value:" + value + ",cause:" + cause))
 //                .expireAfterWrite(10, TimeUnit.MINUTES)
                 .build();
     }

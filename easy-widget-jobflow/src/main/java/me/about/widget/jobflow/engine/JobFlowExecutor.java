@@ -27,7 +27,7 @@ public class JobFlowExecutor {
                 , new LinkedBlockingQueue<>(200)
                 , new ThreadFactoryBuilder().setNameFormat("Job Flow Thread").build()
                 , (r, executor) -> {
-            log.warn("[PUT Cache Thread] rejectedExecution:{}", r);
+            log.warn("[JobFlowExecutor Thread] rejectedExecution:{}", r);
             r.run();
         });
     }

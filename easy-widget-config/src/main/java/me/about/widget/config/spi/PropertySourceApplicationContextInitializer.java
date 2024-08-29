@@ -31,7 +31,7 @@ public class PropertySourceApplicationContextInitializer implements ApplicationC
 
     public PropertySourceApplicationContextInitializer() {
         ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
-        propertySourceLocators = new ArrayList(SpringFactoriesLoader.loadFactories(PropertySourceLocator.class,classLoader));
+        propertySourceLocators = new ArrayList<>(SpringFactoriesLoader.loadFactories(PropertySourceLocator.class,classLoader));
     }
 
     @Override
